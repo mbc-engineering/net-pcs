@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.9">
+  <DUT Name="ST_AddCommand" Id="{dbec02be-ef92-4686-830f-a6cf180a80a0}">
+    <Declaration><![CDATA[TYPE ST_AddCommand EXTENDS ST_BasicCommand :
+STRUCT
+	stArgsIn		: ST_AddCommandIn;
+	stArgsOut		: ST_AddCommandOut;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

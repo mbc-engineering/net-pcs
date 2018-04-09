@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <POU Name="MAIN" Id="{12ac386e-9f2f-456d-9446-322109fb7ee0}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	fbLongRunning		: TON := (PT:=T#4s);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF Commands.stAddCommand.stCmd.bExecute THEN
+	Commands.stAddCommand.stArgsOut.result :=
+		Commands.stAddCommand.stArgsIn.a + Commands.stAddCommand.stArgsIn.b;
+	Commands.stAddCommand.stCmd.nResultCode := 0;
+	Commands.stAddCommand.stCmd.bBusy := Commands.stAddCommand.stCmd.bExecute := FALSE;
+END_IF
+
+// Länger gehendes Kommando
+IF Commands.stAddLongCommand.stCmd.bExecute THEN
+	Commands.stAddLongCommand.stCmd.bBusy := TRUE;
+END_IF
+
+IF NOT Commands.stAddLongCommand.stCmd.bExecute AND Commands.stAddLongCommand.stCmd.bBusy THEN
+	Commands.stAddLongCommand.stCmd.bBusy := FALSE;
+	Commands.stAddLongCommand.stCmd.nResultCode := 5;
+END_IF
+
+fbLongRunning(IN:=Commands.stAddLongCommand.stCmd.bBusy);
+
+IF fbLongRunning.Q THEN
+	Commands.stAddLongCommand.stArgsOut.result :=
+		Commands.stAddLongCommand.stArgsIn.a + Commands.stAddLongCommand.stArgsIn.b;
+	Commands.stAddLongCommand.stCmd.nResultCode := 0;
+	Commands.stAddLongCommand.stCmd.bBusy := Commands.stAddLongCommand.stCmd.bExecute := FALSE;	
+END_IF
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="6" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="19" Count="2" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="23" Count="3" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="43" Count="2" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="28" Count="1" />
+      <LineId Id="32" Count="2" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="40" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
