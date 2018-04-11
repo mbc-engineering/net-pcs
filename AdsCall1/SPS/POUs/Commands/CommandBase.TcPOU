@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <POU Name="CommandBase" Id="{5ed0d5bd-0ff5-4097-ae74-31498bed2e22}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC CommandBase IMPLEMENTS ICommand
+VAR_INPUT
+END_VAR
+VAR_IN_OUT
+END_VAR
+VAR
+	_execute		: BOOL;		// Wird von PCS gesetzt um die Ausführung zu starten; zurücksetzen bricht die Ausführung ab
+	_busy			: BOOL;		// Anzeige, dass die Ausführung in der SPS läuft
+	_ResultCode		: UINT;		// Resultat der letzten Ausführung (bExecute & bBusy = FALSE)
+	counter: UINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// OO-Class 
+;]]></ST>
+    </Implementation>
+    <Method Name="Abort" Id="{b3999881-28f7-422e-bf1b-eba84960aef3}">
+      <Declaration><![CDATA[// Stops execution of Command 
+METHOD PUBLIC Abort]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Execute := FALSE;
+Busy := FALSE;
+ResultCode := 5; // canceled]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Busy" Id="{f17dea9b-0491-471d-bdd6-8776e5a75cd7}">
+      <Declaration><![CDATA[//Anzeige, dass die Ausführung in der SPS läuft
+{attribute 'monitoring' := 'variable'}
+PROPERTY PUBLIC Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{15f9358f-22b9-461b-8c58-f932ab10aac1}">
+        <Declaration><![CDATA[PUBLIC VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _busy;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{21101625-0a3e-4ca4-939b-729925182e47}">
+        <Declaration><![CDATA[Protected VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_busy := Busy;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Done" Id="{e44fa825-a28e-46f6-bd9b-b7a6061e20a7}">
+      <Declaration><![CDATA[METHOD PROTECTED Done
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ResultCode := 0; // done
+Execute := FALSE;
+Busy := FALSE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Execute" Id="{f9d7f224-aeca-4a8d-b244-62b6043700af}">
+      <Declaration><![CDATA[// Wird von PCS gesetzt um die Ausführung zu starten; zurücksetzen bricht die Ausführung ab
+{attribute 'monitoring' := 'call'}
+PROPERTY PUBLIC Execute : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{07b42bf6-49a9-48fb-a416-3adb67c85587}">
+        <Declaration><![CDATA[PUBLIC VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Execute := _execute;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f18849aa-ced1-409e-9b14-6534753dab53}">
+        <Declaration><![CDATA[PUBLIC VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_execute := Execute;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Refresh" Id="{8e66b5e0-e08f-4024-b1ed-2b1412f1580f}">
+      <Declaration><![CDATA[// Update the state of the command button. Should be called every cycle.
+METHOD PUBLIC Refresh
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[counter := counter + 1;
+
+// Länger gehendes Kommando
+IF Execute THEN
+	Busy := TRUE;
+END_IF
+
+// Reset Case
+IF NOT Execute AND Busy THEN
+	// Abort
+	Abort();
+END_IF
+
+IF Execute AND Busy THEN
+	ResultCode := 4; // running
+	IF Task() THEN
+		Done();
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ResultCode" Id="{ac5fe93e-2c3e-4e72-a2f6-add14726c137}">
+      <Declaration><![CDATA[// Resultat der letzten Ausführung (bExecute & bBusy = FALSE)
+{attribute 'monitoring' := 'variable'}
+PROPERTY ResultCode : UINT]]></Declaration>
+      <Get Name="Get" Id="{b127a023-a4b1-4a5b-90fc-f47fb8009b3a}">
+        <Declaration><![CDATA[PUBLIC VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ResultCode := _resultCode;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c03ce2dd-ce5f-4dcf-b315-9a5df15e8650}">
+        <Declaration><![CDATA[PROTECTED 
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_resultCode := ResultCode;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Task" Id="{6e407172-b849-400a-8c24-c3a1ccb62b55}">
+      <Declaration><![CDATA[// Execute the funktional part of the command implementation
+METHOD PROTECTED Task : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="CommandBase">
+      <LineId Id="94" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Abort">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Busy.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Busy.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Done">
+      <LineId Id="9" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Execute.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Execute.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Refresh">
+      <LineId Id="6" Count="8" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="19" Count="5" />
+      <LineId Id="26" Count="1" />
+    </LineIds>
+    <LineIds Name="CommandBase.ResultCode.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.ResultCode.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Task">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <Itf Name="ICommand" Id="{3bf0c638-7767-4f62-a1c3-12fe87baf428}">
+    <Declaration><![CDATA[INTERFACE ICommand
+]]></Declaration>
+    <Property Name="Busy" Id="{0705d970-f33d-4359-bfa9-e4b9794822a8}">
+      <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2404a959-58df-4bc0-85bc-bcfdf70e4a75}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Execute" Id="{d8ba925d-ea15-46f2-8c27-365b13f17819}">
+      <Declaration><![CDATA[PROPERTY Execute : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ed3f07e8-c6cf-427c-9724-cd4070ec7beb}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{2748fa2e-9bcb-40f8-931b-06ad5f7f2902}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="Refresh" Id="{b0a034eb-3d61-4c71-abf4-e94b843e4562}">
+      <Declaration><![CDATA[METHOD Refresh
+]]></Declaration>
+    </Method>
+    <Property Name="ResultCode" Id="{5aa83dd2-f03b-4289-9f93-7013e3efcd34}">
+      <Declaration><![CDATA[PROPERTY ResultCode : UINT]]></Declaration>
+      <Get Name="Get" Id="{c290328b-6710-4e05-a0fb-e1db31b4510e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

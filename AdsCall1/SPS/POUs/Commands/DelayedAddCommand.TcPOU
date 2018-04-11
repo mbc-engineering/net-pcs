@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <POU Name="DelayedAddCommand" Id="{65b2ca40-9e7e-4cdc-82b9-f7b2c503faa2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DelayedAddCommand EXTENDS AddCommand
+VAR
+	tonDelay		: TON := (PT:=T#4s);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Abort" Id="{5607005d-a3e2-4a0d-8acf-89dd886f9689}">
+      <Declaration><![CDATA[METHOD PUBLIC Abort]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.Abort();
+
+// Reset Input for next start
+tonDelay(IN:=Busy);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Done" Id="{d3f67563-493c-480a-88ee-d8edb11f7e53}">
+      <Declaration><![CDATA[METHOD PROTECTED Done
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.Done();
+
+// Reset Input for next start
+tonDelay(IN:=Busy);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Task" Id="{7c566ce4-fa9b-444f-bb18-8e5071761b78}">
+      <Declaration><![CDATA[// Execute the funktional part of the command implementation
+METHOD PROTECTED Task : BOOL
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[tonDelay(IN:=Busy);
+
+IF tonDelay.Q THEN
+	// Execute base Task in AddCommand for Addition
+	Task := SUPER^.Task();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="DelayedAddCommand">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="DelayedAddCommand.Abort">
+      <LineId Id="7" Count="1" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="DelayedAddCommand.Done">
+      <LineId Id="9" Count="2" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="DelayedAddCommand.Task">
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

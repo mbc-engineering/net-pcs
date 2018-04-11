@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <POU Name="AddCommand" Id="{98998d3f-90e1-4abb-9d41-c1c8d9357edf}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK AddCommand EXTENDS CommandBase
+VAR_INPUT
+	Val1 : REAL;
+	Val2 : REAL;
+END_VAR
+VAR_OUTPUT 
+	// The result of the addition command
+	Result : REAL;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// OO-Class 
+;]]></ST>
+    </Implementation>
+    <Method Name="Task" Id="{72999091-51a2-4b24-b591-51f1ce1d7835}">
+      <Declaration><![CDATA[METHOD PROTECTED Task : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Run Base Task first
+SUPER^.Task();
+
+Result := Val1 + Val2;
+
+// Done;
+Task := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="AddCommand">
+      <LineId Id="32" Count="0" />
+      <LineId Id="31" Count="0" />
+    </LineIds>
+    <LineIds Name="AddCommand.Task">
+      <LineId Id="12" Count="0" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -37,6 +37,18 @@
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Commands\AddCommand.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Commands\CommandBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Commands\ICommand.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Commands\DelayedAddCommand.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -44,6 +56,7 @@
   <ItemGroup>
     <Folder Include="DUTs" />
     <Folder Include="GVLs" />
+    <Folder Include="POUs\Commands" />
     <Folder Include="VISUs" />
     <Folder Include="POUs" />
   </ItemGroup>

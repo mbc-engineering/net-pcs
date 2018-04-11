@@ -4,10 +4,22 @@
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
 	fbLongRunning		: TON := (PT:=T#4s);
+	counter				: UINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF Commands.stAddCommand.stCmd.bExecute THEN
+      <ST><![CDATA[
+counter := counter + 1;
+
+
+// Function variant
+Commands.AddCommand1.Refresh();
+Commands.DelayedAddCommand1.Refresh();
+	
+	
+
+// Strukture variant
+IF Commands.stAddCommand.stCmd.bExecute THEN
 	Commands.stAddCommand.stArgsOut.result :=
 		Commands.stAddCommand.stArgsIn.a + Commands.stAddCommand.stArgsIn.b;
 	Commands.stAddCommand.stCmd.nResultCode := 0;
@@ -36,6 +48,15 @@ END_IF
 ]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
+      <LineId Id="85" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="64" Count="1" />
+      <LineId Id="51" Count="1" />
       <LineId Id="6" Count="0" />
       <LineId Id="16" Count="0" />
       <LineId Id="19" Count="2" />

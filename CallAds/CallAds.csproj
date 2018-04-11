@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="CommandControlData.cs" />
     <Compile Include="DataExchange.cs" />
+    <Compile Include="PcsCommand2.cs" />
     <Compile Include="PcsCommand.cs" />
     <Compile Include="PcsCommandErrorException.cs" />
     <Compile Include="PcsCommandException.cs" />

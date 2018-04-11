@@ -189,7 +189,7 @@ namespace AtomizerUI.link
                     errorMsg = "Not ready.";
                     break;
                 case 4:
-                    errorMsg = "Already running.";
+                    errorMsg = "Running.";
                     break;
                 case 5:
                     errorMsg = "Cancelled.";

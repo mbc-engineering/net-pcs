@@ -20,6 +20,19 @@ namespace CallAds
             };
 
             client.Connect(851);
+#if true
+            var command = new PcsCommand2<AddCommandParam.Output>(client, "Commands.AddCommand1");
+
+            var input = new AddCommandParam.Input
+            {
+                Val1 = 3,
+                Val2 = 5
+            };
+            var output = command.Execute(input);
+            Console.WriteLine("Result: {0}", output.Result);
+            Console.ReadKey();
+#endif
+
 
 #if false
             var command = new PcsCommand(client, "Commands.stAddCommand")
@@ -35,7 +48,8 @@ namespace CallAds
             var output = (AddOut)command.Execute(input);
             Console.WriteLine("Result: {0}", output.result);
             Console.ReadKey();
-#else
+#endif
+#if false
             var command = new PcsCommand(client, "Commands.stAddLongCommand")
             {
                 ResultType = typeof(AddOut)
@@ -79,5 +93,19 @@ namespace CallAds
     class AddOut
     {
         public float result;
+    }
+
+    public class AddCommandParam
+    {
+        public class Input
+        {
+            public float Val1 { get; set; }
+            public float Val2 { get; set; }
+        }
+
+        public class Output
+        {
+            public float Result { get; set; }
+        }
     }
 }
