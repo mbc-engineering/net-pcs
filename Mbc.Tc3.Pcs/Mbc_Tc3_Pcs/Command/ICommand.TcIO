@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <Itf Name="ICommand" Id="{9dc6c476-c433-07d6-317f-3d274872f03c}">
+    <Declaration><![CDATA[INTERFACE ICommand
+]]></Declaration>
+    <Method Name="Refresh" Id="{b0863e7e-d159-0a36-1b9e-7efd24b9bd48}">
+      <Declaration><![CDATA[METHOD Refresh
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -17,6 +17,7 @@ namespace AtomizerUI.link
         public PcsCommand2(TcAdsClient adsClient, string commandVar)
         {
             _adsClient = adsClient;
+                        
             _commandVar = commandVar;
             Timeout = TimeSpan.FromSeconds(8);
         }
@@ -43,6 +44,7 @@ namespace AtomizerUI.link
         public Tout Execute<Tin>(Tin argsIn)
         {
             // Write all input param
+            // toDo: Use sum command
             foreach (var prop in typeof(Tin).GetProperties())
             {
                 WriteVariable($"{_commandVar}.{prop.Name}", prop.GetValue(argsIn));
@@ -78,10 +80,11 @@ namespace AtomizerUI.link
             {
                 SetExecuteFlag();
 
-                // ToDo: Use Symbolic
+                // ToDo: Use Symbolic, with the handshake struct we can register all necesary data for changes. 
+                
                 Console.WriteLine("Command handling doesent work yet, waiting vor error");
                 var dataExch = new DataExchange();
-                var cmdHandle = _adsClient.AddDeviceNotificationEx(_commandVar, AdsTransMode.OnChange,
+                var cmdHandle = _adsClient.AddDeviceNotificationEx($"{_commandVar}.Handshake", AdsTransMode.OnChange,
                     TimeSpan.Zero, TimeSpan.Zero, dataExch, typeof(CommandControlData));
 
                 cancelToken.Register(ResetExecuteFlag);

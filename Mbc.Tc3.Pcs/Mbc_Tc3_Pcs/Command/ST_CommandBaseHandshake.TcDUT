@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
-  <DUT Name="ST_CommandBaseHandshake" Id="{cc81200f-be4c-4497-a2d4-597bbb5b5a77}">
+  <DUT Name="ST_CommandBaseHandshake" Id="{32bcade6-9e18-0fb5-177f-7513fed5a572}">
     <Declaration><![CDATA[TYPE ST_CommandBaseHandshake :
 STRUCT
 	bExecute		: BOOL;		// Will be set to true from the PCS to start the command. When the operation are finish, the PLC will set the to false. On a long running Task, the PCS can reset to false for Abort the operation. 

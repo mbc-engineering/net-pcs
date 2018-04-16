@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
-  <POU Name="CommandBase" Id="{5ed0d5bd-0ff5-4097-ae74-31498bed2e22}" SpecialFunc="None">
+  <POU Name="CommandBase" Id="{ada50c45-e2a4-0e1e-2882-6555ee7dd9e0}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC CommandBase IMPLEMENTS ICommand
 VAR_IN_OUT
 	(* Use Class Properties for IN_OUT Parameters!!! *)
@@ -13,7 +13,7 @@ END_VAR
       <ST><![CDATA[// OO-Class 
 ;]]></ST>
     </Implementation>
-    <Method Name="Abort" Id="{b3999881-28f7-422e-bf1b-eba84960aef3}">
+    <Method Name="Abort" Id="{ea835809-8527-04fc-2537-4ead9acb0d0c}">
       <Declaration><![CDATA[// Stops execution of Command 
 METHOD PUBLIC Abort
 ]]></Declaration>
@@ -23,7 +23,7 @@ stHandshake.bExecute := FALSE;
 stHandshake.bBusy := FALSE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="CalculateProgress" Id="{56cdfe0a-40aa-42ba-b29a-961de2363010}">
+    <Method Name="CalculateProgress" Id="{a16648df-eb2b-0767-0ec1-b2c892b01c2b}">
       <Declaration><![CDATA[METHOD PROTECTED CalculateProgress
 ]]></Declaration>
       <Implementation>
@@ -34,7 +34,7 @@ ELSE
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Done" Id="{e44fa825-a28e-46f6-bd9b-b7a6061e20a7}">
+    <Method Name="Done" Id="{38ab0c16-9dcb-0710-3b7a-4cc8228c26d9}">
       <Declaration><![CDATA[METHOD PROTECTED Done
 ]]></Declaration>
       <Implementation>
@@ -44,7 +44,7 @@ stHandshake.bBusy := FALSE;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Refresh" Id="{8e66b5e0-e08f-4024-b1ed-2b1412f1580f}">
+    <Method Name="Refresh" Id="{122b0574-ff69-07fc-29ae-2aea1e238cec}">
       <Declaration><![CDATA[// Update the state of the command button. Should be called every cycle.
 METHOD PUBLIC Refresh
 VAR
@@ -74,7 +74,7 @@ IF stHandshake.bExecute AND stHandshake.bBusy THEN
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Task" Id="{6e407172-b849-400a-8c24-c3a1ccb62b55}">
+    <Method Name="Task" Id="{50b60cf9-4807-097f-189d-1bed3be2c16e}">
       <Declaration><![CDATA[// Execute the funktional part of the command implementation
 METHOD PROTECTED Task : BOOL
 VAR_INPUT
