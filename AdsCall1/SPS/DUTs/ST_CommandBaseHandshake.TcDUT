@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <DUT Name="ST_CommandBaseHandshake" Id="{cc81200f-be4c-4497-a2d4-597bbb5b5a77}">
+    <Declaration><![CDATA[TYPE ST_CommandBaseHandshake :
+STRUCT
+	_execute		: BOOL;		// Will be set to true from the PCS to start the command. When the operation are finish, the PLC will set the to false. On a long running Task, the PCS can reset to false for Abort the operation. 
+	_busy			: BOOL;		// When the operation is running. Only for multible cycle operations.
+	_resultCode		: UINT;		// Shows the operation result code of the commando state. Default Values see 'CommandResultCode' Enum Type.
+	_progress		: UINT;		// Shows the optional calculated progress (0..100%). Only necessary on long running operations.
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

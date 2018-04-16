@@ -27,6 +27,9 @@
     <Compile Include="DUTs\ST_BasicCommand.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\ST_CommandBaseHandshake.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\ST_CommandControl.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -41,6 +44,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Commands\CommandBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Commands\E_CommandResultCode.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Commands\ICommand.TcIO">

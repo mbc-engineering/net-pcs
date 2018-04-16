@@ -18,6 +18,12 @@
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
+    <Property Name="Progress" Id="{c1f277d1-32ef-4e4c-bc8f-16386d511cd9}">
+      <Declaration><![CDATA[PROPERTY Progress : UINT]]></Declaration>
+      <Get Name="Get" Id="{1e29ce91-6ee8-4f1c-a9ce-593d680783a1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
     <Method Name="Refresh" Id="{b0a034eb-3d61-4c71-abf4-e94b843e4562}">
       <Declaration><![CDATA[METHOD Refresh
 ]]></Declaration>

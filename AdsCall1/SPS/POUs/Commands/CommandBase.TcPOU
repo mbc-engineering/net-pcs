@@ -3,14 +3,14 @@
   <POU Name="CommandBase" Id="{5ed0d5bd-0ff5-4097-ae74-31498bed2e22}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC CommandBase IMPLEMENTS ICommand
 VAR_INPUT
-END_VAR
+END_VAR	
 VAR_IN_OUT
+	(* Use Class Properties for IN_OUT Parameters!!!*)
 END_VAR
 VAR
-	_execute		: BOOL;		// Wird von PCS gesetzt um die Ausführung zu starten; zurücksetzen bricht die Ausführung ab
-	_busy			: BOOL;		// Anzeige, dass die Ausführung in der SPS läuft
-	_ResultCode		: UINT;		// Resultat der letzten Ausführung (bExecute & bBusy = FALSE)
-	counter: UINT;
+	// Add Progress Status with update method
+	_handshake		: ST_CommandBaseHandshake;
+	_rtrigInit		: R_TRIG;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -19,23 +19,24 @@ END_VAR
     </Implementation>
     <Method Name="Abort" Id="{b3999881-28f7-422e-bf1b-eba84960aef3}">
       <Declaration><![CDATA[// Stops execution of Command 
-METHOD PUBLIC Abort]]></Declaration>
+METHOD PUBLIC Abort
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Execute := FALSE;
-Busy := FALSE;
-ResultCode := 5; // canceled]]></ST>
+        <ST><![CDATA[ResultCode := E_CommandResultCode.Cancelled;
+Execute := FALSE;
+Busy := FALSE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="Busy" Id="{f17dea9b-0491-471d-bdd6-8776e5a75cd7}">
-      <Declaration><![CDATA[//Anzeige, dass die Ausführung in der SPS läuft
-{attribute 'monitoring' := 'variable'}
-PROPERTY PUBLIC Busy : BOOL]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring' := 'variable'}
+PROPERTY PUBLIC Busy : BOOL
+]]></Declaration>
       <Get Name="Get" Id="{15f9358f-22b9-461b-8c58-f932ab10aac1}">
         <Declaration><![CDATA[PUBLIC VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Busy := _busy;]]></ST>
+          <ST><![CDATA[Busy := _handshake._busy;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{21101625-0a3e-4ca4-939b-729925182e47}">
@@ -43,23 +44,33 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_busy := Busy;]]></ST>
+          <ST><![CDATA[_handshake._busy := Busy;]]></ST>
         </Implementation>
       </Set>
     </Property>
+    <Method Name="CalculateProgress" Id="{56cdfe0a-40aa-42ba-b29a-961de2363010}">
+      <Declaration><![CDATA[METHOD PROTECTED CalculateProgress
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ResultCode = E_CommandResultCode.Done THEN
+	Progress := 100;
+ELSE
+	Progress := 0;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="Done" Id="{e44fa825-a28e-46f6-bd9b-b7a6061e20a7}">
       <Declaration><![CDATA[METHOD PROTECTED Done
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[ResultCode := 0; // done
+        <ST><![CDATA[ResultCode := E_CommandResultCode.Done;
 Execute := FALSE;
 Busy := FALSE;
 ]]></ST>
       </Implementation>
     </Method>
     <Property Name="Execute" Id="{f9d7f224-aeca-4a8d-b244-62b6043700af}">
-      <Declaration><![CDATA[// Wird von PCS gesetzt um die Ausführung zu starten; zurücksetzen bricht die Ausführung ab
-{attribute 'monitoring' := 'call'}
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY PUBLIC Execute : BOOL
 ]]></Declaration>
       <Get Name="Get" Id="{07b42bf6-49a9-48fb-a416-3adb67c85587}">
@@ -67,7 +78,7 @@ PROPERTY PUBLIC Execute : BOOL
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Execute := _execute;]]></ST>
+          <ST><![CDATA[Execute := _handshake._execute;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{f18849aa-ced1-409e-9b14-6534753dab53}">
@@ -75,65 +86,94 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_execute := Execute;]]></ST>
+          <ST><![CDATA[_handshake._execute := Execute;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Progress" Id="{14044341-0a1e-4e3f-80e1-d54083fbadba}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'variable'}
+PROPERTY PUBLIC Progress : UINT
+]]></Declaration>
+      <Get Name="Get" Id="{dff5f060-9e6f-4b49-8196-cf9d4659273e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Progress := _handshake._progress;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ea5bed39-1799-43b7-80fd-86c70ca0cc5a}">
+        <Declaration><![CDATA[Protected VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_handshake._progress := Progress;]]></ST>
         </Implementation>
       </Set>
     </Property>
     <Method Name="Refresh" Id="{8e66b5e0-e08f-4024-b1ed-2b1412f1580f}">
       <Declaration><![CDATA[// Update the state of the command button. Should be called every cycle.
 METHOD PUBLIC Refresh
-VAR_INPUT
-END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[counter := counter + 1;
-
-// Länger gehendes Kommando
+        <ST><![CDATA[// Starting Case
 IF Execute THEN
 	Busy := TRUE;
 END_IF
 
 // Reset Case
 IF NOT Execute AND Busy THEN
-	// Abort
 	Abort();
 END_IF
 
+_rtrigInit(CLK := Execute AND Busy);
+
+// Running Case
 IF Execute AND Busy THEN
-	ResultCode := 4; // running
-	IF Task() THEN
+	IF _rtrigInit.Q THEN
+		ResultCode := E_CommandResultCode.Running;
+	END_IF
+	
+	// Set Task init on First Call
+	IF Task(_rtrigInit.Q) THEN
 		Done();
 	END_IF
+	
+	CalculateProgress();
 END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="ResultCode" Id="{ac5fe93e-2c3e-4e72-a2f6-add14726c137}">
-      <Declaration><![CDATA[// Resultat der letzten Ausführung (bExecute & bBusy = FALSE)
-{attribute 'monitoring' := 'variable'}
-PROPERTY ResultCode : UINT]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring' := 'variable'}
+PROPERTY PUBLIC ResultCode : UINT
+]]></Declaration>
       <Get Name="Get" Id="{b127a023-a4b1-4a5b-90fc-f47fb8009b3a}">
         <Declaration><![CDATA[PUBLIC VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ResultCode := _resultCode;]]></ST>
+          <ST><![CDATA[ResultCode := _handshake._resultCode;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{c03ce2dd-ce5f-4dcf-b315-9a5df15e8650}">
-        <Declaration><![CDATA[PROTECTED 
-VAR
+        <Declaration><![CDATA[PROTECTED VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_resultCode := ResultCode;]]></ST>
+          <ST><![CDATA[_handshake._resultCode := ResultCode;]]></ST>
         </Implementation>
       </Set>
     </Property>
     <Method Name="Task" Id="{6e407172-b849-400a-8c24-c3a1ccb62b55}">
       <Declaration><![CDATA[// Execute the funktional part of the command implementation
-METHOD PROTECTED Task : BOOL]]></Declaration>
+METHOD PROTECTED Task : BOOL
+VAR_INPUT
+	Init 	: BOOL;		// True the first time the Task is called after Execute is started
+END_VAR
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[;]]></ST>
+        <ST><![CDATA[// Task complete if return true
+Task := TRUE;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="CommandBase">
@@ -141,15 +181,19 @@ METHOD PROTECTED Task : BOOL]]></Declaration>
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="CommandBase.Abort">
-      <LineId Id="5" Count="0" />
-      <LineId Id="7" Count="0" />
-      <LineId Id="6" Count="0" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="CommandBase.Busy.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="CommandBase.Busy.Set">
       <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.CalculateProgress">
+      <LineId Id="5" Count="1" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="CommandBase.Done">
       <LineId Id="9" Count="0" />
@@ -163,12 +207,29 @@ METHOD PROTECTED Task : BOOL]]></Declaration>
     <LineIds Name="CommandBase.Execute.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
+    <LineIds Name="CommandBase.Progress.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Progress.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="CommandBase.Refresh">
-      <LineId Id="6" Count="8" />
-      <LineId Id="18" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="9" Count="5" />
       <LineId Id="29" Count="0" />
-      <LineId Id="19" Count="5" />
-      <LineId Id="26" Count="1" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="23" Count="1" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="46" Count="1" />
+      <LineId Id="27" Count="0" />
     </LineIds>
     <LineIds Name="CommandBase.ResultCode.Get">
       <LineId Id="2" Count="0" />
@@ -177,6 +238,7 @@ METHOD PROTECTED Task : BOOL]]></Declaration>
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="CommandBase.Task">
+      <LineId Id="10" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

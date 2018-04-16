@@ -11,22 +11,21 @@ VAR_OUTPUT
 	Result : REAL;
 END_VAR
 VAR
-END_VAR
-]]></Declaration>
+END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[// OO-Class 
 ;]]></ST>
     </Implementation>
     <Method Name="Task" Id="{72999091-51a2-4b24-b591-51f1ce1d7835}">
-      <Declaration><![CDATA[METHOD PROTECTED Task : BOOL]]></Declaration>
+      <Declaration><![CDATA[METHOD PROTECTED Task : BOOL
+VAR_INPUT
+	Init 	: BOOL;		// True the first time the Task is called after Execute is started
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// Run Base Task first
-SUPER^.Task();
+        <ST><![CDATA[Result := Val1 + Val2;
 
-Result := Val1 + Val2;
-
-// Done;
-Task := TRUE;
+// Task comlete;
+Task := SUPER^.Task(Init);;
 ]]></ST>
       </Implementation>
     </Method>
@@ -35,8 +34,6 @@ Task := TRUE;
       <LineId Id="31" Count="0" />
     </LineIds>
     <LineIds Name="AddCommand.Task">
-      <LineId Id="12" Count="0" />
-      <LineId Id="10" Count="1" />
       <LineId Id="5" Count="0" />
       <LineId Id="13" Count="0" />
       <LineId Id="16" Count="0" />
