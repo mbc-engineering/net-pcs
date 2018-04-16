@@ -15,8 +15,6 @@ counter := counter + 1;
 // Function variant
 Commands.AddCommand1.Refresh();
 Commands.DelayedAddCommand1.Refresh();
-	
-	
 
 // Strukture variant
 IF Commands.stAddCommand.stCmd.bExecute THEN
@@ -55,7 +53,6 @@ END_IF
       <LineId Id="68" Count="0" />
       <LineId Id="50" Count="0" />
       <LineId Id="96" Count="0" />
-      <LineId Id="64" Count="1" />
       <LineId Id="51" Count="1" />
       <LineId Id="6" Count="0" />
       <LineId Id="16" Count="0" />
