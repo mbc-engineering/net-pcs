@@ -6,8 +6,10 @@ VAR_GLOBAL
 	stAddCommand		: ST_AddCommand;
 	stAddLongCommand	: ST_AddCommand;
 	
+	
 	AddCommand1			: AddCommand 			:= (Val1 := 3, Val2 := 2);
 	DelayedAddCommand1	: DelayedAddCommand 	:= (Val1 := 4, Val2 := 5);
+	StartCommand1		: StartCommand;		
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

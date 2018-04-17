@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <POU Name="StartCommand" Id="{1855cea0-8f60-01cb-2735-aec5fa1a116a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC StartCommand EXTENDS CommandBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT	
+	Q : BOOL;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Task" Id="{31cbc226-8269-0d51-3e95-0f735a54ab0d}">
+      <Declaration><![CDATA[METHOD PROTECTED Task : BOOL
+VAR_INPUT
+	Init 	: BOOL;		// True the first time the Task is called after Execute is started
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (NOT Init AND Q) THEN
+	// Task comlete;
+	Task := SUPER^.Task(Init);;
+END_IF
+
+// set init
+Q := Init;
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="StartCommand">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="StartCommand.Task">
+      <LineId Id="15" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

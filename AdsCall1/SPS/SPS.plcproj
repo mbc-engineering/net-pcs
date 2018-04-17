@@ -43,10 +43,10 @@
     <Compile Include="POUs\Commands\AddCommand.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Commands\ICommand.TcIO">
+    <Compile Include="POUs\Commands\DelayedAddCommand.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Commands\DelayedAddCommand.TcPOU">
+    <Compile Include="POUs\Commands\StartCommand.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
@@ -83,6 +83,17 @@
     <LibraryReference Include="MBC TC3 PCS Library,newest,mbc engineering GmbH">
       <Namespace>Mbc_Tc3_Pcs</Namespace>
     </LibraryReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PlaceholderResolution Include="Tc2_Standard">
+      <Resolution>Tc2_Standard, * (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_System">
+      <Resolution>Tc2_System, * (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_Module">
+      <Resolution>Tc3_Module, * (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
   </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>

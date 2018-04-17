@@ -5,10 +5,21 @@
 VAR
 	fbLongRunning		: TON := (PT:=T#4s);
 	counter				: UINT;
+	fbTof: TOF;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
+      <ST><![CDATA[Commands.StartCommand1.Refresh();
+
+fbTof(
+	IN := Commands.StartCommand1.Q,
+	PT := T#1S);
+	
+
+
+
+
+
 counter := counter + 1;
 
 
@@ -46,6 +57,9 @@ END_IF
 ]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
+      <LineId Id="134" Count="0" />
+      <LineId Id="127" Count="3" />
+      <LineId Id="121" Count="4" />
       <LineId Id="85" Count="0" />
       <LineId Id="83" Count="0" />
       <LineId Id="86" Count="0" />

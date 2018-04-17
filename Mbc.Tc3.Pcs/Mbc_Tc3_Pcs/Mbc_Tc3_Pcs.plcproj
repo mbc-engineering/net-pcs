@@ -17,10 +17,10 @@
     <Company>mbc engineering GmbH</Company>
     <Released>true</Released>
     <Title>MBC TC3 PCS Library</Title>
-    <ProjectVersion>1.0.0.0</ProjectVersion>
     <DefaultNamespace>Mbc_Tc3_Pcs</DefaultNamespace>
     <Author>mbc engineering GmbH</Author>
     <DocFormat>reStructuredText</DocFormat>
+    <ProjectVersion>1.0.0.0</ProjectVersion>
     <!--    <OutputType>Exe</OutputType>
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>-->
@@ -32,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Command" />
+    <Folder Include="docs" />
     <Folder Include="Version" />
   </ItemGroup>
   <ItemGroup>
@@ -50,6 +51,11 @@
     <Compile Include="Version\Global_Version.TcGVL">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="docs\Readme.md">
+      <SubType>Content</SubType>
+    </Content>
   </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>
