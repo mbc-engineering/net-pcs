@@ -1,27 +1,44 @@
-﻿using System;
+﻿using CallAds;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using TwinCAT.Ads;
 
 namespace AtomizerUI.link
 {
-    public class PcsCommand2<Tout>
+    // ToDo: Add Progress
+    public class PcsCommand2<Tout> where Tout : new()
     {
+        private const int DEFAULT_TIME_OUT_SECOND = 8;
         private readonly TcAdsClient _adsClient;
-        private readonly string _commandVar;
+        /// <summary>
+        /// Path to the PLC Command variable
+        /// </summary>
+        private readonly string _adsCommandVar;
+        private IDictionary<string, ITcAdsDataType> _commandSymbols;
 
-        public PcsCommand2(TcAdsClient adsClient, string commandVar)
+        public PcsCommand2(TcAdsClient adsClient, string adsCommandVar)
         {
-            _adsClient = adsClient;
-                        
-            _commandVar = commandVar;
-            Timeout = TimeSpan.FromSeconds(8);
+            if (!adsClient.IsConnected)
+            {
+                throw new AdsException($"The ADS client use in the {nameof(PcsCommand2<Tout>)} is not connected.");
+            }
+
+            _adsClient = adsClient;                        
+            _adsCommandVar = adsCommandVar;
+
+            Timeout = TimeSpan.FromSeconds(DEFAULT_TIME_OUT_SECOND);
         }
 
+        public PcsCommand2(TcAdsClient adsClient, string commandVar, TimeSpan timeout) : this(adsClient, commandVar)
+        {
+            Timeout = timeout;
+        }
+
+        /// <summary>
+        /// Maximale time to wait for command completion
+        /// </summary>
         public TimeSpan Timeout { get; set; }
 
         //public Task<object> ExecuteAsync<Tin>(Tin argsIn, CancellationToken cancelToken)
@@ -43,30 +60,31 @@ namespace AtomizerUI.link
 
         public Tout Execute<Tin>(Tin argsIn)
         {
+            ReadSymbols();
+
             // Write all input param
-            // toDo: Use sum command
+            var symbolsToWrite = new PcsSymbolCollection();
             foreach (var prop in typeof(Tin).GetProperties())
             {
-                WriteVariable($"{_commandVar}.{prop.Name}", prop.GetValue(argsIn));
-            }                       
+                if (_commandSymbols.ContainsKey($"{_adsCommandVar}.{prop.Name}"))
+                {
+                    string symbolFullPath = $"{_adsCommandVar}.{prop.Name}";
+                    symbolsToWrite.Add(
+                        new PcsSymbol()
+                        {
+                            FullPath = symbolFullPath,
+                            Value = prop.GetValue(argsIn),
+                            TcAdsDataType = _commandSymbols[symbolFullPath]
+                        });
+                }      
+            }
+
+            _adsClient.WriteSumVariables(symbolsToWrite);
+
+            _adsClient.WriteObjectVariables(argsIn, _adsCommandVar, _commandSymbols);
 
             return Execute();
-        }
-
-        private void WriteVariable(string varName, object value)
-        {
-            
-            var argsInHndl = _adsClient.CreateVariableHandle(varName);
-            try
-            {
-                // ToDo: Fix possible mismatch of datatype!!!
-                _adsClient.WriteAny(argsInHndl, value);
-            }
-            finally
-            {
-                _adsClient.DeleteVariableHandle(argsInHndl);
-            }
-        }
+        }      
 
         public Tout Execute()
         {
@@ -79,12 +97,9 @@ namespace AtomizerUI.link
             try
             {
                 SetExecuteFlag();
-
-                // ToDo: Use Symbolic, with the handshake struct we can register all necesary data for changes. 
-                
-                Console.WriteLine("Command handling doesent work yet, waiting vor error");
+                                
                 var dataExch = new DataExchange();
-                var cmdHandle = _adsClient.AddDeviceNotificationEx($"{_commandVar}.Handshake", AdsTransMode.OnChange,
+                var cmdHandle = _adsClient.AddDeviceNotificationEx($"{_adsCommandVar}.stHandshake", AdsTransMode.OnChange,
                     TimeSpan.Zero, TimeSpan.Zero, dataExch, typeof(CommandControlData));
 
                 cancelToken.Register(ResetExecuteFlag);
@@ -107,8 +122,9 @@ namespace AtomizerUI.link
                         }
                         catch (TimeoutException)
                         {
+                            // ToDo: Use Symbolic and SumreadCommand
                             // Workaround für ein ADS-Problem, falls kein Event empfangen wurde
-                            var cmdHndl = _adsClient.CreateVariableHandle(_commandVar + ".stCmd");
+                            var cmdHndl = _adsClient.CreateVariableHandle(_adsCommandVar + ".stHandshake");
                             try
                             {
                                 var ccd = (CommandControlData) _adsClient.ReadAny(cmdHndl, typeof (CommandControlData));
@@ -135,26 +151,41 @@ namespace AtomizerUI.link
             {
                 _adsClient.AdsNotificationEx -= OnAdsnotificationEx;
             }
-            
-            var argsOutHndl = _adsClient.CreateVariableHandle(_commandVar + ".stArgsOut");
-            try
+
+            // Read Result values
+            return ReadResult();            
+        }
+
+        private void ReadSymbols()
+        {
+            var symbols = new Dictionary<string, ITcAdsDataType>();
+
+            var symbolInfo = _adsClient.ReadSymbolInfo(_adsCommandVar);
+            if (symbolInfo is ITcAdsSymbol5 symbol5Info)
             {
-                return (Tout)_adsClient.ReadAny(argsOutHndl, typeof(Tout));
+                symbols.AddSymbolsFlatedRecursive(symbol5Info.DataType, _adsCommandVar);
+
+                _commandSymbols = symbols;
             }
-            finally
-            {
-                _adsClient.DeleteVariableHandle(argsOutHndl);
-            }
+        }
+
+        private Tout ReadResult() 
+        {
+            // Read all output values
+            var test = new Tout();
+            Tout result = _adsClient.ReadObjectVariables(new Tout(), _adsCommandVar, _commandSymbols);
+
+            return result;            
         }
 
         private void SetExecuteFlag()
         {
-            WriteVariable(_commandVar + ".Execute", true);            
+            _adsClient.WriteVariable(_adsCommandVar + ".stHandshake.bExecute", true);            
         }
 
         private void ResetExecuteFlag()
         {
-            WriteVariable(_commandVar + ".Execute", false);
+            _adsClient.WriteVariable(_adsCommandVar + ".stHandshake.bExecute", false);
         }
 
         void OnAdsnotificationEx(object sender, AdsNotificationExEventArgs e)
@@ -167,33 +198,24 @@ namespace AtomizerUI.link
 
         void CheckResultCode(ushort resultCode)
         {
-            if (resultCode == 0)
-                return;
-
-            string errorMsg;
+            string errorMsg = string.Empty;
 
             switch (resultCode)
             {
+                case 0:
+                    // Init state
+                    return;                    
                 case 1:
-                    errorMsg = "Invalid state.";
+                    errorMsg = "Running";
                     break;
                 case 2:
-                    errorMsg = "Invalid argument.";
-                    break;
+                    // Done
+                    return;
                 case 3:
-                    errorMsg = "Not ready.";
-                    break;
-                case 4:
-                    errorMsg = "Running.";
-                    break;
-                case 5:
-                    errorMsg = "Cancelled.";
-                    break;
-                case 6:
-                    errorMsg = "Internal error.";
+                    errorMsg = "Cancelled";
                     break;
                 default:
-                    errorMsg = string.Format("Unknown error: {0}", resultCode);
+                    errorMsg = $"Unknown error: {resultCode}";
                     break;
             }
 

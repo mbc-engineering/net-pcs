@@ -45,6 +45,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdsSymbolExtensions.cs" />
+    <Compile Include="AdsClientExtensions.cs" />
     <Compile Include="CommandControlData.cs" />
     <Compile Include="DataExchange.cs" />
     <Compile Include="PcsCommand2.cs" />
@@ -52,6 +54,8 @@
     <Compile Include="PcsCommandErrorException.cs" />
     <Compile Include="PcsCommandException.cs" />
     <Compile Include="PcsCommandTimeoutException.cs" />
+    <Compile Include="PcsSymbol.cs" />
+    <Compile Include="PcsSymbolCollection.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
