@@ -24,7 +24,7 @@ END_VAR]]></Declaration>
 	Task := SUPER^.Task(Init);;
 END_IF
 
-// set init
+// set output trigger
 Q := Init;
 
 

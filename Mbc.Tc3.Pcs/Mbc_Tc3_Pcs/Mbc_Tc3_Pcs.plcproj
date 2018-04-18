@@ -20,7 +20,7 @@
     <DefaultNamespace>Mbc_Tc3_Pcs</DefaultNamespace>
     <Author>mbc engineering GmbH</Author>
     <DocFormat>reStructuredText</DocFormat>
-    <ProjectVersion>1.0.0.0</ProjectVersion>
+    <ProjectVersion>1.0.0.1</ProjectVersion>
     <!--    <OutputType>Exe</OutputType>
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>-->

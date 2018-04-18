@@ -5,9 +5,16 @@
 
 This Library will help you to Interagte with the Process Control System (PCS) of mbc engineering GmbH. There are some default exchange logic and structures for reuse. This Library will help you on PLC side on some point. Example on handling PCS commands,
 
-## Add the Library Reference
+## Use the Library
 
+### Install 
+The library must be installed localy. The first time or on a new computer it must be installed the correct library version. For mor details see on infosys - [Using libraries](https://infosys.beckhoff.com/english.php?content=../content/1033/tc3_plc_intro/9007203443879435.html&id=8387830030110329229). 
 
+For Installation go to *PLC -> Library Repository* and then press the *Install* button. Choose the Library file to install. In this case choose the file `Mbc_Tc3_Pcs_v1.0.0.0.library`. TwinCat3 will it install on the default behavor to the `system` repository into the folder `C:\TwinCAT\3.1\Components\Plc\Managed Libraries\mbc engineering GmbH\MBC TC3 PCS Library\1.0.0.0`. 
+
+### Add the Library Reference to the PLC Project
+
+TBD!
 
 ## Kick Start with a Command
 
@@ -51,7 +58,7 @@ IF (NOT Init AND Q) THEN
 	Task := SUPER^.Task(Init);;
 END_IF
 	
-// set init
+// set trigger
 Q := Init;
 ```
 
