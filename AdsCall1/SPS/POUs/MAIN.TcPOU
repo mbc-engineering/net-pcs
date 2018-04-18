@@ -9,7 +9,7 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[Commands.StartCommand1.Refresh();
+      <ST><![CDATA[Commands.StartCommand1.Call();
 
 fbTof(
 	IN := Commands.StartCommand1.Q,
@@ -24,8 +24,8 @@ counter := counter + 1;
 
 
 // Function variant
-Commands.AddCommand1.Refresh();
-Commands.DelayedAddCommand1.Refresh();
+Commands.AddCommand1.Call();
+Commands.DelayedAddCommand1.Call();
 
 // Strukture variant
 IF Commands.stAddCommand.stCmd.bExecute THEN

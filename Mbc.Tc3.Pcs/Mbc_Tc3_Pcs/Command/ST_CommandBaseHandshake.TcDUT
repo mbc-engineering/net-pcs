@@ -1,12 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
   <DUT Name="ST_CommandBaseHandshake" Id="{32bcade6-9e18-0fb5-177f-7513fed5a572}">
-    <Declaration><![CDATA[TYPE ST_CommandBaseHandshake :
+    <Declaration><![CDATA[// Strukture for communication with PCS in the ``CommandBase`` class
+TYPE ST_CommandBaseHandshake :
 STRUCT
-	bExecute		: BOOL;		// Will be set to true from the PCS to start the command. When the operation are finish, the PLC will set the to false. On a long running Task, the PCS can reset to false for Abort the operation. 
-	bBusy			: BOOL;		// When the operation is running. Only for multible cycle operations.
-	nResultCode		: UINT;		// Shows the operation result code of the commando state. Default Values see 'CommandResultCode' Enum Type.
-	nProgress		: UINT;		// Shows the optional calculated progress. The value is depend on the button implementation. (default can be 0..100%). Only necessary on long running operations.
+	bExecute		: BOOL;		// Will be set to true from the PCS to start the command. When the operation is finished, the PLC will it set to false. On a long running Task, the PCS can reset to false for Abort the operation. 
+	bBusy			: BOOL;		// Is True when the command is executing.
+	nResultCode		: UINT;		// Shows the operation result code of the commando state. Default Values see 'CommandResultCode' Enum Type. It is possible to set other codes!
+	nProgress		: BYTE;		// Shows the optional calculated progress. The value is depend on the command implementation. (default can be 0..100%). Only necessary on long running operations.
+	nSubTask		: UINT;		// Shows the optional state of long running Command Execution. It is possible to set it on own need.
 END_STRUCT
 END_TYPE
 ]]></Declaration>

@@ -1,12 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
   <POU Name="CommandBase" Id="{ada50c45-e2a4-0e1e-2882-6555ee7dd9e0}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC CommandBase IMPLEMENTS ICommand
+    <Declaration><![CDATA[// Basic implementation of a default command class for PCS interagtion with internal structure of ``ST_CommandBaseHandshake``.
+// Aditional IN and OUT parameters should be declared in the derived implementation.
+FUNCTION_BLOCK PUBLIC CommandBase IMPLEMENTS ICommand
 VAR_IN_OUT
 	(* Use Class Properties for IN_OUT Parameters!!! *)
 END_VAR
-VAR PERSISTENT
-	stHandshake		: ST_CommandBaseHandshake;		// Variable Strukture for communication with PCS. Aditional IN and OUT parameters should be declared in the derived implementation.
+VAR
+	stHandshake		: ST_CommandBaseHandshake;		// Internal variable strukture for communication with PCS.
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -14,72 +16,81 @@ END_VAR
 ;]]></ST>
     </Implementation>
     <Method Name="Abort" Id="{ea835809-8527-04fc-2537-4ead9acb0d0c}">
-      <Declaration><![CDATA[// Stops execution of Command 
+      <Declaration><![CDATA[// Abort the ``Task`` Execution with the result code ``Cancelled``
 METHOD PUBLIC Abort
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[stHandshake.nResultCode := E_CommandResultCode.Cancelled;
-stHandshake.bExecute := FALSE;
-stHandshake.bBusy := FALSE;]]></ST>
+        <ST><![CDATA[Done(E_CommandResultCode.Cancelled);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="CalculateProgress" Id="{a16648df-eb2b-0767-0ec1-b2c892b01c2b}">
-      <Declaration><![CDATA[METHOD PROTECTED CalculateProgress
+      <Declaration><![CDATA[// Can be used to calculate the ``stHandshake.nProgress`` and ``stHandshake.nSubTask``
+METHOD PROTECTED CalculateProgress
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF stHandshake.nResultCode = E_CommandResultCode.Done THEN
 	stHandshake.nProgress := 100;
-ELSE
-	stHandshake.nProgress := 0;
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Done" Id="{38ab0c16-9dcb-0710-3b7a-4cc8228c26d9}">
-      <Declaration><![CDATA[METHOD PROTECTED Done
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[stHandshake.nResultCode := E_CommandResultCode.Done;
-stHandshake.bExecute := FALSE;
-stHandshake.bBusy := FALSE;
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Refresh" Id="{122b0574-ff69-07fc-29ae-2aea1e238cec}">
-      <Declaration><![CDATA[// Update the state of the command button. Should be called every cycle.
-METHOD PUBLIC Refresh
+    <Method Name="Call" Id="{122b0574-ff69-07fc-29ae-2aea1e238cec}">
+      <Declaration><![CDATA[// The method is called in each cycle to execute the funktional part and the states of the command implementation.
+METHOD PUBLIC Call
 VAR
 	bInit		: BOOL;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Starting Case
-stHandshake.bBusy S= bInit := stHandshake.bExecute AND NOT stHandshake.bBusy;
+stHandshake.bBusy S= bInit := (stHandshake.bExecute AND NOT stHandshake.bBusy);
+IF bInit THEN
+	stHandshake.nResultCode := E_CommandResultCode.Init;
+	Init();
+END_IF
 
-// Reset Case
+// Cancel Case
 IF NOT stHandshake.bExecute AND stHandshake.bBusy THEN
 	Abort();
 END_IF
 
 // Running Case
 IF stHandshake.bExecute AND stHandshake.bBusy THEN
-	IF bInit THEN
-		stHandshake.nResultCode := E_CommandResultCode.Running;
-	END_IF
 	
 	// Set Task init on First Call
-	IF Task(bInit) THEN
-		Done();
+	IF Task() THEN
+		Done(E_CommandResultCode.Done);
 	END_IF
-	
-	CalculateProgress();
+		
+	CalculateProgress();	
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Task" Id="{50b60cf9-4807-097f-189d-1bed3be2c16e}">
-      <Declaration><![CDATA[// Execute the funktional part of the command implementation
-METHOD PROTECTED Task : BOOL
+    <Method Name="Done" Id="{38ab0c16-9dcb-0710-3b7a-4cc8228c26d9}">
+      <Declaration><![CDATA[// Can be use to finish the ``Task`` Execution with a ``nResultCode``. 
+METHOD PROTECTED Done
 VAR_INPUT
-	Init 	: BOOL;		// True the first time the Task is called after Execute is started
+	nResultCode		: UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[stHandshake.bBusy := stHandshake.bExecute := FALSE;
+stHandshake.nResultCode := nResultCode;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Init" Id="{73b42678-0303-042f-2b5e-b8719716b1e0}">
+      <Declaration><![CDATA[// Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true``
+METHOD PROTECTED Init
+VAR_INPUT
 END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[stHandshake.nResultCode := E_CommandResultCode.Running;
+stHandshake.nProgress := 0;
+stHandshake.nSubTask := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Task" Id="{50b60cf9-4807-097f-189d-1bed3be2c16e}">
+      <Declaration><![CDATA[// Execute the funktional part of the command implementation. Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method
+METHOD PROTECTED Task : BOOL
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Task complete if return true
@@ -91,37 +102,39 @@ Task := TRUE;]]></ST>
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="CommandBase.Abort">
-      <LineId Id="11" Count="1" />
-      <LineId Id="9" Count="0" />
+      <LineId Id="15" Count="1" />
     </LineIds>
     <LineIds Name="CommandBase.CalculateProgress">
-      <LineId Id="5" Count="1" />
-      <LineId Id="8" Count="1" />
-      <LineId Id="7" Count="0" />
+      <LineId Id="5" Count="2" />
     </LineIds>
-    <LineIds Name="CommandBase.Done">
-      <LineId Id="9" Count="0" />
-      <LineId Id="7" Count="0" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="CommandBase.Refresh">
+    <LineIds Name="CommandBase.Call">
       <LineId Id="40" Count="0" />
-      <LineId Id="56" Count="1" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="64" Count="1" />
+      <LineId Id="63" Count="0" />
       <LineId Id="13" Count="1" />
       <LineId Id="29" Count="0" />
       <LineId Id="19" Count="0" />
       <LineId Id="41" Count="0" />
       <LineId Id="20" Count="1" />
-      <LineId Id="44" Count="0" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="34" Count="0" />
       <LineId Id="45" Count="0" />
       <LineId Id="35" Count="0" />
-      <LineId Id="23" Count="1" />
-      <LineId Id="26" Count="0" />
-      <LineId Id="46" Count="1" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="69" Count="1" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="47" Count="0" />
       <LineId Id="27" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Done">
+      <LineId Id="13" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Init">
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="CommandBase.Task">
       <LineId Id="10" Count="0" />

@@ -24,16 +24,18 @@ _tonDelay(IN:=stHandshake.bBusy);]]></ST>
         <ST><![CDATA[IF stHandshake.nResultCode = E_CommandResultCode.Done THEN
 	stHandshake.nProgress := 100;
 ELSE
-	stHandshake.nProgress := REAL_TO_UINT(100.0 / TIME_TO_REAL(_tonDelay.PT) * TIME_TO_REAL(_tonDelay.ET));
+	stHandshake.nProgress := REAL_TO_BYTE(100.0 / TIME_TO_REAL(_tonDelay.PT) * TIME_TO_REAL(_tonDelay.ET));
 END_IF
 ]]></ST>
       </Implementation>
     </Method>
     <Method Name="Done" Id="{d3f67563-493c-480a-88ee-d8edb11f7e53}">
       <Declaration><![CDATA[METHOD PROTECTED Done
-]]></Declaration>
+VAR_INPUT
+	nResultCode		: UINT;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[SUPER^.Done();
+        <ST><![CDATA[SUPER^.Done(nResultCode);
 
 // Reset Input for next start
 _tonDelay(IN:=stHandshake.bBusy);]]></ST>
@@ -41,16 +43,13 @@ _tonDelay(IN:=stHandshake.bBusy);]]></ST>
     </Method>
     <Method Name="Task" Id="{7c566ce4-fa9b-444f-bb18-8e5071761b78}">
       <Declaration><![CDATA[METHOD PROTECTED Task : BOOL
-VAR_INPUT
-	Init 	: BOOL;		// True the first time the Task is called after Execute is started
-END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[_tonDelay(IN:=stHandshake.bBusy);
 
 IF _tonDelay.Q THEN
 	// Execute base Task in AddCommand for Addition
-	Task := SUPER^.Task(Init);
+	Task := SUPER^.Task();
 END_IF]]></ST>
       </Implementation>
     </Method>

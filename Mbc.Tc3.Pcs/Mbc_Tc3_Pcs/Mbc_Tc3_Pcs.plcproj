@@ -20,7 +20,7 @@
     <DefaultNamespace>Mbc_Tc3_Pcs</DefaultNamespace>
     <Author>mbc engineering GmbH</Author>
     <DocFormat>reStructuredText</DocFormat>
-    <ProjectVersion>1.0.0.1</ProjectVersion>
+    <ProjectVersion>1.0.0.2</ProjectVersion>
     <!--    <OutputType>Exe</OutputType>
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>-->
@@ -33,6 +33,7 @@
   <ItemGroup>
     <Folder Include="Command" />
     <Folder Include="docs" />
+    <Folder Include="docs\res" />
     <Folder Include="Version" />
   </ItemGroup>
   <ItemGroup>
@@ -53,7 +54,16 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="docs\Changelog.md">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="docs\CommandBase.md">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="docs\Readme.md">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="docs\res\AddLibrary.JPG">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>

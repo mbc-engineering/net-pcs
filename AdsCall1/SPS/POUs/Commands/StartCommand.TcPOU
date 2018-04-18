@@ -5,28 +5,36 @@
 VAR_INPUT
 END_VAR
 VAR_OUTPUT	
-	Q : BOOL;
+	Q 		: BOOL;
 END_VAR
 VAR
+	bInit 	: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Method Name="Task" Id="{31cbc226-8269-0d51-3e95-0f735a54ab0d}">
-      <Declaration><![CDATA[METHOD PROTECTED Task : BOOL
-VAR_INPUT
-	Init 	: BOOL;		// True the first time the Task is called after Execute is started
-END_VAR]]></Declaration>
+    <Method Name="Init" Id="{e08e27a6-0c35-0080-3946-8b715a3aabaa}">
+      <Declaration><![CDATA[// Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true``
+METHOD PROTECTED Init]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF (NOT Init AND Q) THEN
+        <ST><![CDATA[bInit := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Task" Id="{31cbc226-8269-0d51-3e95-0f735a54ab0d}">
+      <Declaration><![CDATA[METHOD PROTECTED Task : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// set output trigger
+Q := bInit;
+
+// dedect task completed
+IF (NOT bInit AND Q) THEN
 	// Task comlete;
-	Task := SUPER^.Task(Init);;
+	Task := SUPER^.Task();;
 END_IF
 
-// set output trigger
-Q := Init;
-
+// Reset after 1. cycle
+bInit := FALSE;
 
 ]]></ST>
       </Implementation>
@@ -34,14 +42,21 @@ Q := Init;
     <LineIds Name="StartCommand">
       <LineId Id="9" Count="0" />
     </LineIds>
+    <LineIds Name="StartCommand.Init">
+      <LineId Id="6" Count="0" />
+    </LineIds>
     <LineIds Name="StartCommand.Task">
+      <LineId Id="25" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="24" Count="0" />
       <LineId Id="15" Count="0" />
       <LineId Id="18" Count="0" />
       <LineId Id="17" Count="0" />
       <LineId Id="16" Count="0" />
-      <LineId Id="20" Count="0" />
-      <LineId Id="19" Count="0" />
-      <LineId Id="13" Count="1" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="14" Count="0" />
       <LineId Id="12" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>

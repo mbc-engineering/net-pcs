@@ -17,15 +17,12 @@ END_VAR]]></Declaration>
 ;]]></ST>
     </Implementation>
     <Method Name="Task" Id="{72999091-51a2-4b24-b591-51f1ce1d7835}">
-      <Declaration><![CDATA[METHOD PROTECTED Task : BOOL
-VAR_INPUT
-	Init 	: BOOL;		// True the first time the Task is called after Execute is started
-END_VAR]]></Declaration>
+      <Declaration><![CDATA[METHOD PROTECTED Task : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[Result := Val1 + Val2;
 
 // Task comlete;
-Task := SUPER^.Task(Init);;
+Task := SUPER^.Task();;
 ]]></ST>
       </Implementation>
     </Method>
