@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!-- <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>-->
@@ -20,7 +21,7 @@
     <DefaultNamespace>Mbc_Tc3_Pcs</DefaultNamespace>
     <Author>mbc engineering GmbH</Author>
     <DocFormat>reStructuredText</DocFormat>
-    <ProjectVersion>1.0.0.0</ProjectVersion>
+    <ProjectVersion>1.1.0.0</ProjectVersion>
     <!--    <OutputType>Exe</OutputType>
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>-->

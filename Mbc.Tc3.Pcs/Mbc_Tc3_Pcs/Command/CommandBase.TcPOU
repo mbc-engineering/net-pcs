@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
   <POU Name="CommandBase" Id="{ada50c45-e2a4-0e1e-2882-6555ee7dd9e0}" SpecialFunc="None">
     <Declaration><![CDATA[// Basic implementation of a default command class for PCS interagtion with internal structure of ``ST_CommandBaseHandshake``.
 // Aditional IN and OUT parameters should be declared in the derived implementation.
@@ -57,6 +57,7 @@ END_IF
 IF stHandshake.bExecute AND stHandshake.bBusy THEN
 	
 	// Set Task init on First Call
+	stHandshake.nResultCode := E_CommandResultCode.Running;
 	IF Task() THEN
 		Done(E_CommandResultCode.Done);
 	END_IF
@@ -88,6 +89,46 @@ stHandshake.nProgress := 0;
 stHandshake.nSubTask := 0;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Progress" Id="{11d7213a-75df-05a5-3911-c70fda26068b}">
+      <Declaration><![CDATA[PROPERTY PROTECTED Progress : BYTE]]></Declaration>
+      <Get Name="Get" Id="{c53dadf5-7315-05cc-3a61-3ca6f99e45f9}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Progress := stHandshake.nProgress;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f433abb7-fe0c-0c14-2493-599cdeee1e2b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[stHandshake.nProgress := Progress;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="SubTask" Id="{91ef01b2-b368-094f-0905-247a111f2a9e}">
+      <Declaration><![CDATA[PROPERTY PROTECTED SubTask : UINT]]></Declaration>
+      <Get Name="Get" Id="{3e9e1d4d-b86f-0b19-192c-a177a58c94f5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SubTask := stHandshake.nSubTask;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{52959122-866e-0ed0-07d0-b14507bb4e0d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[stHandshake.nSubTask := SubTask;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="Task" Id="{50b60cf9-4807-097f-189d-1bed3be2c16e}">
       <Declaration><![CDATA[// Execute the funktional part of the command implementation. Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method
 METHOD PROTECTED Task : BOOL
@@ -121,6 +162,7 @@ Task := TRUE;]]></ST>
       <LineId Id="20" Count="1" />
       <LineId Id="45" Count="0" />
       <LineId Id="35" Count="0" />
+      <LineId Id="76" Count="0" />
       <LineId Id="67" Count="0" />
       <LineId Id="69" Count="1" />
       <LineId Id="68" Count="0" />
@@ -135,6 +177,21 @@ Task := TRUE;]]></ST>
       <LineId Id="6" Count="0" />
       <LineId Id="5" Count="0" />
       <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Progress.Get">
+      <LineId Id="2" Count="1" />
+    </LineIds>
+    <LineIds Name="CommandBase.Progress.Set">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.SubTask.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.SubTask.Set">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="CommandBase.Task">
       <LineId Id="10" Count="0" />

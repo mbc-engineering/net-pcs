@@ -1,15 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
   <DUT Name="E_CommandResultCode" Id="{5b4ecf34-6dab-0dc5-1fbe-ac8d0d2d5034}">
     <Declaration><![CDATA[// Default Result Code of the Command
 {attribute 'qualified_only'}
 {attribute 'strict'}
 TYPE E_CommandResultCode :
 (
-	Init := 0,
-	Running := 1,
-	Done := 2,
-	Cancelled := 3
+	Init 			:= 0,
+	Running 		:= 1,
+	Done 			:= 2,
+	Cancelled 		:= 3,
+	StartCustom 	:= 100
 ) UINT;
 END_TYPE
 ]]></Declaration>

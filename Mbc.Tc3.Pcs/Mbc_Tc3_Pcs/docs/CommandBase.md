@@ -33,10 +33,11 @@ In the structure `ST_CommandBaseHandshake` is used to communicate with the PCS. 
 ```
 TYPE E_CommandResultCode :
 (
-	Init := 0,
-	Running := 1,
-	Done := 2,
-	Cancelled := 3
+	Init 			:= 0,
+	Running 		:= 1,
+	Done 			:= 2,
+	Cancelled 		:= 3,
+	StartCustom 	:= 100
 ) UINT;
 END_TYPE
 ```
