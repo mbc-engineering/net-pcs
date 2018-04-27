@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
   <POU Name="CommandBase" Id="{ada50c45-e2a4-0e1e-2882-6555ee7dd9e0}" SpecialFunc="None">
     <Declaration><![CDATA[// Basic implementation of a default command class for PCS interagtion with internal structure of ``ST_CommandBaseHandshake``.
 // Aditional IN and OUT parameters should be declared in the derived implementation.
@@ -57,7 +57,6 @@ END_IF
 IF stHandshake.bExecute AND stHandshake.bBusy THEN
 	
 	// Set Task init on First Call
-	stHandshake.nResultCode := E_CommandResultCode.Running;
 	IF Task() THEN
 		Done(E_CommandResultCode.Done);
 	END_IF
@@ -162,7 +161,6 @@ Task := TRUE;]]></ST>
       <LineId Id="20" Count="1" />
       <LineId Id="45" Count="0" />
       <LineId Id="35" Count="0" />
-      <LineId Id="76" Count="0" />
       <LineId Id="67" Count="0" />
       <LineId Id="69" Count="1" />
       <LineId Id="68" Count="0" />
