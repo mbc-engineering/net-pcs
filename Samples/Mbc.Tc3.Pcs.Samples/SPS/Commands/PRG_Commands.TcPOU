@@ -7,21 +7,18 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[Commands.StartCommand1.Call();
+      <ST><![CDATA[Commands.fbStartCommand1.Call();
 	
 fbTofStartCommand1(
-	IN := Commands.StartCommand1.Q,
+	IN := Commands.fbStartCommand1.Q,
 	PT := T#1S);	
 	
 	
-Commands.AddCommand1.Call();
-Commands.DelayedAddCommand1.Call();]]></ST>
+Commands.fbAddCommand1.Call();
+Commands.fbDelayedAddCommand1.Call();]]></ST>
     </Implementation>
     <LineIds Name="PRG_Commands">
-      <LineId Id="6" Count="3" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="12" Count="0" />
-      <LineId Id="14" Count="1" />
+      <LineId Id="22" Count="7" />
       <LineId Id="17" Count="0" />
     </LineIds>
   </POU>

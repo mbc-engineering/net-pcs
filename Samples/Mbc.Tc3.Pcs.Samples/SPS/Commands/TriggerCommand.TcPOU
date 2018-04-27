@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
-  <POU Name="StartCommand" Id="{d02418d5-5cd7-0a17-16e2-bc96f2eeb812}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC StartCommand EXTENDS CommandBase
+  <POU Name="TriggerCommand" Id="{d02418d5-5cd7-0a17-16e2-bc96f2eeb812}" SpecialFunc="None">
+    <Declaration><![CDATA[// Command that detect the execution AND generates one cycle TRUE on the output Q
+FUNCTION_BLOCK PUBLIC TriggerCommand EXTENDS CommandBase
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -40,13 +41,13 @@ Q := bInit;
 bInit := FALSE;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="StartCommand">
+    <LineIds Name="TriggerCommand">
       <LineId Id="9" Count="0" />
     </LineIds>
-    <LineIds Name="StartCommand.Init">
+    <LineIds Name="TriggerCommand.Init">
       <LineId Id="6" Count="0" />
     </LineIds>
-    <LineIds Name="StartCommand.Task">
+    <LineIds Name="TriggerCommand.Task">
       <LineId Id="17" Count="0" />
       <LineId Id="21" Count="4" />
       <LineId Id="29" Count="2" />
