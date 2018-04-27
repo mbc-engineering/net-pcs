@@ -265,3 +265,5 @@ __pycache__/
 *.compileinfo
 *.tizip
 *.project.~u
+*.tpy
+**/_Boot/
