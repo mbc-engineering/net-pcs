@@ -89,7 +89,8 @@ stHandshake.nSubTask := 0;]]></ST>
       </Implementation>
     </Method>
     <Property Name="Progress" Id="{11d7213a-75df-05a5-3911-c70fda26068b}">
-      <Declaration><![CDATA[PROPERTY PROTECTED Progress : BYTE]]></Declaration>
+      <Declaration><![CDATA[// Set the Progress from everywhere in the application (Regular from CalculateProgress Method)
+PROPERTY PROTECTED Progress : BYTE]]></Declaration>
       <Get Name="Get" Id="{c53dadf5-7315-05cc-3a61-3ca6f99e45f9}">
         <Declaration><![CDATA[]]></Declaration>
         <Implementation>
@@ -108,7 +109,8 @@ END_VAR
       </Set>
     </Property>
     <Property Name="SubTask" Id="{91ef01b2-b368-094f-0905-247a111f2a9e}">
-      <Declaration><![CDATA[PROPERTY PROTECTED SubTask : UINT]]></Declaration>
+      <Declaration><![CDATA[// Set the SubTask Information from everywhere in the application (Regular from CalculateProgress Method)
+PROPERTY PROTECTED SubTask : UINT]]></Declaration>
       <Get Name="Get" Id="{3e9e1d4d-b86f-0b19-192c-a177a58c94f5}">
         <Declaration><![CDATA[VAR
 END_VAR

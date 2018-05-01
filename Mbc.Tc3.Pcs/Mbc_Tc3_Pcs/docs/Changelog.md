@@ -13,8 +13,6 @@ The following types of changes exist:
 - **Security** in case of vulnerabilities.
 
 ## [1.1.0] - 25.04.2018
-### Fixed
-- Set Result-Code to running while command is executed
 ### Added
 - New Constant in `E_CommandResultCode` which indicates the start of the user result codes
 - Properties to set the progress and sub-task frok the Task-Method

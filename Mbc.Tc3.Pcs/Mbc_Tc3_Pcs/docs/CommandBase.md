@@ -13,7 +13,21 @@ The Button has the following default states represented as the `stHandshake.nRes
 
 ## Methods
 
-See in the TwinCat 3 Library Manager, in the library. Expand the Command folder and then expand also the `CommandBase` Class to show the methods. By selection of each Method it will show the explanation.
+See in the TwinCat 3 Library Manager, in the library. Expand the Command folder and then expand also the `CommandBase` Class to show the methods. By selection of each Method it will show also the explanation.
+
+- Call ? The method is called in each cycle to execute the funktional part and the states of the command implementation.
+- Init ? Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true``
+- Task ? Execute the funktional part of the command implementation. Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method
+- CalculateProgress ? Can be used to calculate the ``stHandshake.nProgress`` and ``stHandshake.nSubTask``
+- Done ? Can be use to finish the ``Task`` Execution with a ``nResultCode``. 
+- Abort ? Abort the ``Task`` Execution with the result code ``Cancelled``
+
+## Properties
+
+See in the TwinCat 3 Library Manager, in the library. Expand the Command folder and then expand also the `CommandBase` Class to show the Properties. By selection of each Property it will show also the explanation.
+
+- Progress ? Set the Progress from everywhere in the application (Regular from CalculateProgress Method)
+- SubTask ? Set the SubTask Information from everywhere in the application (Regular from CalculateProgress Method)
 
 ## Communication structure to PCS
 
@@ -33,11 +47,11 @@ In the structure `ST_CommandBaseHandshake` is used to communicate with the PCS. 
 ```
 TYPE E_CommandResultCode :
 (
-	Init 			:= 0,
-	Running 		:= 1,
-	Done 			:= 2,
-	Cancelled 		:= 3,
-	StartCustom 	:= 100
+	Init           := 0,
+	Running        := 1,
+	Done           := 2,
+	Cancelled      := 3,
+	StartCustom    := 100
 ) UINT;
 END_TYPE
 ```
