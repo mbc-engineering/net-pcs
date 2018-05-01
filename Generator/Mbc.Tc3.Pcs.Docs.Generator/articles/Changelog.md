@@ -12,6 +12,11 @@ The following types of changes exist:
 - **Fixed** for any bug fixes.
 - **Security** in case of vulnerabilities.
 
+## [1.1.0] - 25.04.2018
+### Added
+- New Constant in `E_CommandResultCode` which indicates the start of the user result codes
+- Properties to set the progress and sub-task frok the Task-Method
+
 ## [1.0.0] - 18.04.2018
 ### Added
 - Created PCS Library

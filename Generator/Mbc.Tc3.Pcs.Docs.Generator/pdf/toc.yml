@@ -1,6 +1,6 @@
-- name: Readme
+- name: Getting Started
   href: ../articles/Readme.md
-- name: Changelog
-  href: ../articles/Changelog.md
 - name: CommandBase
   href: ../articles/CommandBase.md
+- name: Changelog
+  href: ../articles/Changelog.md
