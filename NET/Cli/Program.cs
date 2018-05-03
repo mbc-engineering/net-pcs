@@ -20,11 +20,20 @@ namespace Cli
             client.Connect("172.16.23.55.1.1", 851);
 
 
+            var input = new Dictionary<string, object>
+            {
+                { "Val1", 0 },
+                { "Val2", 0 },
+            };
+
             var count = 0;
             while (true)
             {
+                input["Val1"] = count;
+                input["Val2"] = 2 * count;
+
                 var command = new PlcCommand(client, "Commands.fbAddCommand1");
-                command.Execute();
+                command.Execute(input: CommandInputBuilder.FromDictionary(input));
 
                 if (count++ % 75 == 0)
                 {

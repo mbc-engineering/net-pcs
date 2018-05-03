@@ -10,6 +10,6 @@ namespace MbcAdcCommand
         /// <summary>
         /// Returns the command input data.
         /// </summary>
-        IDictionary<string, object> GetInput();
+        IDictionary<string, object> GetInputData();
     }
 }

@@ -1,7 +1,12 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using TwinCAT.Ads;
+using TwinCAT.TypeSystem;
+using TwinCAT.Ads.SumCommand;
+using System.Collections.ObjectModel;
 
 namespace MbcAdcCommand
 {
@@ -36,6 +41,9 @@ namespace MbcAdcCommand
         {
             if (!_adsClient.IsConnected)
                 throw new InvalidOperationException("ADS-Client is not connect.");
+
+            if (input != null)
+                WriteInputData(input);
 
             _adsClient.AdsNotificationEx += OnAdsNotification;
             try
@@ -80,6 +88,38 @@ namespace MbcAdcCommand
 
         }
 
+        private void WriteInputData(ICommandInput input)
+        {
+            // TODO nur temporär -> muss überarbeitet werden siehe Gitlab Issue #3
+            InitFbSymbols();
+
+            var inputData = input.GetInputData();
+
+            var symbols = new List<string>();
+            var types = new List<Type>();
+            var values = new List<object>();
+            foreach (var name in inputData.Keys)
+            {
+                var symbolInfo = _fbSymbols[name];
+                symbols.Add(symbolInfo.Item1);
+                types.Add(symbolInfo.Item2);
+                values.Add(Convert.ChangeType(inputData[name], symbolInfo.Item2));
+            }
+
+            var handleCreator = new SumCreateHandles(_adsClient, symbols);
+            var handles = handleCreator.CreateHandles();
+            try
+            {
+                var sumWriter = new SumHandleWrite(_adsClient, handles, types.ToArray());
+                sumWriter.Write(values.ToArray());
+            }
+            finally
+            {
+                var handleReleaser = new SumReleaseHandles(_adsClient, handles);
+                handleReleaser.ReleaseHandles();
+            }
+        }
+
         private void WaitForExecution(DataExchange<CommandHandshakeStruct> dataExchange)
         {
             var timeoutStopWatch = Stopwatch.StartNew();
@@ -103,7 +143,24 @@ namespace MbcAdcCommand
             }
         }
 
-        void CheckResultCode(ushort resultCode)
+        private IReadOnlyDictionary<string, Tuple<string, Type>> _fbSymbols;
+
+        private void InitFbSymbols()
+        {
+            if (_fbSymbols != null)
+                return;
+
+            var fbSymbolNames = ((ITcAdsSymbol5)_adsClient.ReadSymbolInfo(_adsCommandFb))
+                .DataType.SubItems
+                .Where(item => item.BaseType.IsPrimitive)
+                .ToDictionary(
+                    item => item.SubItemName, 
+                    item => Tuple.Create(_adsCommandFb + "." + item.SubItemName, item.BaseType.ManagedType));
+
+            _fbSymbols = new ReadOnlyDictionary<string, Tuple<string, Type>>(fbSymbolNames);
+        }
+
+        private void CheckResultCode(ushort resultCode)
         {
             string errorMsg = string.Empty;
 

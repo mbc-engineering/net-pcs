@@ -44,6 +44,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandInputBuilder.cs" />
     <Compile Include="DataExchange.cs" />
     <Compile Include="ICommandInput.cs" />
     <Compile Include="PlcCommandErrorException.cs" />
