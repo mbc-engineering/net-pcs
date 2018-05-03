@@ -17,6 +17,11 @@ namespace MbcAdcCommand
     {
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
 
+        /// <summary>
+        /// Occurs when the state of a command is changed.
+        /// </summary>
+        public event EventHandler<PlcCommandEventArgs> StateChanged;
+
         private readonly TcAdsClient _adsClient;
         private readonly string _adsCommandFb;
 
@@ -171,13 +176,16 @@ namespace MbcAdcCommand
                     var remainingTimeout = Timeout - timeoutStopWatch.Elapsed;
                     var handshakeData = dataExchange.GetOrWait(remainingTimeout);
 
+                    StateChanged?.Invoke(this, new PlcCommandEventArgs(handshakeData.Progress, handshakeData.SubTask, 
+                        handshakeData.IsCommandFinished, handshakeData.IsCommandCancelled));
+
                     if (handshakeData.IsCommandFinished)
                     {
                         CheckResultCode(handshakeData.ResultCode);
                         break;
                     }
                 }
-                catch (TimeoutException e)
+                catch (TimeoutException)
                 {
                     throw new PlcCommandTimeoutException(_adsCommandFb, $"The command timed out after {Timeout.Seconds} [s].");
                 }
@@ -268,6 +276,8 @@ namespace MbcAdcCommand
             public ushort SubTask;
 
             public bool IsCommandFinished => !Execute && !Busy;
+
+            public bool IsCommandCancelled => !Execute && Busy;
 
             public override string ToString() 
                 => $"Execute={Execute} Busy={Busy} ResultCode={ResultCode} Progress={Progress} SubTask={SubTask}";

@@ -11,7 +11,7 @@ namespace Cli
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main(string[] a)
         {
             var client = new TcAdsClient()
             {
@@ -37,16 +37,22 @@ namespace Cli
                 input["Val1"] = count;
                 input["Val2"] = 2 * count;
 
-                var command = new PlcCommand(client, "Commands.fbAddCommand1");
+                //var command = new PlcCommand(client, "Commands.fbAddCommand1");
+                var command = new PlcCommand(client, "Commands.fbDelayedAddCommand1");
+                command.StateChanged += (sender, args) => PrintProgress(args.Progress, args.SubTask);
                 command.Execute(input: CommandInputBuilder.FromDictionary(input), output: CommandOutputBuilder.FromDictionary(output));
 
 
-                if (count++ % 75 == 0)
-                {
-                    Console.Write("\r\n{0}: ", count);
-                }
-                Console.Write("." + output["Result"]);
+                Console.WriteLine(" => " + output["Result"]);
+                count++;
             }
+        }
+
+        private static void PrintProgress(int progress, int subTask)
+        {
+            Console.CursorLeft = 0;
+            var progressString = string.Join(string.Empty, Enumerable.Range(1, progress / 2).Select(x => "#"));
+            Console.Write("{0}: {1}", subTask, progressString);
         }
     }
 }

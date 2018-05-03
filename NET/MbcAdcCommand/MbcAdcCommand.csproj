@@ -50,6 +50,7 @@
     <Compile Include="ICommandInput.cs" />
     <Compile Include="ICommandOutput.cs" />
     <Compile Include="PlcCommandErrorException.cs" />
+    <Compile Include="PlcCommandEventArgs.cs" />
     <Compile Include="PlcCommandTimeoutException.cs" />
     <Compile Include="PlcCommandException.cs" />
     <Compile Include="PlcCommand.cs" />

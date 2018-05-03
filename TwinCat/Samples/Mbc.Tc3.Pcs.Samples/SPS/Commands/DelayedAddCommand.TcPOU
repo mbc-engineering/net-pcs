@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
   <POU Name="DelayedAddCommand" Id="{65b2ca40-9e7e-4cdc-82b9-f7b2c503faa2}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK DelayedAddCommand EXTENDS AddCommand
 VAR
@@ -52,7 +52,8 @@ IF _tonDelay.Q THEN
 	SUPER^.Task();
 	
 	// Exection is finished, set nResultCode = 99
-	DONE(99);
+	
+	DONE(E_CommandResultCode.Done);
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -81,6 +82,7 @@ END_IF]]></ST>
       <LineId Id="22" Count="0" />
       <LineId Id="30" Count="0" />
       <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="0" />
       <LineId Id="31" Count="0" />
       <LineId Id="7" Count="0" />
     </LineIds>
