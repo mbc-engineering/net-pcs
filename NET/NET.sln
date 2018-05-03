@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli", "Cli\Cli.csproj", "{0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallAds", "CallAds\CallAds.csproj", "{9E261388-7847-46BD-8D2F-7E928279AB89}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MbcAdcCommand", "MbcAdcCommand\MbcAdcCommand.csproj", "{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{9E261388-7847-46BD-8D2F-7E928279AB89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E261388-7847-46BD-8D2F-7E928279AB89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E261388-7847-46BD-8D2F-7E928279AB89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
