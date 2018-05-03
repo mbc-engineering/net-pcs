@@ -44,9 +44,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandOutputBuilder.cs" />
     <Compile Include="CommandInputBuilder.cs" />
     <Compile Include="DataExchange.cs" />
     <Compile Include="ICommandInput.cs" />
+    <Compile Include="ICommandOutput.cs" />
     <Compile Include="PlcCommandErrorException.cs" />
     <Compile Include="PlcCommandTimeoutException.cs" />
     <Compile Include="PlcCommandException.cs" />

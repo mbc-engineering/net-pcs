@@ -26,6 +26,11 @@ namespace Cli
                 { "Val2", 0 },
             };
 
+            var output = new Dictionary<string, object>
+            {
+                { "Result", null }
+            };
+
             var count = 0;
             while (true)
             {
@@ -33,13 +38,14 @@ namespace Cli
                 input["Val2"] = 2 * count;
 
                 var command = new PlcCommand(client, "Commands.fbAddCommand1");
-                command.Execute(input: CommandInputBuilder.FromDictionary(input));
+                command.Execute(input: CommandInputBuilder.FromDictionary(input), output: CommandOutputBuilder.FromDictionary(output));
+
 
                 if (count++ % 75 == 0)
                 {
                     Console.Write("\r\n{0}: ", count);
                 }
-                Console.Write(".");
+                Console.Write("." + output["Result"]);
             }
         }
     }

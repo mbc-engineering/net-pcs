@@ -37,7 +37,7 @@ namespace MbcAdcCommand
         /// </summary>
         /// <exception cref="InvalidOperationException">The ADS-Client given at construction
         /// time is not connected.</exception>
-        public void Execute(ICommandInput input = null)
+        public void Execute(ICommandInput input = null, ICommandOutput output = null)
         {
             if (!_adsClient.IsConnected)
                 throw new InvalidOperationException("ADS-Client is not connect.");
@@ -67,6 +67,8 @@ namespace MbcAdcCommand
                     _adsClient.DeleteDeviceNotification(cmdHandle);
                 }
 
+                if (output != null)
+                    ReadOutputData(output);
             }
             catch (Exception ex)
             {
@@ -88,9 +90,48 @@ namespace MbcAdcCommand
 
         }
 
+        private void ReadOutputData(ICommandOutput output)
+        {
+            // TODO nur temporär -> muss überarbeitet werden siehe Gitlab Issue #3
+
+            InitFbSymbols();
+
+            // ToList => deterministische Reihenfolge notwendig
+            var outputNames = output.GetOutputNames().ToList();
+
+            var symbols = new List<string>();
+            var types = new List<Type>();
+            foreach (var name in outputNames)
+            {
+                var symbolInfo = _fbSymbols[name];
+                symbols.Add(symbolInfo.Item1);
+                types.Add(symbolInfo.Item2);
+            }
+
+            var handleCreator = new SumCreateHandles(_adsClient, symbols);
+            var handles = handleCreator.CreateHandles();
+            try
+            {
+                var sumReader = new SumHandleRead(_adsClient, handles, types.ToArray());
+                var values = sumReader.Read();
+
+                for (int i = 0; i < values.Length; i++)
+                {
+                    output.SetOutputData(outputNames[i], values[i]);
+                }
+            }
+            finally
+            {
+                var handleReleaser = new SumReleaseHandles(_adsClient, handles);
+                handleReleaser.ReleaseHandles();
+            }
+
+        }
+
         private void WriteInputData(ICommandInput input)
         {
             // TODO nur temporär -> muss überarbeitet werden siehe Gitlab Issue #3
+
             InitFbSymbols();
 
             var inputData = input.GetInputData();
