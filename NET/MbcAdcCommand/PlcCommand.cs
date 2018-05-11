@@ -22,6 +22,9 @@ namespace MbcAdcCommand
         /// </summary>
         public event EventHandler<PlcCommandEventArgs> StateChanged;
 
+        /// <summary> FB-Structure: Variable-Path, Managed-Type, Byte-Size</summary>
+        private IReadOnlyDictionary<string, Tuple<string, Type, int>> _fbSymbols;
+
         private readonly TcAdsClient _adsClient;
         private readonly string _adsCommandFb;
 
@@ -104,6 +107,13 @@ namespace MbcAdcCommand
             // ToList => deterministische Reihenfolge notwendig
             var outputNames = output.GetOutputNames().ToList();
 
+            var missingOutputVariables = outputNames.Where(x => !_fbSymbols.ContainsKey(x)).ToArray();
+            if (missingOutputVariables.Length > 0)
+            {
+                throw new PlcCommandException(_adsCommandFb,
+                    $"Missing output variables on the PLC implementation: '{string.Join(",", missingOutputVariables)}'");
+            }
+
             var symbols = new List<string>();
             var types = new List<Type>();
             foreach (var name in outputNames)
@@ -140,6 +150,13 @@ namespace MbcAdcCommand
             InitFbSymbols();
 
             var inputData = input.GetInputData();
+
+            var missingInputVariables = inputData.Keys.Where(x => !_fbSymbols.ContainsKey(x)).ToArray();
+            if (missingInputVariables.Length > 0)
+            {
+                throw new PlcCommandException(_adsCommandFb,
+                    $"Missing input variables on the PLC implementation: '{string.Join(",", missingInputVariables)}'");
+            }
 
             var symbols = new List<string>();
             var types = new List<Type>();
@@ -192,8 +209,6 @@ namespace MbcAdcCommand
             }
         }
 
-        private IReadOnlyDictionary<string, Tuple<string, Type>> _fbSymbols;
-
         private void InitFbSymbols()
         {
             if (_fbSymbols != null)
@@ -201,12 +216,37 @@ namespace MbcAdcCommand
 
             var fbSymbolNames = ((ITcAdsSymbol5)_adsClient.ReadSymbolInfo(_adsCommandFb))
                 .DataType.SubItems
-                .Where(item => item.BaseType.IsPrimitive)
+                .Where(item => new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String }
+                    .Contains(item.BaseType.Category))
                 .ToDictionary(
                     item => item.SubItemName, 
-                    item => Tuple.Create(_adsCommandFb + "." + item.SubItemName, item.BaseType.ManagedType));
+                    item => Tuple.Create(_adsCommandFb + "." + item.SubItemName, GetManagedTypeForSubItem(item), item.ByteSize));
 
-            _fbSymbols = new ReadOnlyDictionary<string, Tuple<string, Type>>(fbSymbolNames);
+            _fbSymbols = new ReadOnlyDictionary<string, Tuple<string, Type, int>>(fbSymbolNames);
+        }
+
+        private Type GetManagedTypeForSubItem(ITcAdsSubItem subitem)
+        {
+            if (subitem.BaseType.ManagedType != null)
+                return subitem.BaseType.ManagedType;
+
+            switch (subitem.BaseType.DataTypeId)
+            {
+                case AdsDatatypeId.ADST_INT8:
+                    return typeof(sbyte);
+                case AdsDatatypeId.ADST_INT16:
+                    return typeof(short);
+                case AdsDatatypeId.ADST_INT32:
+                    return typeof(int);
+                case AdsDatatypeId.ADST_UINT8:
+                    return typeof(byte);
+                case AdsDatatypeId.ADST_UINT16:
+                    return typeof(ushort);
+                case AdsDatatypeId.ADST_UINT32:
+                    return typeof(uint);
+                default:
+                    throw new InvalidOperationException($"Unhandled ADS-Datatype '{subitem.BaseType}'. Please extend implementation!");
+            }
         }
 
         private void CheckResultCode(ushort resultCode)

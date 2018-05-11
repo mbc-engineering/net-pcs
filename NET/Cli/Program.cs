@@ -17,13 +17,13 @@ namespace Cli
             {
                 Synchronize = false
             };
-            client.Connect("172.16.23.55.1.1", 851);
+            client.Connect("172.16.23.2.1.1", 851);
 
 
             var input = new Dictionary<string, object>
             {
-                { "Val1", 0 },
-                { "Val2", 0 },
+                { "eInverter", 0 },
+                { "sInverterErrorFilePath", "foo" },
             };
 
             var output = new Dictionary<string, object>
@@ -34,13 +34,10 @@ namespace Cli
             var count = 0;
             while (true)
             {
-                input["Val1"] = count;
-                input["Val2"] = 2 * count;
-
                 //var command = new PlcCommand(client, "Commands.fbAddCommand1");
-                var command = new PlcCommand(client, "Commands.fbDelayedAddCommand1");
+                var command = new PlcCommand(client, "GVL_UIData.stUiCommands.fbRequestAutomaticModeCommand");
                 command.StateChanged += (sender, args) => PrintProgress(args.Progress, args.SubTask);
-                command.Execute(input: CommandInputBuilder.FromDictionary(input), output: CommandOutputBuilder.FromDictionary(output));
+                command.Execute(input: CommandInputBuilder.FromDictionary(input));
 
 
                 Console.WriteLine(" => " + output["Result"]);
