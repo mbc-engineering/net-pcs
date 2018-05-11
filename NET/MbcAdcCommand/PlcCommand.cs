@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using TwinCAT.Ads;
-using TwinCAT.TypeSystem;
 using TwinCAT.Ads.SumCommand;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace MbcAdcCommand
 {
@@ -37,12 +37,20 @@ namespace MbcAdcCommand
         /// </summary>
         public TimeSpan Timeout { get; set; } = DefaultTimeout;
 
+        public void Execute(ICommandInput input = null, ICommandOutput output = null)
+        {
+            Execute(CancellationToken.None, input, output);
+        }
+
         /// <summary>
         /// Executes a PLC command.
         /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> which allows to
+        /// cancel the running command.</param>
         /// <exception cref="InvalidOperationException">The ADS-Client given at construction
         /// time is not connected.</exception>
-        public void Execute(ICommandInput input = null, ICommandOutput output = null)
+        public void Execute(CancellationToken cancellationToken, ICommandInput input = null, 
+            ICommandOutput output = null)
         {
             if (!_adsClient.IsConnected)
                 throw new InvalidOperationException("ADS-Client is not connect.");
@@ -55,21 +63,30 @@ namespace MbcAdcCommand
             {
                 SetExecuteFlag();
 
-                var handshakeExchange = new DataExchange<CommandHandshakeStruct>();
-                var cmdHandle = _adsClient.AddDeviceNotificationEx(
-                    $"{_adsCommandFb}.stHandshake", 
-                    AdsTransMode.OnChange,
-                    TimeSpan.FromMilliseconds(50), // 50 statt 0 als Workaround für ein hängiges ADS-Problem mit Initial-Events
-                    TimeSpan.Zero,
-                    Tuple.Create(this, handshakeExchange), 
-                    typeof(CommandHandshakeStruct));
-                try
+                using (var cancellationRegistration = cancellationToken.Register(ResetExecuteFlag))
                 {
-                    WaitForExecution(handshakeExchange);
-                }
-                finally
-                {
-                    _adsClient.DeleteDeviceNotification(cmdHandle);
+                    var handshakeExchange = new DataExchange<CommandHandshakeStruct>();
+                    var cmdHandle = _adsClient.AddDeviceNotificationEx(
+                        $"{_adsCommandFb}.stHandshake",
+                        AdsTransMode.OnChange,
+                        TimeSpan.FromMilliseconds(50), // 50 statt 0 als Workaround für ein hängiges ADS-Problem mit Initial-Events
+                        TimeSpan.Zero,
+                        Tuple.Create(this, handshakeExchange),
+                        typeof(CommandHandshakeStruct));
+                    try
+                    {
+                        WaitForExecution(handshakeExchange);
+                    }
+                    catch (PlcCommandErrorException ex) when (ex.ResultCode == 3 && cancellationToken.IsCancellationRequested)
+                    {
+                        // Im Falle eines Abbruch durch einen User-Request (CancellationToken) wird
+                        // die Framework-Exception zurückgegeben.
+                        throw new OperationCanceledException("The command was cancelled by user request.", ex, cancellationToken);
+                    }
+                    finally
+                    {
+                        _adsClient.DeleteDeviceNotification(cmdHandle);
+                    }
                 }
 
                 if (output != null)
@@ -215,12 +232,12 @@ namespace MbcAdcCommand
 
             switch (resultCode)
             {
-                case 0: // Init
-                case 1: // Running
-                case 2: // Done
+                case (ushort)CommandResultCode.Initialized:
+                case (ushort)CommandResultCode.Running:
+                case (ushort)CommandResultCode.Done:
                     return;
 
-                case 3: // Cancelled
+                case (ushort)CommandResultCode.Cancelled:
                     errorMsg = "The command was cancelled.";
                     break;
 
@@ -265,7 +282,7 @@ namespace MbcAdcCommand
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 0)]
-        struct CommandHandshakeStruct
+        private struct CommandHandshakeStruct
         {
             [MarshalAs(UnmanagedType.I1)]
             public bool Execute;
