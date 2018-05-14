@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="CommandOutputBuilder.cs" />
     <Compile Include="CommandInputBuilder.cs" />
+    <Compile Include="CommandResultCode.cs" />
     <Compile Include="DataExchange.cs" />
     <Compile Include="ICommandInput.cs" />
     <Compile Include="ICommandOutput.cs" />
