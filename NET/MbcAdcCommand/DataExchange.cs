@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace MbcAdcCommand
+namespace Mbc.Pcs.Net
 {
     /// <summary>
     /// Helper class to transfer data from one thread to another.

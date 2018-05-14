@@ -1,4 +1,4 @@
-﻿namespace MbcAdcCommand
+﻿namespace Mbc.Pcs.Net
 {
     public enum CommandResultCode : ushort
     {

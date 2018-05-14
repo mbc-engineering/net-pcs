@@ -1,4 +1,4 @@
-﻿namespace MbcAdcCommand
+﻿namespace Mbc.Pcs.Net
 {
     /// <summary>
     /// Provides information of state change events of a <see cref="PlcCommand"/>.

@@ -10,7 +10,7 @@ using System.Threading;
 using TwinCAT.TypeSystem;
 using System.Threading.Tasks;
 
-namespace MbcAdcCommand
+namespace Mbc.Pcs.Net
 {
     /// <summary>
     /// Kapselt ein PLC-Kommando.

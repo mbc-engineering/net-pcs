@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli", "Cli\Cli.csproj", "{0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallAds", "CallAds\CallAds.csproj", "{9E261388-7847-46BD-8D2F-7E928279AB89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MbcAdcCommand", "MbcAdcCommand\MbcAdcCommand.csproj", "{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Pcs.Net", "MbcAdcCommand\Mbc.Pcs.Net.csproj", "{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
