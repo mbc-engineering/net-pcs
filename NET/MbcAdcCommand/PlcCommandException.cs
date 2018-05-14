@@ -20,6 +20,12 @@ namespace MbcAdcCommand
             CommandVariable = commandVariable;
         }
 
+        public PlcCommandException(string commandVariable, string message, Exception innerException)
+            : base(message, innerException)
+        {
+            CommandVariable = commandVariable;
+        }
+
         public string CommandVariable { get; }
 
         public override string Message

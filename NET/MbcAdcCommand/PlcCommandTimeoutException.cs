@@ -13,5 +13,9 @@ namespace MbcAdcCommand
         {
         }
 
+        public PlcCommandTimeoutException(string commandVariable, string message, Exception innerException)
+            : base(commandVariable, message, innerException)
+        {
+        }
     }
 }

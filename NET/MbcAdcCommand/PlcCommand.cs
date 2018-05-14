@@ -7,6 +7,7 @@ using TwinCAT.Ads;
 using TwinCAT.Ads.SumCommand;
 using System.Collections.ObjectModel;
 using System.Threading;
+using TwinCAT.TypeSystem;
 using System.Threading.Tasks;
 
 namespace MbcAdcCommand
@@ -236,9 +237,9 @@ namespace MbcAdcCommand
                         break;
                     }
                 }
-                catch (TimeoutException)
+                catch (TimeoutException ex)
                 {
-                    throw new PlcCommandTimeoutException(_adsCommandFb, $"The command timed out after {Timeout.Seconds} [s].");
+                    throw new PlcCommandTimeoutException(_adsCommandFb, $"The command timed out after {Timeout.Seconds} [s].", ex);
                 }
             }
         }
