@@ -7,6 +7,7 @@ using TwinCAT.Ads;
 using TwinCAT.Ads.SumCommand;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MbcAdcCommand
 {
@@ -40,18 +41,34 @@ namespace MbcAdcCommand
         /// </summary>
         public TimeSpan Timeout { get; set; } = DefaultTimeout;
 
+        /// <summary>
+        /// Executes a PLC command.
+        /// </summary>
+        /// <seealso cref="Execute(CancellationToken, ICommandInput, ICommandOutput)"/>
         public void Execute(ICommandInput input = null, ICommandOutput output = null)
         {
             Execute(CancellationToken.None, input, output);
         }
 
         /// <summary>
+        /// Executes a PLC command asynchronously.
+        /// </summary>
+        /// <seealso cref="Execute(CancellationToken, ICommandInput, ICommandOutput)"/>
+        public Task ExecuteAsync(CancellationToken cancellationToken, ICommandInput input = null,
+            ICommandOutput output = null)
+        {
+            return Task.Run(() => Execute(cancellationToken, input, output));
+        }
+
+        /// <summary>
         /// Executes a PLC command.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> which allows to
-        /// cancel the running command.</param>
+        /// cancel the running command. The cancel request is sent to the PLC and the 
+        /// execution will still wait for the PLC to end to command.</param>
         /// <exception cref="InvalidOperationException">The ADS-Client given at construction
         /// time is not connected.</exception>
+        /// <example
         public void Execute(CancellationToken cancellationToken, ICommandInput input = null, 
             ICommandOutput output = null)
         {
