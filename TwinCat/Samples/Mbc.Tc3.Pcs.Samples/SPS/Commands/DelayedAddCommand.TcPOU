@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
   <POU Name="DelayedAddCommand" Id="{65b2ca40-9e7e-4cdc-82b9-f7b2c503faa2}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK DelayedAddCommand EXTENDS AddCommand
 VAR
@@ -8,15 +8,6 @@ END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Method Name="Abort" Id="{5607005d-a3e2-4a0d-8acf-89dd886f9689}">
-      <Declaration><![CDATA[METHOD PUBLIC Abort]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[SUPER^.Abort();
-
-// Reset Input for next start
-_tonDelay(IN:=stHandshake.bBusy);]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="CalculateProgress" Id="{5cea9727-992d-40c4-9429-66e19c9b7a56}">
       <Declaration><![CDATA[METHOD PROTECTED CalculateProgress
 ]]></Declaration>
@@ -29,13 +20,22 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Done" Id="{d3f67563-493c-480a-88ee-d8edb11f7e53}">
-      <Declaration><![CDATA[METHOD PROTECTED Done
-VAR_INPUT
-	nResultCode		: UINT;
-END_VAR]]></Declaration>
+    <Method Name="Cancelled" Id="{5607005d-a3e2-4a0d-8acf-89dd886f9689}">
+      <Declaration><![CDATA[METHOD Protected Cancelled]]></Declaration>
       <Implementation>
-        <ST><![CDATA[SUPER^.Done(nResultCode);
+        <ST><![CDATA[SUPER^.Cancelled();
+
+// Reset Input for next start
+_tonDelay(IN:=stHandshake.bBusy);
+
+// Set result to invalid value
+Result := -1;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Done" Id="{d3f67563-493c-480a-88ee-d8edb11f7e53}">
+      <Declaration><![CDATA[METHOD PROTECTED Done]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.Done();
 
 // Reset Input for next start
 _tonDelay(IN:=stHandshake.bBusy);]]></ST>
@@ -53,23 +53,26 @@ IF _tonDelay.Q THEN
 	
 	// Exection is finished, set nResultCode = 99
 	
-	DONE(E_CommandResultCode.Done);
+	Finish(E_CommandResultCode.Done);
 END_IF]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="DelayedAddCommand">
       <LineId Id="9" Count="0" />
     </LineIds>
-    <LineIds Name="DelayedAddCommand.Abort">
-      <LineId Id="7" Count="1" />
-      <LineId Id="6" Count="0" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
     <LineIds Name="DelayedAddCommand.CalculateProgress">
       <LineId Id="15" Count="2" />
       <LineId Id="12" Count="0" />
       <LineId Id="14" Count="0" />
       <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="DelayedAddCommand.Cancelled">
+      <LineId Id="7" Count="1" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="DelayedAddCommand.Done">
       <LineId Id="9" Count="2" />
