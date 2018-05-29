@@ -13,7 +13,7 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[// OO-Class 
-;]]></ST>
+Call();]]></ST>
     </Implementation>
     <Method Name="CalculateProgress" Id="{a16648df-eb2b-0767-0ec1-b2c892b01c2b}">
       <Declaration><![CDATA[// Can be used to calculate the ``stHandshake.nProgress`` and ``stHandshake.nSubTask``
@@ -27,7 +27,7 @@ END_IF]]></ST>
     </Method>
     <Method Name="Call" Id="{122b0574-ff69-07fc-29ae-2aea1e238cec}">
       <Declaration><![CDATA[// The method is called in each cycle to execute the funktional part and the states of the command implementation.
-METHOD PUBLIC Call
+METHOD Public Call
 VAR
 	bInit		: BOOL;
 	HEN: INT;

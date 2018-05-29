@@ -1,8 +1,14 @@
 # CommandBase
 
-## Purpose of this document
+## Basics
 
-Describe the principles of a `CommandBase` Class.
+The CommandBase Function Block can be used to abstract a command Operation from PCS to TwinCat PLC. A Command can be executed and contain some input data from PCS to PLC and some output data from PLC to PCS. A ResultCode describes, a command was executed successfully or not.
+
+The CommandBase should be extended by each project Commands with: `FUNCTION_BLOCK PUBLIC MyProjectCommand EXTENDS CommandBase`. There are the following multiple ways to call the POU. Only one is necessary!
+
+1. In the derived `MyProjectCommand` function block call the basic function block by using `SUPER^();`. Without this call the command doesn't  work.
+2. In the derived `MyProjectCommand` function block call the basic function block Method `Call();`. Without this call the command doesn't  work.
+3. Call the instance Methode `fbMyProjectCommand.Call();` of `MyProjectCommand` function block. Without this call the command doesn't  work.
 
 ## States
 
@@ -17,7 +23,7 @@ See in the TwinCat 3 Library Manager, in the library. Expand the Command folder 
 
 - Call => The method is called in each cycle to execute the funktional part and the states of the command implementation.
 - Init => Will be called when ``stHandshake.bExecute`` changes to ``true`` one cycle and in the same cycle.
-- Task => Execute the funktional part of the command implementation. Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method
+- Task => Execute the funktional part of the command implementation in the state running. Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method. 
 - Done => Will be called when ``Running`` state is done and the actual state is ``Done``.
 - Cancelled => Will be called at the Cancel state when the execution is finished with the result code ``Cancelled`` or ``stHandshake.bExecute`` changes to ``false`` while ``stHandshake.bBusy`` is ```true``
 - CalculateProgress => Can be used to calculate the ``stHandshake.nProgress`` and ``stHandshake.nSubTask``

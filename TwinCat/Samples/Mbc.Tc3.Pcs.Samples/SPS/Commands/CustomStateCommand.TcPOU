@@ -10,7 +10,8 @@ VAR
 	fbDelayedState: TON := (IN := FALSE, PT:= T#2S);
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[;]]></ST>
+      <ST><![CDATA[// OO-Class 
+SUPER^();]]></ST>
     </Implementation>
     <Method Name="Init" Id="{3e6108ad-08e0-04ed-2de4-0e3f0a82760a}">
       <Declaration><![CDATA[// Will be called when ``stHandshake.bExecute`` changes to ``true`` one cycle and in the same cycle.
@@ -36,6 +37,7 @@ END_IF
       </Implementation>
     </Method>
     <LineIds Name="CustomStateCommand">
+      <LineId Id="17" Count="0" />
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="CustomStateCommand.Init">

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
   <POU Name="AddCommand" Id="{98998d3f-90e1-4abb-9d41-c1c8d9357edf}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK AddCommand EXTENDS CommandBase
 VAR_INPUT
@@ -15,7 +15,7 @@ VAR
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[// OO-Class 
-;]]></ST>
+SUPER^();]]></ST>
     </Implementation>
     <Method Name="Task" Id="{72999091-51a2-4b24-b591-51f1ce1d7835}">
       <Declaration><![CDATA[METHOD PROTECTED Task : BOOL]]></Declaration>

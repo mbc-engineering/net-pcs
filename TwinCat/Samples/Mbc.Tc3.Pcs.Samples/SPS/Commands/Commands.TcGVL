@@ -3,6 +3,7 @@
   <GVL Name="Commands" Id="{6236b5d6-4821-0594-19ad-760d9d192eb5}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL
+	fbBaseCommand1			: CommandBase;
 	fbStartCommand1			: TriggerCommand;
 	fbCustomStateCommand1	: CustomStateCommand;
 	fbAddCommand1			: AddCommand 			:= (Val1 := 3, Val2 := 2);
