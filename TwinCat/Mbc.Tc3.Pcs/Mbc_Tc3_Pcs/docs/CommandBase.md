@@ -63,6 +63,30 @@ TYPE E_CommandResultCode :
 END_TYPE
 ```
 
+## Command initialisation
+
+Sometimes it is helpfull to give some initial values to a generic implementation of a command. For example to set a diferent initial value at multiple command instances with the same behavor. Or set different delay times to a command. This can be done by creating a Method called `FB_init`. In the `VAR_INPUT` section define your inital variables and use it. By declaration the POU you can set it like in the following example:
+
+**Method MyDelayedCommand.FB_init:**
+```C
+METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode  : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	tDelayTime   : TIME; // Time to deleay the Running state
+END_VAR
+
+// initialize the TON fb
+fbTonDelay.PT := tDelayTime;
+```
+
+**Declaration of the function block MyDelayedCommand:**
+```c
+fbDelayedCommand1 : MyDelayedCommand(tDelayTime := T#4S);
+```
+
+> The technique behind is documented under [Infosys FB_init](https://infosys.beckhoff.com/english.php?content=../content/1033/tc3_plc_intro/5094414603.html&id=6967794353598129051).
+
 ## Quick start with your first Command
 
 **Goal:** 

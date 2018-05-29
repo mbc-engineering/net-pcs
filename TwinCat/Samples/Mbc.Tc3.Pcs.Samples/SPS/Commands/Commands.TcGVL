@@ -6,8 +6,8 @@ VAR_GLOBAL
 	fbBaseCommand1			: CommandBase;
 	fbStartCommand1			: TriggerCommand;
 	fbCustomStateCommand1	: CustomStateCommand;
-	fbAddCommand1			: AddCommand 			:= (Val1 := 3, Val2 := 2);
-	fbDelayedAddCommand1	: DelayedAddCommand 	:= (Val1 := 4, Val2 := 5);
+	fbAddCommand1			: AddCommand 								:= (Val1 := 3, Val2 := 2);
+	fbDelayedAddCommand1	: DelayedAddCommand(tDelayTime := T#4S) 	:= (Val1 := 10, Val2 := 4);
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>
