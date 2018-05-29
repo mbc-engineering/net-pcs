@@ -19,6 +19,9 @@ The following types of changes exist:
 - The new `CommandBase` Method `Done` is called at the command state `E_CommandResultCode.Done`, to clarify the state behavior of this method.
 - The `CommandBase` Method `CalculateProgress` is new executed every cycle in all states!
 
+### Added
+- Now it is possible to calculate custom States with `E_CommandResultCode.Done` because it is not anymore strict. Eg.: `E_CommandResultCode.StartCustom + 1`
+
 ## [1.1.0] - 25.04.2018
 ### Added
 - New Constant in `E_CommandResultCode` which indicates the start of the user result codes

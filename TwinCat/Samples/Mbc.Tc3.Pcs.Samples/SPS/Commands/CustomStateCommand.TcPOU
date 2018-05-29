@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <POU Name="CustomStateCommand" Id="{096afba5-ac69-0cc5-0827-85acbc768d34}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CustomStateCommand EXTENDS CommandBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	fbDelayedState: TON := (IN := FALSE, PT:= T#2S);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[;]]></ST>
+    </Implementation>
+    <Method Name="Init" Id="{3e6108ad-08e0-04ed-2de4-0e3f0a82760a}">
+      <Declaration><![CDATA[// Will be called when ``stHandshake.bExecute`` changes to ``true`` one cycle and in the same cycle.
+METHOD PROTECTED Init
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbDelayedState(IN := False);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Task" Id="{43834ce9-c5dd-03ca-0d2d-226e73644be2}">
+      <Declaration><![CDATA[// Execute the funktional part of the command implementation. Will also be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method
+METHOD PROTECTED Task : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+fbDelayedState(IN:= TRUE);
+
+IF (fbDelayedState.Q) THEN
+	Finish(E_CommandResultCode.StartCustom + 1);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="CustomStateCommand">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="CustomStateCommand.Init">
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="CustomStateCommand.Task">
+      <LineId Id="7" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

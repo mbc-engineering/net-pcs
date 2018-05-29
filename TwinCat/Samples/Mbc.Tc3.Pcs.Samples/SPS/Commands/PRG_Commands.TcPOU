@@ -13,7 +13,7 @@ fbTofStartCommand1(
 	IN := Commands.fbStartCommand1.Q,
 	PT := T#1S);	
 	
-	
+Commands.fbCustomStateCommand1.Call();	
 Commands.fbAddCommand1.Call();
 Commands.fbDelayedAddCommand1.Call();]]></ST>
     </Implementation>
