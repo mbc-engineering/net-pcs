@@ -12,6 +12,13 @@ The following types of changes exist:
 - **Fixed** for any bug fixes.
 - **Security** in case of vulnerabilities.
 
+## [1.2.0] - 29.05.2018
+### Changed
+- The `CommandBase` Public Method `Abort` is renamed to Protected Method `Cancelled`
+- The `CommandBase` Method `Done` is renamed to `Finish`, to clarify the transient behavior of this method.
+- The new `CommandBase` Method `Done` is called at the command state `E_CommandResultCode.Done`, to clarify the state behavior of this method.
+- The `CommandBase` Method `CalculateProgress` is new executed every cycle in all states!
+
 ## [1.1.0] - 25.04.2018
 ### Added
 - New Constant in `E_CommandResultCode` which indicates the start of the user result codes

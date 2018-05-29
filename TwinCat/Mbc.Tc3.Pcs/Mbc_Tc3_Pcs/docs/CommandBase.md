@@ -15,19 +15,20 @@ The Button has the following default states represented as the `stHandshake.nRes
 
 See in the TwinCat 3 Library Manager, in the library. Expand the Command folder and then expand also the `CommandBase` Class to show the methods. By selection of each Method it will show also the explanation.
 
-- Call ? The method is called in each cycle to execute the funktional part and the states of the command implementation.
-- Init ? Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true``
-- Task ? Execute the funktional part of the command implementation. Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method
-- CalculateProgress ? Can be used to calculate the ``stHandshake.nProgress`` and ``stHandshake.nSubTask``
-- Done ? Can be use to finish the ``Task`` Execution with a ``nResultCode``. 
-- Abort ? Abort the ``Task`` Execution with the result code ``Cancelled``
+- Call => The method is called in each cycle to execute the funktional part and the states of the command implementation.
+- Init => Will be called when ``stHandshake.bExecute`` changes to ``true`` one cycle and in the same cycle.
+- Task => Execute the funktional part of the command implementation. Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method
+- Done => Will be called when ``Running`` state is done and the actual state is ``Done``.
+- Cancelled => Will be called at the Cancel state when the execution is finished with the result code ``Cancelled`` or ``stHandshake.bExecute`` changes to ``false`` while ``stHandshake.bBusy`` is ```true``
+- CalculateProgress => Can be used to calculate the ``stHandshake.nProgress`` and ``stHandshake.nSubTask``
+- Finish => Can be use to finish the ``Task`` Execution with a ``nResultCode``. By using the ``Finish(E_CommandResultCode.Cancelled)`` or ``Finish(E_CommandResultCode.Done)`` calls, to the coresponding states methods ``Done`` and ``Cancelled`` will be called.
 
 ## Properties
 
 See in the TwinCat 3 Library Manager, in the library. Expand the Command folder and then expand also the `CommandBase` Class to show the Properties. By selection of each Property it will show also the explanation.
 
-- Progress ? Set the Progress from everywhere in the application (Regular from CalculateProgress Method)
-- SubTask ? Set the SubTask Information from everywhere in the application (Regular from CalculateProgress Method)
+- Progress => Set the Progress from everywhere in the application (Regular from CalculateProgress Method)
+- SubTask => Set the SubTask Information from everywhere in the application (Regular from CalculateProgress Method)
 
 ## Communication structure to PCS
 
