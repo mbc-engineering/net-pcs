@@ -13,7 +13,8 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[]]></ST>
+      <ST><![CDATA[// OO-Class 
+SUPER^();]]></ST>
     </Implementation>
     <Method Name="Init" Id="{fefad13b-36f4-09af-2cda-4ebdb7042fe2}">
       <Declaration><![CDATA[// Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true``
@@ -42,6 +43,7 @@ bInit := FALSE;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="TriggerCommand">
+      <LineId Id="20" Count="0" />
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="TriggerCommand.Init">

@@ -25,6 +25,9 @@
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
     </Compile>
+    <Compile Include="Commands\CustomStateCommand.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Commands\DelayedAddCommand.TcPOU">
       <SubType>Code</SubType>
     </Compile>

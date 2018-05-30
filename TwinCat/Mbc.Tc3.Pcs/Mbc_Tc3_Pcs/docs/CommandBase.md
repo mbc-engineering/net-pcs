@@ -1,8 +1,14 @@
 # CommandBase
 
-## Purpose of this document
+## Basics
 
-Describe the principles of a `CommandBase` Class.
+The CommandBase Function Block can be used to abstract a command Operation from PCS to TwinCat PLC. A Command can be executed and contain some input data from PCS to PLC and some output data from PLC to PCS. A ResultCode describes, a command was executed successfully or not.
+
+The CommandBase should be extended by each project Commands with: `FUNCTION_BLOCK PUBLIC MyProjectCommand EXTENDS CommandBase`. There are the following multiple ways to call the POU. Only one is necessary!
+
+1. In the derived `MyProjectCommand` function block call the basic function block by using `SUPER^();`. Without this call the command doesn't  work.
+2. In the derived `MyProjectCommand` function block call the basic function block Method `Call();`. Without this call the command doesn't  work.
+3. Call the instance Methode `fbMyProjectCommand.Call();` of `MyProjectCommand` function block. Without this call the command doesn't  work.
 
 ## States
 
@@ -15,19 +21,20 @@ The Button has the following default states represented as the `stHandshake.nRes
 
 See in the TwinCat 3 Library Manager, in the library. Expand the Command folder and then expand also the `CommandBase` Class to show the methods. By selection of each Method it will show also the explanation.
 
-- Call ? The method is called in each cycle to execute the funktional part and the states of the command implementation.
-- Init ? Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true``
-- Task ? Execute the funktional part of the command implementation. Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method
-- CalculateProgress ? Can be used to calculate the ``stHandshake.nProgress`` and ``stHandshake.nSubTask``
-- Done ? Can be use to finish the ``Task`` Execution with a ``nResultCode``. 
-- Abort ? Abort the ``Task`` Execution with the result code ``Cancelled``
+- Call => The method is called in each cycle to execute the funktional part and the states of the command implementation.
+- Init => Will be called when ``stHandshake.bExecute`` changes to ``true`` one cycle and in the same cycle.
+- Task => Execute the funktional part of the command implementation in the state running. Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method. 
+- Done => Will be called when ``Running`` state is done and the actual state is ``Done``.
+- Cancelled => Will be called at the Cancel state when the execution is finished with the result code ``Cancelled`` or ``stHandshake.bExecute`` changes to ``false`` while ``stHandshake.bBusy`` is ```true``
+- CalculateProgress => Can be used to calculate the ``stHandshake.nProgress`` and ``stHandshake.nSubTask``
+- Finish => Can be use to finish the ``Task`` Execution with a ``nResultCode``. By using the ``Finish(E_CommandResultCode.Cancelled)`` or ``Finish(E_CommandResultCode.Done)`` calls, to the coresponding states methods ``Done`` and ``Cancelled`` will be called.
 
 ## Properties
 
 See in the TwinCat 3 Library Manager, in the library. Expand the Command folder and then expand also the `CommandBase` Class to show the Properties. By selection of each Property it will show also the explanation.
 
-- Progress ? Set the Progress from everywhere in the application (Regular from CalculateProgress Method)
-- SubTask ? Set the SubTask Information from everywhere in the application (Regular from CalculateProgress Method)
+- Progress => Set the Progress from everywhere in the application (Regular from CalculateProgress Method)
+- SubTask => Set the SubTask Information from everywhere in the application (Regular from CalculateProgress Method)
 
 ## Communication structure to PCS
 
@@ -56,6 +63,32 @@ TYPE E_CommandResultCode :
 END_TYPE
 ```
 
+## Command initialisation
+
+Sometimes it is helpfull to give some initial values to a generic implementation of a command. For example to set a different initial value at multiple command instances with the same behavor. Or set different delay times to a command. This can be done by creating a Method called `FB_init`. In the `VAR_INPUT` section define your inital variables and use it. *Be aware that the two from TwinCat 3 required leading variables `bInitRetains : BOOL` and `bInCopyCode : BOOL;` are present.* By declarating the POU you can set it like in the following example:
+
+**Method MyDelayedCommand.FB_init:**
+```C
+METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode  : BOOL; // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	tDelayTime   : TIME; // Time to deleay the Running state
+END_VAR
+
+// initialize the TON fb
+fbTonDelay.PT := tDelayTime;
+```
+
+**Declaration of the function block MyDelayedCommand:**
+```c
+fbDelayedCommand1 : MyDelayedCommand(tDelayTime := T#4S);
+```
+
+> The technique behind is documented under [Infosys FB_init](https://infosys.beckhoff.com/english.php?content=../content/1033/tc3_plc_intro/5094414603.html&id=6967794353598129051).
+
+> There is also a helpful attribute named `call_after_init` that calls a custom Method after processing the FB_init() initialisation method, see under [Infosys Attribute `call_after_init`](https://infosys.beckhoff.com/english.php?content=../content/1033/tc3_plc_intro/2529600907.html&id=1875029305085369793).
+
 ## Quick start with your first Command
 
 **Goal:** 
@@ -75,6 +108,8 @@ END_VAR
 VAR
 	bInit 	: BOOL;
 END_VAR
+
+SUPER^();
 ```
 
 Then we ned to now when the Command is executed. For that we add a Method with the Name `Init` to the Class.
@@ -116,11 +151,11 @@ END_VAR
 In the main Program you should now call the Button in a cycle behavior.
 
 ```
-Commands.StartCommand1.Call();
+Commands.StartCommand1();
 	
 fbTofStartCommand1(
 	IN := Commands.StartCommand1.Q,
-	PT := T#1S);		
+	PT := T#2S);		
 ```
 
 Now there is simple Start Button created.

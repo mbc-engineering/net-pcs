@@ -13,17 +13,8 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[// OO-Class 
-;]]></ST>
+Call();]]></ST>
     </Implementation>
-    <Method Name="Abort" Id="{ea835809-8527-04fc-2537-4ead9acb0d0c}">
-      <Declaration><![CDATA[// Abort the ``Task`` Execution with the result code ``Cancelled``
-METHOD PUBLIC Abort
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Done(E_CommandResultCode.Cancelled);
-]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="CalculateProgress" Id="{a16648df-eb2b-0767-0ec1-b2c892b01c2b}">
       <Declaration><![CDATA[// Can be used to calculate the ``stHandshake.nProgress`` and ``stHandshake.nSubTask``
 METHOD PROTECTED CalculateProgress
@@ -36,9 +27,10 @@ END_IF]]></ST>
     </Method>
     <Method Name="Call" Id="{122b0574-ff69-07fc-29ae-2aea1e238cec}">
       <Declaration><![CDATA[// The method is called in each cycle to execute the funktional part and the states of the command implementation.
-METHOD PUBLIC Call
+METHOD Public Call
 VAR
 	bInit		: BOOL;
+	HEN: INT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Starting Case
@@ -48,26 +40,55 @@ IF bInit THEN
 	Init();
 END_IF
 
-// Cancel Case
-IF NOT stHandshake.bExecute AND stHandshake.bBusy THEN
-	Abort();
+// Cancel by User Transition
+IF (NOT stHandshake.bExecute AND stHandshake.bBusy)THEN
+	Finish(E_CommandResultCode.Cancelled);	
 END_IF
 
-// Running Case
+// Cancel State
+IF (stHandshake.nResultCode = E_CommandResultCode.Cancelled)THEN
+	Cancelled();
+END_IF
+
+// Running State
 IF stHandshake.bExecute AND stHandshake.bBusy THEN
 	
-	// Set Task init on First Call
 	IF Task() THEN
-		Done(E_CommandResultCode.Done);
+		// Done Transition
+		Finish(E_CommandResultCode.Done);
 	END_IF
-		
-	CalculateProgress();	
-END_IF]]></ST>
+END_IF
+
+// Done State
+IF (stHandshake.nResultCode = E_CommandResultCode.Done) THEN
+	Done();
+END_IF
+
+CalculateProgress();]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Done" Id="{38ab0c16-9dcb-0710-3b7a-4cc8228c26d9}">
-      <Declaration><![CDATA[// Can be use to finish the ``Task`` Execution with a ``nResultCode``. 
+    <Method Name="Cancelled" Id="{ea835809-8527-04fc-2537-4ead9acb0d0c}">
+      <Declaration><![CDATA[// Will be called at the Cancel state when the execution is finished with the result code ``Cancelled`` or ``stHandshake.bExecute`` changes to ``false`` while ``stHandshake.bBusy`` is ```true``
+METHOD PROTECTED Cancelled
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Done" Id="{25dbcb74-56ee-0f87-207e-c2f6e4bd50c0}">
+      <Declaration><![CDATA[// Will be called when ``Running`` state is done and the actual state is ``Done``.
 METHOD PROTECTED Done
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Finish" Id="{38ab0c16-9dcb-0710-3b7a-4cc8228c26d9}">
+      <Declaration><![CDATA[// Can be use to finish the ``Task`` Execution with a ``nResultCode``. By using the ``Finish(E_CommandResultCode.Cancelled)`` or ``Finish(E_CommandResultCode.Done)`` calls, to the coresponding states methods ``Done`` and ``Cancelled`` will be called.  
+METHOD PROTECTED Finish
 VAR_INPUT
 	nResultCode		: UINT;
 END_VAR]]></Declaration>
@@ -77,7 +98,7 @@ stHandshake.nResultCode := nResultCode;]]></ST>
       </Implementation>
     </Method>
     <Method Name="Init" Id="{73b42678-0303-042f-2b5e-b8719716b1e0}">
-      <Declaration><![CDATA[// Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true``
+      <Declaration><![CDATA[// Will be called when ``stHandshake.bExecute`` changes to ``true`` one cycle and in the same cycle.
 METHOD PROTECTED Init
 VAR_INPUT
 END_VAR
@@ -131,7 +152,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="Task" Id="{50b60cf9-4807-097f-189d-1bed3be2c16e}">
-      <Declaration><![CDATA[// Execute the funktional part of the command implementation. Will be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method
+      <Declaration><![CDATA[// Execute the funktional part of the command implementation. Will also be executed in the same cycle ``stHandshake.bExecute`` changes to ``true`` after the ``Init`` Method
 METHOD PROTECTED Task : BOOL
 ]]></Declaration>
       <Implementation>
@@ -142,9 +163,6 @@ Task := TRUE;]]></ST>
     <LineIds Name="CommandBase">
       <LineId Id="94" Count="0" />
       <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="CommandBase.Abort">
-      <LineId Id="15" Count="1" />
     </LineIds>
     <LineIds Name="CommandBase.CalculateProgress">
       <LineId Id="5" Count="2" />
@@ -159,17 +177,29 @@ Task := TRUE;]]></ST>
       <LineId Id="13" Count="1" />
       <LineId Id="29" Count="0" />
       <LineId Id="19" Count="0" />
+      <LineId Id="81" Count="2" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="80" Count="0" />
       <LineId Id="41" Count="0" />
       <LineId Id="20" Count="1" />
       <LineId Id="45" Count="0" />
-      <LineId Id="35" Count="0" />
       <LineId Id="67" Count="0" />
+      <LineId Id="77" Count="0" />
       <LineId Id="69" Count="1" />
-      <LineId Id="68" Count="0" />
-      <LineId Id="47" Count="0" />
       <LineId Id="27" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="89" Count="2" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="93" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Cancelled">
+      <LineId Id="15" Count="1" />
     </LineIds>
     <LineIds Name="CommandBase.Done">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="CommandBase.Finish">
       <LineId Id="13" Count="0" />
       <LineId Id="8" Count="0" />
     </LineIds>
