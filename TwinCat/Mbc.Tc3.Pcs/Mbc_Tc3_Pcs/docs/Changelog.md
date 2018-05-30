@@ -20,7 +20,7 @@ The following types of changes exist:
 - The `CommandBase` Method `CalculateProgress` is new executed every cycle in all states!
 
 ### Added
-- Now it is possible to calculate custom States with `E_CommandResultCode.Done` because it is not anymore strict. Eg.: `E_CommandResultCode.StartCustom + 1`
+- Now it is possible to calculate custom States with `E_CommandResultCode` because it is not anymore strict. Eg.: `E_CommandResultCode.StartCustom + 1`
 - more `CommandBase` documentation
 
 ## [1.1.0] - 25.04.2018

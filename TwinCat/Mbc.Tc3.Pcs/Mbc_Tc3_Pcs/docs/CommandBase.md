@@ -65,7 +65,7 @@ END_TYPE
 
 ## Command initialisation
 
-Sometimes it is helpfull to give some initial values to a generic implementation of a command. For example to set a diferent initial value at multiple command instances with the same behavor. Or set different delay times to a command. This can be done by creating a Method called `FB_init`. In the `VAR_INPUT` section define your inital variables and use it. By declaration the POU you can set it like in the following example:
+Sometimes it is helpfull to give some initial values to a generic implementation of a command. For example to set a different initial value at multiple command instances with the same behavor. Or set different delay times to a command. This can be done by creating a Method called `FB_init`. In the `VAR_INPUT` section define your inital variables and use it. *Be aware that the two from TwinCat 3 required leading variables `bInitRetains : BOOL` and `bInCopyCode : BOOL;` are present.* By declarating the POU you can set it like in the following example:
 
 **Method MyDelayedCommand.FB_init:**
 ```C
@@ -87,6 +87,8 @@ fbDelayedCommand1 : MyDelayedCommand(tDelayTime := T#4S);
 
 > The technique behind is documented under [Infosys FB_init](https://infosys.beckhoff.com/english.php?content=../content/1033/tc3_plc_intro/5094414603.html&id=6967794353598129051).
 
+> There is also a helpful attribute named `call_after_init` that calls a custom Method after processing the FB_init() initialisation method, see under [Infosys Attribute `call_after_init`](https://infosys.beckhoff.com/english.php?content=../content/1033/tc3_plc_intro/2529600907.html&id=1875029305085369793).
+
 ## Quick start with your first Command
 
 **Goal:** 
@@ -106,6 +108,8 @@ END_VAR
 VAR
 	bInit 	: BOOL;
 END_VAR
+
+SUPER^();
 ```
 
 Then we ned to now when the Command is executed. For that we add a Method with the Name `Init` to the Class.
@@ -147,11 +151,11 @@ END_VAR
 In the main Program you should now call the Button in a cycle behavior.
 
 ```
-Commands.StartCommand1.Call();
+Commands.StartCommand1();
 	
 fbTofStartCommand1(
 	IN := Commands.StartCommand1.Q,
-	PT := T#1S);		
+	PT := T#2S);		
 ```
 
 Now there is simple Start Button created.
