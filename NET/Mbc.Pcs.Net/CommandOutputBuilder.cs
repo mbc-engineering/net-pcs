@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mbc.Pcs.Net
 {
@@ -28,12 +24,32 @@ namespace Mbc.Pcs.Net
                 _dictonary = dictionary;
             }
 
+            public T GetOutputData<T>(string name)
+            {
+                object value = _dictonary[name];
+                if (value is T tValue)
+                {
+                    return tValue;
+                }
+                else
+                {
+                    try
+                    {
+                        return (T)Convert.ChangeType(value, typeof(T));
+                    }
+                    catch (InvalidCastException)
+                    {
+                        throw new InvalidCastException($"Symbol {name} is not from the required type symbol to {typeof(T)}");
+                    }                    
+                }
+            }
+
             public IEnumerable<string> GetOutputNames()
             {
                 return _dictonary.Keys;
             }
 
-            public void SetOutputData(string name, object value)
+            public void SetOutputData<T>(string name, T value)
             {
                 _dictonary[name] = value;
             }

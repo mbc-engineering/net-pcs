@@ -24,9 +24,6 @@ namespace Mbc.Pcs.Net
         /// </summary>
         public event EventHandler<PlcCommandEventArgs> StateChanged;
 
-        /// <summary> FB-Structure: Variable-Path, Managed-Type, Byte-Size</summary>
-        private IReadOnlyDictionary<string, Tuple<string, Type, int>> _fbSymbols;
-
         private readonly TcAdsClient _adsClient;
         private readonly string _adsCommandFb;
 
@@ -49,6 +46,15 @@ namespace Mbc.Pcs.Net
         public void Execute(ICommandInput input = null, ICommandOutput output = null)
         {
             Execute(CancellationToken.None, input, output);
+        }
+
+        /// <summary>
+        /// Executes a PLC command asynchronously.
+        /// </summary>
+        /// <seealso cref="Execute(CancellationToken, ICommandInput, ICommandOutput)"/>
+        public Task ExecuteAsync(ICommandInput input = null, ICommandOutput output = null)
+        {
+            return Task.Run(() => Execute(CancellationToken.None, input, output));
         }
 
         /// <summary>
@@ -135,14 +141,13 @@ namespace Mbc.Pcs.Net
 
         private void ReadOutputData(ICommandOutput output)
         {
-            // TODO nur temporär -> muss überarbeitet werden siehe Gitlab Issue #3
-
-            InitFbSymbols();
+            // read symbols with attribute flags for output data
+            var fbSymbols = ReadFbSymbols(PlcAttributeNames.PcsCommandOutput);
 
             // ToList => deterministische Reihenfolge notwendig
             var outputNames = output.GetOutputNames().ToList();
 
-            var missingOutputVariables = outputNames.Where(x => !_fbSymbols.ContainsKey(x)).ToArray();
+            var missingOutputVariables = outputNames.Where(x => !fbSymbols.ContainsKey(x)).ToArray();
             if (missingOutputVariables.Length > 0)
             {
                 throw new PlcCommandException(_adsCommandFb,
@@ -153,9 +158,9 @@ namespace Mbc.Pcs.Net
             var types = new List<Type>();
             foreach (var name in outputNames)
             {
-                var symbolInfo = _fbSymbols[name];
-                symbols.Add(symbolInfo.Item1);
-                types.Add(symbolInfo.Item2);
+                var symbolInfo = fbSymbols[name];
+                symbols.Add(symbolInfo.variablePath);
+                types.Add(symbolInfo.type);
             }
 
             var handleCreator = new SumCreateHandles(_adsClient, symbols);
@@ -180,13 +185,12 @@ namespace Mbc.Pcs.Net
 
         private void WriteInputData(ICommandInput input)
         {
-            // TODO nur temporär -> muss überarbeitet werden siehe Gitlab Issue #3
-
-            InitFbSymbols();
-
+            // read symbols with attribute flags for input data
+            var fbSymbols = ReadFbSymbols(PlcAttributeNames.PcsCommandInput);
+            
             var inputData = input.GetInputData();
 
-            var missingInputVariables = inputData.Keys.Where(x => !_fbSymbols.ContainsKey(x)).ToArray();
+            var missingInputVariables = inputData.Keys.Where(x => !fbSymbols.ContainsKey(x)).ToArray();
             if (missingInputVariables.Length > 0)
             {
                 throw new PlcCommandException(_adsCommandFb,
@@ -198,10 +202,10 @@ namespace Mbc.Pcs.Net
             var values = new List<object>();
             foreach (var name in inputData.Keys)
             {
-                var symbolInfo = _fbSymbols[name];
-                symbols.Add(symbolInfo.Item1);
-                types.Add(symbolInfo.Item2);
-                values.Add(Convert.ChangeType(inputData[name], symbolInfo.Item2));
+                var symbolInfo = fbSymbols[name];
+                symbols.Add(symbolInfo.variablePath);
+                types.Add(symbolInfo.type);
+                values.Add(Convert.ChangeType(inputData[name], symbolInfo.type));
             }
 
             var handleCreator = new SumCreateHandles(_adsClient, symbols);
@@ -244,20 +248,23 @@ namespace Mbc.Pcs.Net
             }
         }
 
-        private void InitFbSymbols()
+        /// <summary>
+        /// Reads all symbols in the same hierarchy as the function block they are flaged with the Attribute named in <para>attributeName</para>
+        /// </summary>
+        /// <param name="attributeName">The attribute flag to filter (Case Insensitive)</param>
+        /// <returns></returns>
+        private IReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)> ReadFbSymbols(string attributeName)
         {
-            if (_fbSymbols != null)
-                return;
-
             var fbSymbolNames = ((ITcAdsSymbol5)_adsClient.ReadSymbolInfo(_adsCommandFb))
                 .DataType.SubItems
-                .Where(item => new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String }
-                    .Contains(item.BaseType.Category))
+                .Where(item => 
+                    new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String }.Contains(item.BaseType.Category)
+                    && item.Attributes.Any(a => string.Equals(a.Name, attributeName, StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(
                     item => item.SubItemName, 
-                    item => Tuple.Create(_adsCommandFb + "." + item.SubItemName, GetManagedTypeForSubItem(item), item.ByteSize));
+                    item => (variablePath: _adsCommandFb + "." + item.SubItemName, type: GetManagedTypeForSubItem(item), byteSize: item.ByteSize));
 
-            _fbSymbols = new ReadOnlyDictionary<string, Tuple<string, Type, int>>(fbSymbolNames);
+            return new ReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)>(fbSymbolNames);
         }
 
         private Type GetManagedTypeForSubItem(ITcAdsSubItem subitem)
