@@ -145,7 +145,7 @@ namespace Mbc.Pcs.Net
         private void ReadOutputData(ICommandOutput output)
         {
             // read symbols with attribute flags for output data
-            var fbSymbols = ReadFbSymbols(PlcAttributeNames.PcsCommandOutput);
+            var fbSymbols = ReadFbSymbols(PlcAttributeNames.PlcCommandOutput);
 
             // ToList => deterministische Reihenfolge notwendig
             var outputNames = output.GetOutputNames().ToList();
@@ -189,7 +189,7 @@ namespace Mbc.Pcs.Net
         private void WriteInputData(ICommandInput input)
         {
             // read symbols with attribute flags for input data
-            var fbSymbols = ReadFbSymbols(PlcAttributeNames.PcsCommandInput);
+            var fbSymbols = ReadFbSymbols(PlcAttributeNames.PlcCommandInput);
             
             var inputData = input.GetInputData();
 

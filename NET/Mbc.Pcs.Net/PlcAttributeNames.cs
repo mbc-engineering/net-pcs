@@ -3,12 +3,12 @@
     public static class PlcAttributeNames
     {
         /// <summary>
-        /// PLC Attribute to define Input Data like: {attribute 'PcsCommandInput'}
+        /// PLC Attribute to define Input Data like: {attribute 'PlcCommandInput'}
         /// </summary>
-        public static string PcsCommandInput = "PcsCommandInput";
+        public static string PlcCommandInput = "PlcCommandInput";
         /// <summary>
-        /// PLC Attribute to define Output Data like: {attribute 'PcsCommandOutput'}
+        /// PLC Attribute to define Output Data like: {attribute 'PlcCommandOutput'}
         /// </summary>
-        public static string PcsCommandOutput = "PcsCommandOutput";
+        public static string PlcCommandOutput = "PlcCommandOutput";
     }
 }

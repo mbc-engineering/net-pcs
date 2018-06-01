@@ -7,11 +7,11 @@ END_VAR
 VAR_OUTPUT		
 END_VAR
 VAR
-	{attribute 'PcsCommandInput'}
+	{attribute 'PlcCommandInput'}
 	Val1 			: REAL;				// Value 1
-	{attribute 'PcsCommandInput'}
+	{attribute 'PlcCommandInput'}
 	Val2 			: REAL;				// Value 2
-	{attribute 'PcsCommandOutput'}
+	{attribute 'PlcCommandOutput'}
 	Result 			: REAL;				// The result of the addition command
 END_VAR]]></Declaration>
     <Implementation>
