@@ -2,16 +2,17 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
   <POU Name="AddCommand" Id="{98998d3f-90e1-4abb-9d41-c1c8d9357edf}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK AddCommand EXTENDS CommandBase
-VAR_INPUT
-	Val1 : REAL;
-	Val2 : REAL;
+VAR_INPUT	
 END_VAR
-VAR_OUTPUT 
-	// The result of the addition command
-	{attribute 'Foo':='Bar'}
-	Result : REAL;	
+VAR_OUTPUT		
 END_VAR
 VAR
+	{attribute 'PlcCommandInput'}
+	Val1 			: REAL;				// Value 1
+	{attribute 'PlcCommandInput'}
+	Val2 			: REAL;				// Value 2
+	{attribute 'PlcCommandOutput'}
+	Result 			: REAL;				// The result of the addition command
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[// OO-Class 

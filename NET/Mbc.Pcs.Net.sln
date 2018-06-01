@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Pcs.Net", "Mbc.Pcs.Net\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{7FC136A2-182C-44F9-AF35-0AA0013BEB23}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Pcs.Net.Test", "Mbc.Pcs.Net.Test\Mbc.Pcs.Net.Test.csproj", "{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

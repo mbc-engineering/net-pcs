@@ -6,6 +6,8 @@ namespace Mbc.Pcs.Net
     {
         IEnumerable<string> GetOutputNames();
 
-        void SetOutputData(string name, object value);
+        void SetOutputData<T>(string name, T value);
+
+        T GetOutputData<T>(string name);
     }
 }
