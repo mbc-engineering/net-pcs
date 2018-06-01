@@ -106,6 +106,9 @@ namespace Mbc.Pcs.Net
                     }
                     catch (PlcCommandErrorException ex) when (ex.ResultCode == 3 && cancellationToken.IsCancellationRequested)
                     {
+                        // Update state
+                        StateChanged?.Invoke(this, new PlcCommandEventArgs(handshakeExchange.Data.Progress, handshakeExchange.Data.SubTask, false, true));
+
                         // Im Falle eines Abbruch durch einen User-Request (CancellationToken) wird
                         // die Framework-Exception zurückgegeben.
                         throw new OperationCanceledException("The command was cancelled by user request.", ex, cancellationToken);
@@ -332,7 +335,7 @@ namespace Mbc.Pcs.Net
             WriteVariable(_adsCommandFb + ".stHandshake.bExecute", false);
         }
 
-        public void WriteVariable(string symbolName, object value)
+        protected void WriteVariable(string symbolName, object value)
         {
             var varHandle = _adsClient.CreateVariableHandle(symbolName);
             try

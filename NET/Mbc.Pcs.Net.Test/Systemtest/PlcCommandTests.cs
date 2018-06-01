@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TwinCAT.Ads;
@@ -31,12 +33,18 @@ namespace Mbc.Pcs.Net.Test.Systemtest
         {
             // Arrange            
             var subject = new PlcCommand(_adsClient, "Commands.fbBaseCommand1");
+            var stateChanges = new List<PlcCommandEventArgs>();
+            subject.StateChanged += (sender, arg) => stateChanges.Add(arg);
 
             // Act
             var ex = Record.Exception(() => subject.Execute());
 
             // Assert
             ex.Should().BeNull();
+            stateChanges.Count.Should().Be(1);
+            stateChanges[0].IsFinished.Should().Be(true);
+            stateChanges[0].IsCancelled.Should().Be(false);
+            stateChanges[0].Progress.Should().Be(100);
         }
 
         [Fact]
@@ -45,12 +53,23 @@ namespace Mbc.Pcs.Net.Test.Systemtest
         {
             // Arrange
             var subject = new PlcCommand(_adsClient, "Commands.fbBaseCommand1");
+            var stateChanges = new List<PlcCommandEventArgs>();
+            subject.StateChanged += (sender, arg) => stateChanges.Add(arg);
 
             // Act
             var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync());
 
             // Assert
             ex.Should().BeNull();
+            stateChanges.Count.Should().Be(1);
+            stateChanges[0].IsFinished.Should().Be(true);
+            stateChanges[0].IsCancelled.Should().Be(false);
+            stateChanges[0].Progress.Should().Be(100);
+        }
+
+        private void Subject_StateChanged(object sender, PlcCommandEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         [Fact]
@@ -118,6 +137,8 @@ namespace Mbc.Pcs.Net.Test.Systemtest
             });
             CancellationTokenSource cancellationToken = new CancellationTokenSource();
             var subject = new PlcCommand(_adsClient, "Commands.fbDelayedAddCommand1");
+            var stateChanges = new List<PlcCommandEventArgs>();
+            subject.StateChanged += (sender, arg) => stateChanges.Add(arg);
 
             // Act
             cancellationToken.CancelAfter(TimeSpan.FromMilliseconds(200));
@@ -125,7 +146,47 @@ namespace Mbc.Pcs.Net.Test.Systemtest
 
             // Assert
             ex.Should().BeOfType<OperationCanceledException>();
-            ex.InnerException.Should().BeOfType<PlcCommandErrorException>().Subject.ResultCode.Should().Be(3);
+            ex.InnerException.Should().BeOfType<PlcCommandErrorException>()
+                .Subject.ResultCode.Should().Be(3);
+            stateChanges.Last().Should().NotBeNull();
+            stateChanges.Last().IsFinished.Should().Be(false);
+            stateChanges.Last().IsCancelled.Should().Be(true);
+        }
+
+        /// <summary>
+        /// Long runing commands have a time out. 
+        /// The duration to execute the command Commands.fbDelayedAddCommand1 should be around 4seconds (PLC Definition => DelayedAddCommand(tDelayTime := T#4S))
+        /// </summary>
+        /// <returns></returns>
+        [Theory]
+        [InlineData(200)]
+        [InlineData(3900)]
+        [Trait("Category", "SystemTest")]
+        public async Task ExecuteAndWaitForTimeOut_fbDelayedAddCommand1_Async(double timeout)
+        {
+            // Arrange
+            ICommandInput input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>
+            {
+                { "Val1", 23.3 },
+                { "Val2", 33.3 },
+            });
+            var subject = new PlcCommand(_adsClient, "Commands.fbDelayedAddCommand1");
+            subject.Timeout = TimeSpan.FromMilliseconds(timeout);
+            PlcCommandEventArgs stateChange = null;
+            subject.StateChanged += (sender, arg) => stateChange = arg;
+
+            // Act
+            Stopwatch stopWatch = Stopwatch.StartNew();
+            var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync(input));
+            stopWatch.Stop();
+
+            // Assert
+            ex.Should().BeOfType<PlcCommandTimeoutException>()
+                .Subject.CommandVariable.Should().Be("Commands.fbDelayedAddCommand1");
+            stateChange.Should().NotBeNull();
+            stateChange.IsFinished.Should().Be(false);
+            stateChange.IsCancelled.Should().Be(true);
+            stopWatch.Elapsed.Should().BeCloseTo(TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(150));
         }
     }
 }
