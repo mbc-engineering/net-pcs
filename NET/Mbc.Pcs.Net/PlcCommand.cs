@@ -24,13 +24,13 @@ namespace Mbc.Pcs.Net
         /// </summary>
         public event EventHandler<PlcCommandEventArgs> StateChanged;
 
-        private readonly TcAdsClient _adsClient;
+        private readonly IAdsConnection _adsConnection;
         private readonly string _adsCommandFb;
 
-        public PlcCommand(TcAdsClient adsClient, string adsCommandFb)
+        public PlcCommand(IAdsConnection adsConnection, string adsCommandFb)
         {
             // needs not be connected yet
-            _adsClient = adsClient;
+            _adsConnection = adsConnection;
             _adsCommandFb = adsCommandFb;
         }
 
@@ -79,13 +79,13 @@ namespace Mbc.Pcs.Net
         public void Execute(CancellationToken cancellationToken, ICommandInput input = null, 
             ICommandOutput output = null)
         {
-            if (!_adsClient.IsConnected)
+            if (!_adsConnection.IsConnected)
                 throw new InvalidOperationException("ADS-Client is not connect.");
 
             if (input != null)
                 WriteInputData(input);
 
-            _adsClient.AdsNotificationEx += OnAdsNotification;
+            _adsConnection.AdsNotificationEx += OnAdsNotification;
             try
             {
                 SetExecuteFlag();
@@ -93,11 +93,11 @@ namespace Mbc.Pcs.Net
                 using (var cancellationRegistration = cancellationToken.Register(ResetExecuteFlag))
                 {
                     var handshakeExchange = new DataExchange<CommandHandshakeStruct>();
-                    var cmdHandle = _adsClient.AddDeviceNotificationEx(
+                    var cmdHandle = _adsConnection.AddDeviceNotificationEx(
                         $"{_adsCommandFb}.stHandshake",
                         AdsTransMode.OnChange,
-                        TimeSpan.FromMilliseconds(50), // 50 statt 0 als Workaround für ein hängiges ADS-Problem mit Initial-Events
-                        TimeSpan.Zero,
+                        50, // 50 statt 0 als Workaround für ein hängiges ADS-Problem mit Initial-Events
+                        0,
                         Tuple.Create(this, handshakeExchange),
                         typeof(CommandHandshakeStruct));
                     try
@@ -115,7 +115,7 @@ namespace Mbc.Pcs.Net
                     }
                     finally
                     {
-                        _adsClient.DeleteDeviceNotification(cmdHandle);
+                        _adsConnection.DeleteDeviceNotification(cmdHandle);
                     }
                 }
 
@@ -137,7 +137,7 @@ namespace Mbc.Pcs.Net
             }
             finally
             {
-                _adsClient.AdsNotificationEx -= OnAdsNotification;
+                _adsConnection.AdsNotificationEx -= OnAdsNotification;
             }
 
         }
@@ -166,11 +166,11 @@ namespace Mbc.Pcs.Net
                 types.Add(symbolInfo.type);
             }
 
-            var handleCreator = new SumCreateHandles(_adsClient, symbols);
+            var handleCreator = new SumCreateHandles(_adsConnection, symbols);
             var handles = handleCreator.CreateHandles();
             try
             {
-                var sumReader = new SumHandleRead(_adsClient, handles, types.ToArray());
+                var sumReader = new SumHandleRead(_adsConnection, handles, types.ToArray());
                 var values = sumReader.Read();
 
                 for (int i = 0; i < values.Length; i++)
@@ -180,7 +180,7 @@ namespace Mbc.Pcs.Net
             }
             finally
             {
-                var handleReleaser = new SumReleaseHandles(_adsClient, handles);
+                var handleReleaser = new SumReleaseHandles(_adsConnection, handles);
                 handleReleaser.ReleaseHandles();
             }
 
@@ -211,16 +211,16 @@ namespace Mbc.Pcs.Net
                 values.Add(Convert.ChangeType(inputData[name], symbolInfo.type));
             }
 
-            var handleCreator = new SumCreateHandles(_adsClient, symbols);
+            var handleCreator = new SumCreateHandles(_adsConnection, symbols);
             var handles = handleCreator.CreateHandles();
             try
             {
-                var sumWriter = new SumHandleWrite(_adsClient, handles, types.ToArray());
+                var sumWriter = new SumHandleWrite(_adsConnection, handles, types.ToArray());
                 sumWriter.Write(values.ToArray());
             }
             finally
             {
-                var handleReleaser = new SumReleaseHandles(_adsClient, handles);
+                var handleReleaser = new SumReleaseHandles(_adsConnection, handles);
                 handleReleaser.ReleaseHandles();
             }
         }
@@ -258,7 +258,7 @@ namespace Mbc.Pcs.Net
         /// <returns></returns>
         private IReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)> ReadFbSymbols(string attributeName)
         {
-            var fbSymbolNames = ((ITcAdsSymbol5)_adsClient.ReadSymbolInfo(_adsCommandFb))
+            var fbSymbolNames = ((ITcAdsSymbol5)_adsConnection.ReadSymbolInfo(_adsCommandFb))
                 .DataType.SubItems
                 .Where(item => 
                     new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String }.Contains(item.BaseType.Category)
@@ -337,20 +337,20 @@ namespace Mbc.Pcs.Net
 
         protected void WriteVariable(string symbolName, object value)
         {
-            var varHandle = _adsClient.CreateVariableHandle(symbolName);
+            var varHandle = _adsConnection.CreateVariableHandle(symbolName);
             try
             {
                 // ToDo: Fix possible mismatch of datatype!!!
-                _adsClient.WriteAny(varHandle, value);
+                _adsConnection.WriteAny(varHandle, value);
             }
             finally
             {
-                _adsClient.DeleteVariableHandle(varHandle);
+                _adsConnection.DeleteVariableHandle(varHandle);
             }
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 0)]
-        private struct CommandHandshakeStruct
+        internal struct CommandHandshakeStruct
         {
             [MarshalAs(UnmanagedType.I1)]
             public bool Execute;
