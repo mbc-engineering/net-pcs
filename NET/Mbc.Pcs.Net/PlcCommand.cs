@@ -25,19 +25,24 @@ namespace Mbc.Pcs.Net
         public event EventHandler<PlcCommandEventArgs> StateChanged;
 
         private readonly IAdsConnection _adsConnection;
-        private readonly string _adsCommandFb;
+        private readonly string _adsCommandFbPath;
 
-        public PlcCommand(IAdsConnection adsConnection, string adsCommandFb)
+        public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath)
         {
             // needs not be connected yet
             _adsConnection = adsConnection;
-            _adsCommandFb = adsCommandFb;
+            _adsCommandFbPath = adsCommandFbPath;
         }
 
         /// <summary>
         /// Maximale time to wait for command completion.
         /// </summary>
         public TimeSpan Timeout { get; set; } = DefaultTimeout;
+
+        /// <summary>
+        /// The PLC Variable 
+        /// </summary>
+        public string AdsCommandFbPath => _adsCommandFbPath;
 
         /// <summary>
         /// Executes a PLC command.
@@ -92,7 +97,7 @@ namespace Mbc.Pcs.Net
                 {
                     var handshakeExchange = new DataExchange<CommandHandshakeStruct>();
                     var cmdHandle = _adsConnection.AddDeviceNotificationEx(
-                        $"{_adsCommandFb}.stHandshake",
+                        $"{_adsCommandFbPath}.stHandshake",
                         AdsTransMode.OnChange,
                         50, // 50 statt 0 als Workaround für ein hängiges ADS-Problem mit Initial-Events
                         0,
@@ -151,7 +156,7 @@ namespace Mbc.Pcs.Net
             var missingOutputVariables = outputNames.Where(x => !fbSymbols.ContainsKey(x)).ToArray();
             if (missingOutputVariables.Length > 0)
             {
-                throw new PlcCommandException(_adsCommandFb,
+                throw new PlcCommandException(_adsCommandFbPath,
                     $"Missing output variables on the PLC implementation: '{string.Join(",", missingOutputVariables)}'");
             }
 
@@ -194,7 +199,7 @@ namespace Mbc.Pcs.Net
             var missingInputVariables = inputData.Keys.Where(x => !fbSymbols.ContainsKey(x)).ToArray();
             if (missingInputVariables.Length > 0)
             {
-                throw new PlcCommandException(_adsCommandFb,
+                throw new PlcCommandException(_adsCommandFbPath,
                     $"Missing input variables on the PLC implementation: '{string.Join(",", missingInputVariables)}'");
             }
 
@@ -244,7 +249,7 @@ namespace Mbc.Pcs.Net
                 }
                 catch (TimeoutException ex)
                 {
-                    throw new PlcCommandTimeoutException(_adsCommandFb, $"The command timed out after {Timeout.Seconds} [s].", ex);
+                    throw new PlcCommandTimeoutException(_adsCommandFbPath, $"The command timed out after {Timeout.Seconds} [s].", ex);
                 }
             }
         }
@@ -256,14 +261,14 @@ namespace Mbc.Pcs.Net
         /// <returns></returns>
         private IReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)> ReadFbSymbols(string attributeName)
         {
-            var fbSymbolNames = ((ITcAdsSymbol5)_adsConnection.ReadSymbolInfo(_adsCommandFb))
+            var fbSymbolNames = ((ITcAdsSymbol5)_adsConnection.ReadSymbolInfo(_adsCommandFbPath))
                 .DataType.SubItems
                 .Where(item => 
                     new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String }.Contains(item.BaseType.Category)
                     && item.Attributes.Any(a => string.Equals(a.Name, attributeName, StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(
                     item => item.SubItemName, 
-                    item => (variablePath: _adsCommandFb + "." + item.SubItemName, type: GetManagedTypeForSubItem(item), byteSize: item.ByteSize));
+                    item => (variablePath: _adsCommandFbPath + "." + item.SubItemName, type: GetManagedTypeForSubItem(item), byteSize: item.ByteSize));
 
             return new ReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)>(fbSymbolNames);
         }
@@ -312,7 +317,7 @@ namespace Mbc.Pcs.Net
                     break;
             }
 
-            throw new PlcCommandErrorException(_adsCommandFb, resultCode, errorMsg);
+            throw new PlcCommandErrorException(_adsCommandFbPath, resultCode, errorMsg);
         }
 
         private void OnAdsNotification(object sender, AdsNotificationExEventArgs e)
@@ -325,12 +330,12 @@ namespace Mbc.Pcs.Net
 
         private void SetExecuteFlag()
         {
-            WriteVariable(_adsCommandFb + ".stHandshake.bExecute", true);
+            WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", true);
         }
 
         private void ResetExecuteFlag()
         {
-            WriteVariable(_adsCommandFb + ".stHandshake.bExecute", false);
+            WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", false);
         }
 
         protected void WriteVariable(string symbolName, object value)

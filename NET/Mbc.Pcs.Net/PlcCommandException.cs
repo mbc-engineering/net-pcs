@@ -26,6 +26,12 @@ namespace Mbc.Pcs.Net
             CommandVariable = commandVariable;
         }
 
+        public PlcCommandException(string commandVariable, Exception innerException)
+            : base(innerException.Message, innerException)
+        {
+            CommandVariable = commandVariable;
+        }
+
         public string CommandVariable { get; }
 
         public override string Message
