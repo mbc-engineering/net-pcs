@@ -63,6 +63,7 @@
     <Compile Include="PlcAttributeNames.cs" />
     <Compile Include="PlcCommandErrorException.cs" />
     <Compile Include="PlcCommandEventArgs.cs" />
+    <Compile Include="PlcCommandLock.cs" />
     <Compile Include="PlcCommandTimeoutException.cs" />
     <Compile Include="PlcCommandException.cs" />
     <Compile Include="PlcCommand.cs" />

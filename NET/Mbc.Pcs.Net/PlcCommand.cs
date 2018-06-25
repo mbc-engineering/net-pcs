@@ -82,67 +82,69 @@ namespace Mbc.Pcs.Net
         /// <example
         protected void Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
         {
-            if (!_adsConnection.IsConnected)
-                throw new InvalidOperationException("ADS-Client is not connect.");
-
-            if (input != null)
-                WriteInputData(input);
-
-            _adsConnection.AdsNotificationEx += OnAdsNotification;
-            try
+            using (var commandLock = PlcCommandLock.AcquireLock(_adsCommandFbPath))
             {
-                SetExecuteFlag();
+                if (!_adsConnection.IsConnected)
+                    throw new InvalidOperationException("ADS-Client is not connect.");
 
-                using (var cancellationRegistration = cancellationToken.Register(ResetExecuteFlag))
-                {
-                    var handshakeExchange = new DataExchange<CommandHandshakeStruct>();
-                    var cmdHandle = _adsConnection.AddDeviceNotificationEx(
-                        $"{_adsCommandFbPath}.stHandshake",
-                        AdsTransMode.OnChange,
-                        50, // 50 statt 0 als Workaround für ein hängiges ADS-Problem mit Initial-Events
-                        0,
-                        Tuple.Create(this, handshakeExchange),
-                        typeof(CommandHandshakeStruct));
-                    try
-                    {
-                        WaitForExecution(handshakeExchange);
-                    }
-                    catch (PlcCommandErrorException ex) when (ex.ResultCode == 3 && cancellationToken.IsCancellationRequested)
-                    {
-                        // Update state
-                        StateChanged?.Invoke(this, new PlcCommandEventArgs(handshakeExchange.Data.Progress, handshakeExchange.Data.SubTask, false, true));
+                if (input != null)
+                    WriteInputData(input);
 
-                        // Im Falle eines Abbruch durch einen User-Request (CancellationToken) wird
-                        // die Framework-Exception zurückgegeben.
-                        throw new OperationCanceledException("The command was cancelled by user request.", ex, cancellationToken);
-                    }
-                    finally
-                    {
-                        _adsConnection.DeleteDeviceNotification(cmdHandle);
-                    }
-                }
-
-                if (output != null)
-                    ReadOutputData(output);
-            }
-            catch (Exception ex)
-            {
-                // Bei Fehlern zur Sicherheit die Ausführung abbrechen
+                _adsConnection.AdsNotificationEx += OnAdsNotification;
                 try
                 {
-                    ResetExecuteFlag();
-                }
-                catch (Exception resetEx)
-                {
-                    ex.Data.Add("ResetExecuteFlagException", resetEx);
-                }
-                throw ex;
-            }
-            finally
-            {
-                _adsConnection.AdsNotificationEx -= OnAdsNotification;
-            }
+                    SetExecuteFlag();
 
+                    using (var cancellationRegistration = cancellationToken.Register(ResetExecuteFlag))
+                    {
+                        var handshakeExchange = new DataExchange<CommandHandshakeStruct>();
+                        var cmdHandle = _adsConnection.AddDeviceNotificationEx(
+                            $"{_adsCommandFbPath}.stHandshake",
+                            AdsTransMode.OnChange,
+                            50, // 50 statt 0 als Workaround für ein hängiges ADS-Problem mit Initial-Events
+                            0,
+                            Tuple.Create(this, handshakeExchange),
+                            typeof(CommandHandshakeStruct));
+                        try
+                        {
+                            WaitForExecution(handshakeExchange);
+                        }
+                        catch (PlcCommandErrorException ex) when (ex.ResultCode == 3 && cancellationToken.IsCancellationRequested)
+                        {
+                            // Update state
+                            StateChanged?.Invoke(this, new PlcCommandEventArgs(handshakeExchange.Data.Progress, handshakeExchange.Data.SubTask, false, true));
+
+                            // Im Falle eines Abbruch durch einen User-Request (CancellationToken) wird
+                            // die Framework-Exception zurückgegeben.
+                            throw new OperationCanceledException("The command was cancelled by user request.", ex, cancellationToken);
+                        }
+                        finally
+                        {
+                            _adsConnection.DeleteDeviceNotification(cmdHandle);
+                        }
+                    }
+
+                    if (output != null)
+                        ReadOutputData(output);
+                }
+                catch (Exception ex)
+                {
+                    // Bei Fehlern zur Sicherheit die Ausführung abbrechen
+                    try
+                    {
+                        ResetExecuteFlag();
+                    }
+                    catch (Exception resetEx)
+                    {
+                        ex.Data.Add("ResetExecuteFlagException", resetEx);
+                    }
+                    throw ex;
+                }
+                finally
+                {
+                    _adsConnection.AdsNotificationEx -= OnAdsNotification;
+                }
+            }
         }
 
         private void ReadOutputData(ICommandOutput output)
