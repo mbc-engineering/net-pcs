@@ -13,13 +13,13 @@ namespace Mbc.Pcs.Net
         /// <param name="semaphore"></param>
         /// <param name="messageOnFail"></param>
         /// <returns></returns>
-        public static async Task LockedExecuteAsync(this IPlcCommand command, SemaphoreSlim semaphore, string messageOnFail)
+        public static async Task LockedExecuteAsync(this IPlcCommand command, SemaphoreSlim semaphore, ICommandInput input = null, ICommandOutput output = null, string messageOnFail = null)
         {
             await semaphore.WaitAsync();
 
             try
             {
-                await command.ExecuteAsync();
+                await command.ExecuteAsync(input, output);
             }
             catch (PlcCommandException e)
             {
