@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace Mbc.Pcs.Net
@@ -17,7 +13,7 @@ namespace Mbc.Pcs.Net
         /// <param name="semaphore"></param>
         /// <param name="messageOnFail"></param>
         /// <returns></returns>
-        public static async Task LockedExecuteAsync(this PlcCommand command, SemaphoreSlim semaphore, string messageOnFail)
+        public static async Task LockedExecuteAsync(this IPlcCommand command, SemaphoreSlim semaphore, string messageOnFail)
         {
             await semaphore.WaitAsync();
 

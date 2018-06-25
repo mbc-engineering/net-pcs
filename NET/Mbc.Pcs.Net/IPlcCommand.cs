@@ -12,6 +12,11 @@ namespace Mbc.Pcs.Net
         TimeSpan Timeout { get; set; }
 
         /// <summary>
+        /// The PLC Variable 
+        /// </summary>
+        string AdsCommandFbPath { get; }
+
+        /// <summary>
         /// Occurs when the state of a command is changed.
         /// </summary>
         event EventHandler<PlcCommandEventArgs> StateChanged;
