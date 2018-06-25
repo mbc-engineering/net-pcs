@@ -21,6 +21,9 @@ namespace Mbc.Pcs.Net.Test.Utils
             A.CallTo(() => _adsConnection.IsConnected)
                 .Returns(true);
 
+            A.CallTo(() => _adsConnection.Address)
+                .Returns(new AmsAddress(851)); 
+
             A.CallTo(() => _adsConnection.ReadSymbolInfo(A<string>._))
                 .ReturnsLazily(parm =>
                 {

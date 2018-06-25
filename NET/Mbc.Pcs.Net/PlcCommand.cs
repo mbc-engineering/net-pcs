@@ -82,7 +82,7 @@ namespace Mbc.Pcs.Net
         /// <example
         protected void Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
         {
-            using (var commandLock = PlcCommandLock.AcquireLock(_adsCommandFbPath))
+            using (var commandLock = PlcCommandLock.AcquireLock($"{_adsCommandFbPath}-on-{_adsConnection.Address.ToString()}"))
             {
                 if (!_adsConnection.IsConnected)
                     throw new InvalidOperationException("ADS-Client is not connect.");

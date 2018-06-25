@@ -107,6 +107,30 @@ namespace Mbc.Pcs.Net.Test
 
             // Assert
             act.Should().NotThrow();
-        }        
+        }
+
+        [Fact]
+        public void ExecuteAsync_ShouldLockingExecutionOrder()
+        {
+            // Arrange 
+            var fakeConnection = new AdsCommandConnectionFake();
+            IPlcCommand command1 = new PlcCommand(fakeConnection.AdsConnection, "cmd");
+            IPlcCommand command2 = new PlcCommand(fakeConnection.AdsConnection, "cmd");
+            IPlcCommand command3 = new PlcCommand(fakeConnection.AdsConnection, "cmd");
+            int lastCommand = 0;
+            command1.StateChanged += (obj, args) => { lastCommand = 1; };
+            command2.StateChanged += (obj, args) => { lastCommand = 2; };
+            command3.StateChanged += (obj, args) => { lastCommand = 3; };
+
+            // Act
+            Task.WaitAll(new[] {
+                command1.ExecuteAsync(),
+                command2.ExecuteAsync(A.Fake<ICommandInput>()),
+                command3.ExecuteAsync(output: A.Fake<ICommandOutput>()),
+            });
+
+            // Assert
+            lastCommand.Should().Be(3);
+        }
     }
 }

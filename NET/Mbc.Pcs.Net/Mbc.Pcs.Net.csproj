@@ -52,7 +52,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PlcCommandExtensions.cs" />
     <Compile Include="CommandOutputBuilder.cs" />
     <Compile Include="CommandInputBuilder.cs" />
     <Compile Include="CommandResultCode.cs" />
