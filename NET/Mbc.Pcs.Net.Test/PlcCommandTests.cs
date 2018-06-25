@@ -1,6 +1,9 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
+using Mbc.Pcs.Net.Test.Utils;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using TwinCAT.Ads;
 using Xunit;
 
@@ -15,7 +18,7 @@ namespace Mbc.Pcs.Net.Test
         public void CheckDefaultTimeOut()
         {
             // Arrange            
-            var subject = new PlcCommand(null, "fbXyz");
+            IPlcCommand subject = new PlcCommand(null, "fbXyz");
 
             // Act
             ;
@@ -25,7 +28,7 @@ namespace Mbc.Pcs.Net.Test
         }
 
         [Fact]
-        public void TestExecuteWithoutArguments()
+        public void TestExecuteWithoutArguments_WithInternalTypes()
         {
             // Arrange
             var connection = A.Fake<IAdsConnection>();
@@ -43,7 +46,7 @@ namespace Mbc.Pcs.Net.Test
                         .With(connection, eventArgs);
                 })
                 .Returns(80);
-            var subject = new PlcCommand(connection, "cmd");
+            IPlcCommand subject = new PlcCommand(connection, "cmd");
 
             // Act
             subject.Execute();
@@ -58,5 +61,52 @@ namespace Mbc.Pcs.Net.Test
             A.CallTo(() => connection.DeleteDeviceNotification(80))
                 .MustHaveHappenedOnceExactly();
         }
+
+        /// <summary>
+        /// Example for customer code. see also constructor
+        /// </summary>
+        [Fact]
+        public void ExecuteAsync_WithoutArguments()
+        {
+            // Arrange
+            var fakeConnection = new AdsConnectionFake();
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "cmd");
+
+            // Act
+            Func<Task> act = async () => await subject.ExecuteAsync();
+
+            // Assert
+            act.Should().NotThrow();
+        }
+
+        /// <summary>
+        /// Example for customer code. see also constructor
+        /// </summary>
+        [Fact]
+        public void ExecuteAsync_WithArguments()
+        {
+            // Arrange     
+            var fakeConnection = new AdsConnectionFake();
+            fakeConnection.AddAdsSubItem("Val1", typeof(Int16), true);
+            fakeConnection.AddAdsSubItem("Val2", typeof(Int16), true);
+            fakeConnection.AddAdsSubItem("Result", typeof(Int16), false);
+
+            var input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>
+            {
+                { "Val1", 11 },                
+                { "Val2", 22 },
+            });
+            var output = CommandOutputBuilder.FromDictionary(new Dictionary<string, object>
+            {
+                { "Result", null }
+            });
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "cmd");            
+
+            // Act
+            Func<Task> act = async () => await subject.ExecuteAsync(input, output);
+
+            // Assert
+            act.Should().NotThrow();
+        }        
     }
 }
