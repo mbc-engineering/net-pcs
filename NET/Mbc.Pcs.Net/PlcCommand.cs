@@ -15,7 +15,7 @@ namespace Mbc.Pcs.Net
     /// <summary>
     /// Kapselt ein PLC-Kommando.
     /// </summary>
-    public class PlcCommand
+    public class PlcCommand : IPlcCommand
     {
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
 
@@ -61,8 +61,7 @@ namespace Mbc.Pcs.Net
         /// Executes a PLC command asynchronously.
         /// </summary>
         /// <seealso cref="Execute(CancellationToken, ICommandInput, ICommandOutput)"/>
-        public Task ExecuteAsync(CancellationToken cancellationToken, ICommandInput input = null,
-            ICommandOutput output = null)
+        public Task ExecuteAsync(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
         {
             return Task.Run(() => Execute(cancellationToken, input, output));
         }
@@ -76,8 +75,7 @@ namespace Mbc.Pcs.Net
         /// <exception cref="InvalidOperationException">The ADS-Client given at construction
         /// time is not connected.</exception>
         /// <example
-        public void Execute(CancellationToken cancellationToken, ICommandInput input = null, 
-            ICommandOutput output = null)
+        protected void Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
         {
             if (!_adsConnection.IsConnected)
                 throw new InvalidOperationException("ADS-Client is not connect.");
