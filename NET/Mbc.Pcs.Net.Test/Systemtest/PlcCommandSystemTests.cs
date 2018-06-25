@@ -15,13 +15,13 @@ namespace Mbc.Pcs.Net.Test.Systemtest
     /// This TwinCat 3 PLC Project must be activated and loaded into the local Runtime.
     /// All thest should be executed in serial order => [assembly: CollectionBehavior(DisableTestParallelization = true)]
     /// </summary>
-    public class PlcCommandTests
+    public class PlcCommandSystemTests
     {
         private readonly string _plcAmsNetId = "172.16.23.76.1.1";
         private readonly int _plcAmsPort = 851;
         private readonly TcAdsClient _adsClient;
 
-        public PlcCommandTests()
+        public PlcCommandSystemTests()
         {
             _adsClient = new TcAdsClient();
             _adsClient.Connect(_plcAmsNetId, _plcAmsPort);
