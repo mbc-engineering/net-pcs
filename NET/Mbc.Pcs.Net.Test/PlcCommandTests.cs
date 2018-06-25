@@ -69,7 +69,7 @@ namespace Mbc.Pcs.Net.Test
         public void ExecuteAsync_WithoutArguments()
         {
             // Arrange
-            var fakeConnection = new AdsConnectionFake();
+            var fakeConnection = new AdsCommandConnectionFake();
             IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "cmd");
 
             // Act
@@ -86,7 +86,7 @@ namespace Mbc.Pcs.Net.Test
         public void ExecuteAsync_WithArguments()
         {
             // Arrange     
-            var fakeConnection = new AdsConnectionFake();
+            var fakeConnection = new AdsCommandConnectionFake();
             fakeConnection.AddAdsSubItem("Val1", typeof(Int16), true);
             fakeConnection.AddAdsSubItem("Val2", typeof(Int16), true);
             fakeConnection.AddAdsSubItem("Result", typeof(Int16), false);

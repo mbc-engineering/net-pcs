@@ -7,13 +7,13 @@ using TwinCAT.TypeSystem;
 
 namespace Mbc.Pcs.Net.Test.Utils
 {
-    internal class AdsConnectionFake
+    internal class AdsCommandConnectionFake
     {
         private readonly IAdsConnection _adsConnection = A.Fake<IAdsConnection>();
         private readonly ITcAdsSymbol5 _adsSymbols = A.Fake<ITcAdsSymbol5>();
         private readonly List<ITcAdsSubItem> _fakedVariables = new List<ITcAdsSubItem>();
 
-        public AdsConnectionFake()
+        public AdsCommandConnectionFake()
         {
             A.CallTo(() => _adsSymbols.DataType.SubItems)
                 .Returns(new ReadOnlySubItemCollection(_fakedVariables));
