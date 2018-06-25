@@ -89,6 +89,28 @@ fbDelayedCommand1 : MyDelayedCommand(tDelayTime := T#4S);
 
 > There is also a helpful attribute named `call_after_init` that calls a custom Method after processing the FB_init() initialisation method, see under [Infosys Attribute `call_after_init`](https://infosys.beckhoff.com/english.php?content=../content/1033/tc3_plc_intro/2529600907.html&id=1875029305085369793).
 
+## Command Parameters
+
+Some commands needs more informations than just when it should execute. There comes the `PlcCommandInput` and `PlcCommandOutput` attribute` in the game. Attributes are variable declaration decorators. This attributes will be read from the PCS .Net Library to identify, which of the Variables are needed for data exchange. The Advantage with attributes is, the `VAR_INPUT` and `VAR_OUTPUT` declaration is left free for regular PLC use.
+
+Followed a example with defined In- and Output variables for a command. 
+
+```C
+FUNCTION_BLOCK AddCommand EXTENDS CommandBase
+VAR
+	{attribute 'PlcCommandInput'}
+	Val1 			: REAL;				// Value 1
+	{attribute 'PlcCommandInput'}
+	Val2 			: REAL;				// Value 2
+	{attribute 'PlcCommandOutput'}
+	Result 			: REAL;				// The result of the addition command
+END_VAR
+```
+
+> The technique behind User-defined attributes is documented under [Infosys User-defined attributes](https://infosys.beckhoff.com/english.php?content=../content/1033/tc3_plc_intro/2529572491.html&id=2923905819010174145).
+
+> The defined attributes will be needed from the `Mbc.Pcs.Net` library version 1.2 and above.
+
 ## Quick start with your first Command
 
 **Goal:** 
