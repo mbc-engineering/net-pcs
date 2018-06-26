@@ -1,8 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
-  </PropertyGroup>
+  <Import Project="..\common.props" />
 
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="4.6.0" />

@@ -7,13 +7,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli", "Samples\Cli\Cli.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallAds", "CallAds\CallAds.csproj", "{9E261388-7847-46BD-8D2F-7E928279AB89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Pcs.Net", "Mbc.Pcs.Net\Mbc.Pcs.Net.csproj", "{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net", "Mbc.Pcs.Net\Mbc.Pcs.Net.csproj", "{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{7FC136A2-182C-44F9-AF35-0AA0013BEB23}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Test", "Mbc.Pcs.Net.Test\Mbc.Pcs.Net.Test.csproj", "{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Pcs.Net.Test.Util", "Mbc.Pcs.Net.Test.Util\Mbc.Pcs.Net.Test.Util.csproj", "{D2C84786-F215-43EF-B1AE-5A8CC7D193A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Test.Util", "Mbc.Pcs.Net.Test.Util\Mbc.Pcs.Net.Test.Util.csproj", "{D2C84786-F215-43EF-B1AE-5A8CC7D193A4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{601F9B25-851D-4A95-8DC9-2866FE1F07C5}"
+	ProjectSection(SolutionItems) = preProject
+		common.props = common.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
