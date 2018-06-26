@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using TwinCAT.Ads;
 using TwinCAT.TypeSystem;
+using static Mbc.Pcs.Net.PlcCommand;
 
-namespace Mbc.Pcs.Net.Test.Utils
+namespace Mbc.Pcs.Net.Test.Util
 {
-    internal class AdsCommandConnectionFake
+    public class AdsCommandConnectionFake
     {
         private readonly IAdsConnection _adsConnection = A.Fake<IAdsConnection>();
         private readonly ITcAdsSymbol5 _adsSymbols = A.Fake<ITcAdsSymbol5>();
@@ -35,13 +36,10 @@ namespace Mbc.Pcs.Net.Test.Utils
             A.CallTo(() => _adsConnection.AddDeviceNotificationEx(A<string>._, A<AdsTransMode>._, A<int>._, A<int>._, A<object>._, A<Type>._))
                 .Invokes(parm =>
                 {
-                        // Reflection for internal data-structure
-                        object userData = parm.Arguments[4];
-
-                    var item2Prop = userData.GetType().GetProperty("Item2");
-                    object dataExchnage = item2Prop.GetValue(userData);
-                    var dataProp = dataExchnage.GetType().GetProperty("Data");
-                    object handshake = dataProp.GetValue(dataExchnage); // Return the blank strukture, this is like the finish command
+                    var userData = parm.Arguments[4] as Tuple<PlcCommand, DataExchange<CommandHandshakeStruct>>;
+                    var handshake = userData.Item2.Data; // Return the blank strukture, this is like the finish command
+                    handshake.Progress = 100;
+                    handshake.ResultCode = (ushort)CommandResultCode.Done;
 
                     var eventArgs = new AdsNotificationExEventArgs(1, userData, 80, handshake);
 

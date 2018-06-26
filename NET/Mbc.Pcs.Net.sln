@@ -11,7 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Pcs.Net", "Mbc.Pcs.Net\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{7FC136A2-182C-44F9-AF35-0AA0013BEB23}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Pcs.Net.Test", "Mbc.Pcs.Net.Test\Mbc.Pcs.Net.Test.csproj", "{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Test", "Mbc.Pcs.Net.Test\Mbc.Pcs.Net.Test.csproj", "{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Pcs.Net.Test.Util", "Mbc.Pcs.Net.Test.Util\Mbc.Pcs.Net.Test.Util.csproj", "{D2C84786-F215-43EF-B1AE-5A8CC7D193A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B57D19C5-32C7-4C4C-9A6C-662DF5AAFD5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2C84786-F215-43EF-B1AE-5A8CC7D193A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2C84786-F215-43EF-B1AE-5A8CC7D193A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2C84786-F215-43EF-B1AE-5A8CC7D193A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2C84786-F215-43EF-B1AE-5A8CC7D193A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

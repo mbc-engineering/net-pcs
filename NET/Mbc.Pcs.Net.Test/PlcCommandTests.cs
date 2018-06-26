@@ -1,6 +1,6 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
-using Mbc.Pcs.Net.Test.Utils;
+using Mbc.Pcs.Net.Test.Util;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -123,7 +123,7 @@ namespace Mbc.Pcs.Net.Test
             command3.StateChanged += (obj, args) => { lastCommand = 3; };
 
             // Act
-            await Task.WhenAll(new[] {
+            await Task.WhenAll(new [] {
                 command1.ExecuteAsync(),
                 command2.ExecuteAsync(A.Fake<ICommandInput>()),
                 command3.ExecuteAsync(output: A.Fake<ICommandOutput>()),
