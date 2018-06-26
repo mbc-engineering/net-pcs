@@ -56,6 +56,7 @@
     <Compile Include="CommandInputBuilder.cs" />
     <Compile Include="CommandResultCode.cs" />
     <Compile Include="DataExchange.cs" />
+    <Compile Include="ExecutionBehavior.cs" />
     <Compile Include="ICommandInput.cs" />
     <Compile Include="ICommandOutput.cs" />
     <Compile Include="IPlcCommand.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="PlcCommandErrorException.cs" />
     <Compile Include="PlcCommandEventArgs.cs" />
     <Compile Include="PlcCommandLock.cs" />
+    <Compile Include="PlcCommandLockException.cs" />
     <Compile Include="PlcCommandTimeoutException.cs" />
     <Compile Include="PlcCommandException.cs" />
     <Compile Include="PlcCommand.cs" />

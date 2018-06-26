@@ -110,7 +110,7 @@ namespace Mbc.Pcs.Net.Test
         }
 
         [Fact]
-        public void ExecuteAsync_ShouldLockingExecutionOrder()
+        public async Task ExecuteAsync_ExecutionBehaviorIsLock_ShouldLockingExecutionOrder()
         {
             // Arrange 
             var fakeConnection = new AdsCommandConnectionFake();
@@ -123,7 +123,7 @@ namespace Mbc.Pcs.Net.Test
             command3.StateChanged += (obj, args) => { lastCommand = 3; };
 
             // Act
-            Task.WaitAll(new[] {
+            await Task.WhenAll(new[] {
                 command1.ExecuteAsync(),
                 command2.ExecuteAsync(A.Fake<ICommandInput>()),
                 command3.ExecuteAsync(output: A.Fake<ICommandOutput>()),
@@ -131,6 +131,45 @@ namespace Mbc.Pcs.Net.Test
 
             // Assert
             lastCommand.Should().Be(3);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ExecutionBehaviorIsThrowException_ShouldThrowException()
+        {
+            // Arrange 
+            var fakeConnection = new AdsCommandConnectionFake();
+            IPlcCommand command1 = new PlcCommand(fakeConnection.AdsConnection, "cmd")
+            {
+                ExecutionBehavior = ExecutionBehavior.ThrowException,
+            };
+            IPlcCommand command2 = new PlcCommand(fakeConnection.AdsConnection, "cmd")
+            {
+                ExecutionBehavior = ExecutionBehavior.ThrowException,
+            };
+            IPlcCommand command3 = new PlcCommand(fakeConnection.AdsConnection, "cmd")
+            {
+                ExecutionBehavior = ExecutionBehavior.ThrowException,
+            };
+            int lastCommand = 0;
+            command1.StateChanged += (obj, args) => { lastCommand = 1; };
+            command2.StateChanged += (obj, args) => { lastCommand = 2; };
+            command3.StateChanged += (obj, args) => { lastCommand = 3; };
+
+            // Act
+            var tasks = new[] {
+                Record.ExceptionAsync(() => command1.ExecuteAsync()),
+                Record.ExceptionAsync(() => command2.ExecuteAsync(A.Fake<ICommandInput>())),
+                Record.ExceptionAsync(() => command3.ExecuteAsync(output: A.Fake<ICommandOutput>())),
+            };
+            await Task.WhenAll(tasks);
+
+            // Assert
+            lastCommand.Should().Be(1);
+            tasks[0].Result.Should().BeNull();
+            tasks[1].Result.Should().BeOfType<PlcCommandLockException>();
+            (tasks[1].Result as PlcCommandLockException).CommandVariable.Should().Be("cmd");
+            tasks[2].Result.Should().BeOfType<PlcCommandLockException>();
+            (tasks[2].Result as PlcCommandLockException).CommandVariable.Should().Be("cmd");
         }
     }
 }

@@ -45,6 +45,12 @@ namespace Mbc.Pcs.Net
         public string AdsCommandFbPath => _adsCommandFbPath;
 
         /// <summary>
+        /// Defines the beavior how to react to parallel exection of this command. 
+        /// Default is locking the second caller and wait for the end of the first command.
+        /// </summary>
+        public ExecutionBehavior ExecutionBehavior { get; set; }
+
+        /// <summary>
         /// Executes a PLC command.
         /// </summary>
         /// <seealso cref="Execute(CancellationToken, ICommandInput, ICommandOutput)"/>
@@ -82,7 +88,7 @@ namespace Mbc.Pcs.Net
         /// <example
         protected void Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
         {
-            using (var commandLock = PlcCommandLock.AcquireLock($"{_adsCommandFbPath}-on-{_adsConnection.Address.ToString()}"))
+            using (PlcCommandLock.AcquireLock(_adsCommandFbPath, _adsConnection.Address, ExecutionBehavior))
             {
                 if (!_adsConnection.IsConnected)
                     throw new InvalidOperationException("ADS-Client is not connect.");

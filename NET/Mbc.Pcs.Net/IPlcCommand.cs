@@ -17,6 +17,12 @@ namespace Mbc.Pcs.Net
         string AdsCommandFbPath { get; }
 
         /// <summary>
+        /// Defines the beavior how to react to parallel exection of this command. 
+        /// Default is locking the second caller and wait for the end of the first command.
+        /// </summary>
+        ExecutionBehavior ExecutionBehavior { get; set; }
+
+        /// <summary>
         /// Occurs when the state of a command is changed.
         /// </summary>
         event EventHandler<PlcCommandEventArgs> StateChanged;

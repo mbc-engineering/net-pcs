@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using TwinCAT.Ads;
 
 namespace Mbc.Pcs.Net
 {
@@ -9,13 +10,22 @@ namespace Mbc.Pcs.Net
         private static object _lock = new object();
         private static HashSet<string> _lockCommand = new HashSet<string>();
 
-        public static IDisposable AcquireLock(string commandName)
+        public static IDisposable AcquireLock(string adsCommandFbPath, AmsAddress address, ExecutionBehavior behavior)
         {
+            string uniqueCommandLock = $"{adsCommandFbPath}-on-{address.ToString()}";
+
             Monitor.Enter(_lock);
+
             try
             {
-                while (!_lockCommand.Add(commandName))
+                while (!_lockCommand.Add(uniqueCommandLock))
                 {
+                    if(behavior == ExecutionBehavior.ThrowException)
+                    {
+                        throw new PlcCommandLockException(adsCommandFbPath, behavior, "Command is already running and is therefore locked.");
+                    }
+
+                    // Wait for Pulse and retest
                     Monitor.Wait(_lock);
                 }
             }
@@ -24,16 +34,16 @@ namespace Mbc.Pcs.Net
                 Monitor.Exit(_lock);
             }
 
-            return new AcquiredLock(commandName);
+            return new AcquiredLock(uniqueCommandLock);
         }
 
         private class AcquiredLock : IDisposable
         {
-            private string _commandName;
+            private readonly string _uniqueCommandLockName;
 
-            internal AcquiredLock(string commandName)
+            internal AcquiredLock(string uniqueCommandLockName)
             {
-                _commandName = commandName;
+                _uniqueCommandLockName = uniqueCommandLockName;
             }
 
             public void Dispose()
@@ -41,7 +51,7 @@ namespace Mbc.Pcs.Net
                 Monitor.Enter(_lock);
                 try
                 {
-                    _lockCommand.Remove(_commandName);
+                    _lockCommand.Remove(_uniqueCommandLockName);
                     Monitor.PulseAll(_lock);
                 }
                 finally
