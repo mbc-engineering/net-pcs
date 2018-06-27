@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Mbc.Pcs.Net
+namespace Mbc.Pcs.Net.Command
 {
     /// <summary>
     /// The exception is thrown if the execution of a <see cref="PlcCommand"/>

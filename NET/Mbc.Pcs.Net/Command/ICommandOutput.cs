@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Mbc.Pcs.Net
+namespace Mbc.Pcs.Net.Command
 {
     public interface ICommandOutput
     {

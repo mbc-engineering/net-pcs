@@ -1,4 +1,4 @@
-﻿using Mbc.Pcs.Net;
+﻿using Mbc.Pcs.Net.Command;
 using System;
 using System.Collections.Generic;
 using System.Linq;

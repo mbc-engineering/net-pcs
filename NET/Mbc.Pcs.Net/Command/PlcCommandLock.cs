@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using TwinCAT.Ads;
 
-namespace Mbc.Pcs.Net
+namespace Mbc.Pcs.Net.Command
 {
     internal static class PlcCommandLock
     {

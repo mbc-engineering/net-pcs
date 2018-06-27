@@ -1,4 +1,4 @@
-﻿namespace Mbc.Pcs.Net
+﻿namespace Mbc.Pcs.Net.Command
 {
     public enum ExecutionBehavior
     {

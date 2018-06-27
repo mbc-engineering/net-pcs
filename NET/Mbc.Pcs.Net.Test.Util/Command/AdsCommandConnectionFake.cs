@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using TwinCAT.Ads;
 using TwinCAT.TypeSystem;
-using static Mbc.Pcs.Net.PlcCommand;
+using Mbc.Pcs.Net.Command;
+using static Mbc.Pcs.Net.Command.PlcCommand;
 
-namespace Mbc.Pcs.Net.Test.Util
+namespace Mbc.Pcs.Net.Test.Util.Command
 {
     public class AdsCommandConnectionFake
     {
