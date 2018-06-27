@@ -4,13 +4,13 @@
     <Company>mbc engineering GmbH</Company>
     <Copyright>mbc engineering GmbH</Copyright>
     <Product>Mbc.Pcs.Net</Product>
-    <VersionPrefix>1.1.0</VersionPrefix>
+    <VersionPrefix>1.2.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <!-- Build configuration Settings-->
