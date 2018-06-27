@@ -6,6 +6,15 @@
     /// <seealso cref="PlcCommand"/>
     public class PlcCommandEventArgs
     {
+        internal PlcCommandEventArgs(int progress, int subTask, bool finished, bool cancelled, bool timeout)
+        {
+            Progress = progress;
+            SubTask = subTask;
+            IsFinished = finished;
+            IsCancelled = cancelled;
+            IsTimeOut = timeout;
+        }
+
         /// <summary>
         /// Gets the progress value from 0 to 100 percent.
         /// </summary>
@@ -20,13 +29,6 @@
 
         public bool IsCancelled { get; }
 
-        internal PlcCommandEventArgs(int progress, int subTask, bool finished, bool cancelled)
-        {
-            Progress = progress;
-            SubTask = subTask;
-            IsFinished = finished;
-            IsCancelled = cancelled;
-        }
-
+        public bool IsTimeOut { get; }
     }
 }

@@ -4,6 +4,8 @@ using Mbc.Pcs.Net.Command;
 using Mbc.Pcs.Net.Test.Util.Command;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TwinCAT.Ads;
 using Xunit;
@@ -108,6 +110,113 @@ namespace Mbc.Pcs.Net.Test
 
             // Assert
             act.Should().NotThrow();
+        }
+
+        /// <summary>
+        /// Example for customer code. see also constructor
+        /// </summary>
+        [Fact]
+        public async Task ExecuteAsync_WaitForTimeOut()
+        {
+            // Arrange
+            var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.NoResponse);
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "cmd")
+            {
+                Timeout = TimeSpan.FromMilliseconds(100)
+            };
+            PlcCommandEventArgs stateChange = null;
+            subject.StateChanged += (sender, arg) => stateChange = arg;
+
+            // Act
+            var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync());
+
+            // Assert
+            ex.Should().BeOfType<PlcCommandTimeoutException>()
+                .Subject.CommandVariable.Should().Be("cmd");
+            stateChange.Should().NotBeNull();
+            stateChange.IsFinished.Should().Be(false);
+            stateChange.IsCancelled.Should().Be(false);
+            stateChange.IsTimeOut.Should().Be(true);
+        }
+
+        /// <summary>
+        /// Long runing commands can be canceled by a Cancel Token. 
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task ExecuteAsync_CancelByDotNet()
+        {
+            // Arrange
+            var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.NoResponse);
+            fakeConnection.AddAdsSubItem("Val1", typeof(short), true);
+            fakeConnection.AddAdsSubItem("Val2", typeof(short), true);
+            ICommandInput input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>
+            {
+                { "Val1", 23.3 },
+                { "Val2", 33.3 },
+            });
+            CancellationTokenSource cancellationToken = new CancellationTokenSource();
+            var subject = new PlcCommand(fakeConnection.AdsConnection, "cmd");
+            var stateChanges = new List<PlcCommandEventArgs>();
+            subject.StateChanged += (sender, arg) => stateChanges.Add(arg);
+
+            // Act
+            cancellationToken.CancelAfter(TimeSpan.FromMilliseconds(100));
+            var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync(cancellationToken.Token, input));
+
+            // Assert
+            ex.Should().BeOfType<OperationCanceledException>();
+            ex.InnerException.Should().BeOfType<PlcCommandErrorException>()
+                .Subject.ResultCode.Should().Be(3);
+            stateChanges.Last().Should().NotBeNull();
+            stateChanges.Last().IsFinished.Should().Be(false);
+            stateChanges.Last().IsTimeOut.Should().Be(false);
+            stateChanges.Last().IsCancelled.Should().Be(true);            
+        }
+
+        /// <summary>
+        /// commands can be canceled by the PLC
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task ExecuteAsync_CancelByPlc()
+        {
+            // Arrange
+            var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.ResponseDelayedCancel);
+            var subject = new PlcCommand(fakeConnection.AdsConnection, "cmd");            
+            var stateChanges = new List<PlcCommandEventArgs>();
+            subject.StateChanged += (sender, arg) => stateChanges.Add(arg);
+
+            // Act
+            var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync());
+
+            // Assert
+            ex.Should().BeOfType<PlcCommandErrorException>()
+                .Subject.ResultCode.Should().Be(3);
+            stateChanges.Last().Should().NotBeNull();
+            stateChanges.Last().IsFinished.Should().Be(false);
+            stateChanges.Last().IsTimeOut.Should().Be(false);
+            stateChanges.Last().IsCancelled.Should().Be(true);
+        }
+
+        /// <summary>
+        /// Example for customer status code. see also constructor
+        /// </summary>
+        [Fact]
+        public async Task ExecuteAsync_FailWithCustomFailStatusCode()
+        {
+            // Arrange     
+            var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.ResponseImmediatelyFinished);
+            fakeConnection.ResponseStatusCode = 101;
+
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "cmd");
+            
+            // Act
+            var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync());
+
+            // Assert            
+            ex.Should().BeOfType<PlcCommandErrorException>();
+            (ex as PlcCommandErrorException).ResultCode.Should().Be(101);
         }
 
         [Fact]

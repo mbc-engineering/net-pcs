@@ -117,9 +117,6 @@ namespace Mbc.Pcs.Net.Command
                         }
                         catch (PlcCommandErrorException ex) when (ex.ResultCode == 3 && cancellationToken.IsCancellationRequested)
                         {
-                            // Update state
-                            StateChanged?.Invoke(this, new PlcCommandEventArgs(handshakeExchange.Data.Progress, handshakeExchange.Data.SubTask, false, true));
-
                             // Im Falle eines Abbruch durch einen User-Request (CancellationToken) wird
                             // die Framework-Exception zurückgegeben.
                             throw new OperationCanceledException("The command was cancelled by user request.", ex, cancellationToken);
@@ -247,9 +244,9 @@ namespace Mbc.Pcs.Net.Command
                     var handshakeData = dataExchange.GetOrWait(remainingTimeout);
 
                     StateChanged?.Invoke(this, new PlcCommandEventArgs(handshakeData.Progress, handshakeData.SubTask, 
-                        handshakeData.IsCommandFinished, handshakeData.IsCommandCancelled));
+                        handshakeData.IsCommandFinished, handshakeData.IsCommandCancelled, false));
 
-                    if (handshakeData.IsCommandFinished)
+                    if (handshakeData.IsCommandFinished || handshakeData.IsCommandCancelled)
                     {
                         CheckResultCode(handshakeData.ResultCode);
                         break;
@@ -257,6 +254,9 @@ namespace Mbc.Pcs.Net.Command
                 }
                 catch (TimeoutException ex)
                 {
+                    // Update state
+                    StateChanged?.Invoke(this, new PlcCommandEventArgs(dataExchange.Data.Progress, dataExchange.Data.SubTask, false, false, true));
+
                     throw new PlcCommandTimeoutException(_adsCommandFbPath, $"The command timed out after {Timeout.Seconds} [s].", ex);
                 }
             }
@@ -331,7 +331,10 @@ namespace Mbc.Pcs.Net.Command
         private void OnAdsNotification(object sender, AdsNotificationExEventArgs e)
         {
             var userDataTuple = e.UserData as Tuple<PlcCommand, DataExchange<CommandHandshakeStruct>>;
-            if (userDataTuple == null || userDataTuple.Item1 != this) return;
+            if (userDataTuple == null || userDataTuple.Item1 != this)
+            {
+                return;
+            }
 
             userDataTuple.Item2.Set((CommandHandshakeStruct) e.Value);
         }
@@ -373,7 +376,7 @@ namespace Mbc.Pcs.Net.Command
 
             public bool IsCommandFinished => !Execute && !Busy;
 
-            public bool IsCommandCancelled => !Execute && Busy;
+            public bool IsCommandCancelled => !Execute && Busy || ResultCode == (ushort)CommandResultCode.Cancelled;
 
             public override string ToString() 
                 => $"Execute={Execute} Busy={Busy} ResultCode={ResultCode} Progress={Progress} SubTask={SubTask}";

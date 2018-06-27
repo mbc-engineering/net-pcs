@@ -6,6 +6,8 @@ using TwinCAT.Ads;
 using TwinCAT.TypeSystem;
 using Mbc.Pcs.Net.Command;
 using static Mbc.Pcs.Net.Command.PlcCommand;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Mbc.Pcs.Net.Test.Util.Command
 {
@@ -14,41 +16,122 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         private readonly IAdsConnection _adsConnection = A.Fake<IAdsConnection>();
         private readonly ITcAdsSymbol5 _adsSymbols = A.Fake<ITcAdsSymbol5>();
         private readonly List<ITcAdsSubItem> _fakedVariables = new List<ITcAdsSubItem>();
+        private readonly Dictionary<int, string> _variableHandles = new Dictionary<int, string>();
+        Tuple<PlcCommand, DataExchange<CommandHandshakeStruct>> _userData = null;
+        private object _userDataLock = new object();
 
-        public AdsCommandConnectionFake()
+        public AdsCommandConnectionFake() 
+            : this(PlcCommandFakeOption.ResponseImmediatelyFinished)
         {
-            A.CallTo(() => _adsSymbols.DataType.SubItems)
-                .Returns(new ReadOnlySubItemCollection(_fakedVariables));
+        }
 
+        public AdsCommandConnectionFake(PlcCommandFakeOption option)
+        {
             A.CallTo(() => _adsConnection.IsConnected)
+                .Invokes(() => Debug.WriteLine("call faked AdsConnection.IsConnected and return true"))
                 .Returns(true);
 
             A.CallTo(() => _adsConnection.Address)
-                .Returns(new AmsAddress(851)); 
+                .Invokes(() => Debug.WriteLine("call faked AdsConnection.Address and return faked local ams adress"))
+                .Returns(new AmsAddress(851));
+
+            A.CallTo(() => _adsSymbols.DataType.SubItems)
+                .Returns(new ReadOnlySubItemCollection(_fakedVariables));
 
             A.CallTo(() => _adsConnection.ReadSymbolInfo(A<string>._))
                 .ReturnsLazily(parm =>
                 {
-                    string symbolPath = (string)parm.Arguments[0];
+                    Debug.WriteLine($"call faked AdsConnection.ReadSymbolInfo(name={parm.Arguments[0].ToString()}) and return faked symbols");                    string symbolPath = (string)parm.Arguments[0];
 
                     return _adsSymbols;
                 });
 
-            A.CallTo(() => _adsConnection.AddDeviceNotificationEx(A<string>._, A<AdsTransMode>._, A<int>._, A<int>._, A<object>._, A<Type>._))
+            A.CallTo(() => _adsConnection.CreateVariableHandle(A<string>._))
+                .ReturnsLazily(parm =>
+                {
+                    Debug.WriteLine($"call faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()})");
+
+                    int hndl = parm.Arguments[0].GetHashCode();
+                    // save handle
+                    _variableHandles[hndl] = parm.Arguments[0].ToString();
+
+                    Debug.WriteLine($"Return faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()}) value => {hndl}");
+                    return hndl;
+                });
+
+            A.CallTo(() => _adsConnection.WriteAny(A<int>._, A<object>._))
                 .Invokes(parm =>
                 {
-                    var userData = parm.Arguments[4] as Tuple<PlcCommand, DataExchange<CommandHandshakeStruct>>;
-                    var handshake = userData.Item2.Data; // Return the blank strukture, this is like the finish command
-                    handshake.Progress = 100;
-                    handshake.ResultCode = (ushort)CommandResultCode.Done;
+                    Debug.WriteLine($"call faked AdsConnection.WriteAny(variableHandle={parm.Arguments[0].ToString()}, value={parm.Arguments[1].ToString()})");
+                    lock (_userDataLock)
+                    {
+                        // Dedect Cancel Request from PlcCommand over CancellationToken
+                        if (parm.Arguments[1] is bool cancelValue1 && cancelValue1 == false && _userData != null
+                            || _variableHandles.TryGetValue((int)parm.Arguments[0], out string variable) && variable.EndsWith(".stHandshake.bExecute")
+                            && parm.Arguments[1] is bool cancelValue && cancelValue == false && _userData != null)
+                        {
+                            // Raise Cancel Data Exchange from SPS
+                            var handshake = _userData.Item2.Data;
+                            handshake.Progress = 50;
+                            handshake.ResultCode = (ushort)CommandResultCode.Cancelled;
+                            handshake.Busy = true;
+                            handshake.Execute = false;
 
-                    var eventArgs = new AdsNotificationExEventArgs(1, userData, 80, handshake);
+                            var eventArgs = new AdsNotificationExEventArgs(1, _userData, 80, handshake);
 
-                    _adsConnection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>
-                        .With(_adsConnection, eventArgs);
-                })
-                .Returns(80);
+                            Debug.WriteLine("Raise Faked AdsConnection.AdsNotificationEx");
+                            _adsConnection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>
+                                .With(_adsConnection, eventArgs);
+                        }
+                    }
+                });
+
+                A.CallTo(() => _adsConnection.AddDeviceNotificationEx(A<string>._, A<AdsTransMode>._, A<int>._, A<int>._, A<object>._, A<Type>._))
+                    .Invokes(parm =>
+                    {
+                        Debug.WriteLine($"call faked AdsConnection.AddDeviceNotificationEx(variableName={parm.Arguments[0].ToString()}, userData={parm.Arguments[4].ToString()})");
+                        lock (_userDataLock)
+                        {
+                            _userData = parm.Arguments[4] as Tuple<PlcCommand, DataExchange<CommandHandshakeStruct>>;
+
+
+                            if (option != PlcCommandFakeOption.NoResponse)
+                            {
+                                var handshake = _userData.Item2.Data; // Return the blank strukture, this is like the finish command
+                                handshake.SubTask = ResponseSubTask;
+
+                                if (option == PlcCommandFakeOption.ResponseDelayedCancel)
+                                {
+                                    Task.Delay(200);
+                                    handshake.Progress = 50;
+                                    handshake.ResultCode = (ushort)CommandResultCode.Cancelled;
+                                    handshake.Busy = true;
+                                    handshake.Execute = false;
+                                }
+                                else
+                                {
+                                    handshake.Progress = 100;
+                                    handshake.ResultCode = ResponseStatusCode;
+                                }
+
+                                var eventArgs = new AdsNotificationExEventArgs(1, _userData, 80, handshake);
+
+                                Debug.WriteLine("Raise faked AdsConnection.AdsNotificationEx");
+                                _adsConnection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>
+                                    .With(_adsConnection, eventArgs);
+                            }
+                        }
+                    })
+                    .Returns(80);            
         }
+
+        /// <summary>
+        /// The value of the ResultCode. Works only with PlcCommandFakeOption.ResponseImmediatelyFinished. 
+        /// Default is Done, but can be used for simulation of user specifc codes
+        /// </summary>
+        public ushort ResponseStatusCode { get; set; } = (ushort)CommandResultCode.Done;
+        
+        public ushort ResponseSubTask { get; set; } = 0;
 
         public IAdsConnection AdsConnection => _adsConnection;
 
