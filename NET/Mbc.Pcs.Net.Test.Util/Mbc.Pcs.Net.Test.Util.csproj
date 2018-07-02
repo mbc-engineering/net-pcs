@@ -3,17 +3,10 @@
 
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="4.6.0" />
+    <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads" Version="4.2.163.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Reference Include="TwinCAT.Ads">
-      <HintPath>..\Libs\TwinCAT.Ads.dll</HintPath>
-      <Private>true</Private>
-      <SpecificVersion>false</SpecificVersion>
-    </Reference>
   </ItemGroup>
 </Project>

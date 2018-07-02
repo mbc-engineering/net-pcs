@@ -1,12 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\common.props" />
-
   <ItemGroup>
-    <Reference Include="TwinCAT.Ads">
-      <HintPath>..\Libs\TwinCAT.Ads.dll</HintPath>
-      <Private>true</Private>
-      <SpecificVersion>false</SpecificVersion>
-    </Reference>
+    <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads" Version="4.2.163.1" />
   </ItemGroup>
 
 </Project>

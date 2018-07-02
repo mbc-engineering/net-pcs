@@ -4,6 +4,7 @@
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="4.6.0" />
     <PackageReference Include="FluentAssertions" Version="5.3.2" />
+    <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads" Version="4.2.163.1" />
     <PackageReference Include="Xbehave" Version="2.3.1" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
@@ -12,12 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Pcs.Net.Test.Util\Mbc.Pcs.Net.Test.Util.csproj" />
     <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="TwinCAT.Ads">
-      <HintPath>..\Libs\TwinCAT.Ads.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
