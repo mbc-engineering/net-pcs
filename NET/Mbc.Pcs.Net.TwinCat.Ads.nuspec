@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Mbc.Pcs.Net.TwinCat.Ads</id>
+    <version>0.0.0</version>
+    <authors>Beckhoff</authors>
+    <owners>Beckhoff Automation GmbH</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>official Beckhoff TwinCat 3 TwinCAT ADS Component (TwinCAT.Ads.dll) in a nuget package for internal use</description>
+    <copyright>Beckhoff Automation GmbH 2001-2017</copyright>
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="libs\TwinCAT.Ads.dll" target="lib\net461\TwinCAT.Ads.dll" />
+    <file src="libs\TwinCAT.Ads.xml" target="lib\net461\TwinCAT.Ads.xml" />
+  </files>
+</package>

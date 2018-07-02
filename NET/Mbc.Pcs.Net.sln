@@ -18,6 +18,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{601F9B25-851D-4A95-8DC9-2866FE1F07C5}"
 	ProjectSection(SolutionItems) = preProject
 		common.props = common.props
+		Mbc.Pcs.Net.TwinCat.Ads.nuspec = Mbc.Pcs.Net.TwinCat.Ads.nuspec
+		nuget-publish.ps1 = nuget-publish.ps1
+		NuGet.Config = NuGet.Config
 	EndProjectSection
 EndProject
 Global
