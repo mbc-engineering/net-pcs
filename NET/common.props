@@ -4,8 +4,8 @@
     <Company>mbc engineering GmbH</Company>
     <Copyright>mbc engineering GmbH</Copyright>
     <Product>Mbc.Pcs.Net</Product>
-    <VersionPrefix>1.2.0</VersionPrefix>
-    <VersionSuffix></VersionSuffix>
+    <VersionPrefix>1.2.1</VersionPrefix>
+    <VersionSuffix>beta1</VersionSuffix>
   </PropertyGroup>
 
   <PropertyGroup>

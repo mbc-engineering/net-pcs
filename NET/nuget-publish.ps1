@@ -12,14 +12,18 @@ With the following command add credentials to a nuget.config (used the downloade
 function Main{
     Write-Host("require minimal 2.0.0 tooling / VS 2017 15.3+")
 
+    # Cleanup old dll and nupkg files from output
     dotnet clean -c Release
+    Remove-Item .\Mbc.Pcs.Net\bin\Release\*.nupkg
+    Remove-Item .\Mbc.Pcs.Net.Test.Util\bin\Release\*.nupkg
 
     # Build libraries
     dotnet pack -c Release --include-source --include-symbols .\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj
     dotnet pack -c Release --include-source --include-symbols .\Mbc.Pcs.Net.Test.Util\Mbc.Pcs.Net.Test.Util.csproj
-    # dotnet nuget push --source mbcpublic --api-key VSTS .\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj
-
-    # Push the Packages
+    
+    # Push the Packages    
+    dotnet nuget push --source mbcpublic --api-key VSTS .\Mbc.Pcs.Net\bin\Release\*.nupkg    
+    dotnet nuget push --source mbcpublic --api-key VSTS .\Mbc.Pcs.Net.Test.Util\bin\Release\*.nupkg
 }
 
 
@@ -36,4 +40,4 @@ function CreateTwinCatAds{
 }
 
 # Execute the program
-CreateTwinCatAds
+Main
