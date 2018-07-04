@@ -30,13 +30,14 @@ function Main{
 function CreateTwinCatAds{
     Write-Host("require minimal 2.0.0 tooling / VS 2017 15.3+")
 
-    dotnet clean -c Release
+    # Cleanup old nupkg
+    Remove-Item .\Mbc.Pcs.Net\*.nupkg
 
     # See nuspec refrence: https://docs.microsoft.com/en-us/nuget/reference/nuspec
 	# Install nuget.exe with: choco install nuget.commandline or download from vsts server with credentials provider
     # Build TwinCat Library
-    NuGet.exe pack .\Mbc.Pcs.Net.TwinCat.Ads.nuspec -Version 4.2.163.1 
-    dotnet nuget push --source mbcpublic --api-key VSTS .\Mbc.Pcs.Net.TwinCat.Ads.4.2.163.1.nupkg 
+    NuGet.exe pack .\Mbc.Pcs.Net.TwinCat.Ads.nuspec -Version 4.2.166.0 
+    dotnet nuget push --source mbcpublic --api-key VSTS .\Mbc.Pcs.Net.TwinCat.Ads.4.2.166.nupkg 
 }
 
 # Execute the program

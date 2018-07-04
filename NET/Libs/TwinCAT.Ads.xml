@@ -79,6 +79,22 @@
             </summary>
             <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         </member>
+        <member name="M:TwinCAT.Ads.Internal.ServerCycleNotificationMngt.AddNotification(System.UInt32,System.UInt32,TwinCAT.Ads.AdsStream,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Object,TwinCAT.Ads.AdsErrorCode@)">
+            <summary>
+            Adds the notification.
+            </summary>
+            <param name="indexGroup">The index group.</param>
+            <param name="indexOffset">The index offset.</param>
+            <param name="data">The data.</param>
+            <param name="offset">The offset.</param>
+            <param name="length">The length.</param>
+            <param name="transMode">The trans mode.</param>
+            <param name="cycleTime">The cycle time.</param>
+            <param name="maxDelay">The maximum delay.</param>
+            <param name="userData">The user data.</param>
+            <param name="result">The result.</param>
+            <returns>System.Int32.</returns>
+        </member>
         <member name="M:TwinCAT.Ads.Internal.ServerCycleNotificationMngt.AddNotification(System.String,TwinCAT.Ads.AdsStream,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Object,TwinCAT.Ads.AdsErrorCode@)">
             <summary>
             Adds the notification.
@@ -389,6 +405,51 @@
             <returns></returns>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDateConverter.Create(System.DateTime)">
+            <summary>
+            Creates the <see cref="T:TwinCAT.PlcOpen.DATE"/> object
+            </summary>
+            <param name="value">The value.</param>
+            <returns>DATE.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDateConverter.Create(System.UInt32)">
+            <summary>
+            Creates the <see cref="T:TwinCAT.PlcOpen.DATE"/> object
+            </summary>
+            <param name="ticks">The ticks.</param>
+            <returns>DATE.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDateConverter.Create(System.Int64)">
+            <summary>
+            Creates the <see cref="T:TwinCAT.PlcOpen.DATE"/> object
+            </summary>
+            <param name="ticks">The ticks.</param>
+            <returns>DATE.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDateConverter.Create(System.String)">
+            <summary>
+            Creates the <see cref="T:TwinCAT.PlcOpen.DATE"/> object
+            </summary>
+            <param name="date">The date.</param>
+            <returns>DATE.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDateConverter.TryConvert(System.Object,TwinCAT.PlcOpen.DATE@)">
+            <summary>
+            Tries to convert the source object to a <see cref="T:TwinCAT.PlcOpen.DATE"/> object.
+            </summary>
+            <param name="source">The source.</param>
+            <param name="timeOfDay">The time of day.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDateConverter.TryConvert(TwinCAT.PlcOpen.DATE,System.Type,System.Object@)">
+            <summary>
+            Tries to convert the <see cref="T:TwinCAT.PlcOpen.DATE"/> object to the specified target type.
+            </summary>
+            <param name="date">The date.</param>
+            <param name="targetType">Type of the target.</param>
+            <param name="targetValue">The target value.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+        </member>
         <member name="M:TwinCAT.PlcOpen.PlcOpenDateConverter.ToString(System.DateTime)">
             <summary>
             Converts the DateTime object to the appropriate PlcOpen Date string representation.
@@ -461,12 +522,80 @@
             </summary>
             <exclude/>
         </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.Create(System.DateTime)">
+            <summary>
+            Creates the <see cref="T:TwinCAT.PlcOpen.DT"/> object.
+            </summary>
+            <param name="value">The value.</param>
+            <returns>DT.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.Create(System.UInt32)">
+            <summary>
+            Creates the <see cref="T:TwinCAT.PlcOpen.DT"/> object.
+            </summary>
+            <param name="ticks">The ticks.</param>
+            <returns>DT.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.Create(System.Int64)">
+            <summary>
+            Creates the <see cref="T:TwinCAT.PlcOpen.DT"/> object.
+            </summary>
+            <param name="ticks">The ticks.</param>
+            <returns>DT.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.Create(System.String)">
+            <summary>
+            Creates the <see cref="T:TwinCAT.PlcOpen.DT"/> object.
+            </summary>
+            <param name="date">The date.</param>
+            <returns>DT.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.TryConvert(System.Object,TwinCAT.PlcOpen.DT@)">
+            <summary>
+            Tries to convert the source object to a <see cref="T:TwinCAT.PlcOpen.DT"/> object.
+            </summary>
+            <param name="source">The source.</param>
+            <param name="timeOfDay">The time of day.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.TryConvert(TwinCAT.PlcOpen.DT,System.Type,System.Object@)">
+            <summary>
+            Tries to convert the <see cref="T:TwinCAT.PlcOpen.DT"/> object to the specified targetType.
+            </summary>
+            <param name="date">The date.</param>
+            <param name="targetType">Type of the target.</param>
+            <param name="targetValue">The target value.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.TicksToString(System.UInt32)">
+            <summary>
+            Converts the ticks to a DateTime string.
+            </summary>
+            <param name="ticks">The ticks.</param>
+            <returns>System.String.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.ObjectToTicks(System.Object)">
+            <summary>
+            Objects to ticks.
+            </summary>
+            <param name="val">The value.</param>
+            <returns>System.UInt32.</returns>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
         <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.DateTimeToString(System.DateTime)">
             <summary>
             Converts the DateTime value to the appropriate PlcOpen string.
             </summary>
             <param name="date">The date.</param>
             <returns></returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.StringToTicks(System.String)">
+            <summary>
+            Strings to ticks.
+            </summary>
+            <param name="s">The s.</param>
+            <returns>System.UInt32.</returns>
+            <exception cref="T:System.FormatException"></exception>
         </member>
         <member name="M:TwinCAT.PlcOpen.PlcOpenDTConverter.GetBytes(TwinCAT.PlcOpen.DT)">
             <summary>
@@ -531,6 +660,51 @@
             </summary>
             <exclude/>
         </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTODConverter.Create(System.TimeSpan)">
+            <summary>
+            Creates a <see cref="T:TwinCAT.PlcOpen.TOD"/> object.
+            </summary>
+            <param name="value">The value.</param>
+            <returns>TOD.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTODConverter.Create(System.UInt32)">
+            <summary>
+            Creates a <see cref="T:TwinCAT.PlcOpen.TOD"/> object.
+            </summary>
+            <param name="ticks">The ticks.</param>
+            <returns>TOD.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTODConverter.Create(System.Int64)">
+            <summary>
+            Creates a <see cref="T:TwinCAT.PlcOpen.TOD"/> object.
+            </summary>
+            <param name="ticks">The ticks.</param>
+            <returns>TOD.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTODConverter.Create(System.String)">
+            <summary>
+            Creates a <see cref="T:TwinCAT.PlcOpen.TOD"/> object.
+            </summary>
+            <param name="date">The date.</param>
+            <returns>TOD.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTODConverter.TryConvert(System.Object,TwinCAT.PlcOpen.TOD@)">
+            <summary>
+            Tries to convert the source to a <see cref="T:TwinCAT.PlcOpen.TOD"/> object.
+            </summary>
+            <param name="source">The source.</param>
+            <param name="timeOfDay">The time of day.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTODConverter.TryConvert(TwinCAT.PlcOpen.TOD,System.Type,System.Object@)">
+            <summary>
+            Tries to convert the <see cref="T:TwinCAT.PlcOpen.TOD"/> to the specified target type.
+            </summary>
+            <param name="date">The date.</param>
+            <param name="targetType">Type of the target.</param>
+            <param name="targetValue">The target value.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+        </member>
         <member name="M:TwinCAT.PlcOpen.PlcOpenTODConverter.ToTimeSpan(System.UInt32)">
             <summary>
             Converts ticks to timespan
@@ -577,12 +751,58 @@
             </summary>
             <param name="tod">The tod.</param>
             <returns>System.Byte[].</returns>
+            <exclude/>
         </member>
         <member name="T:TwinCAT.PlcOpen.PlcOpenTimeConverter">
             <summary>
             Converter class for the PLC Open TIME Data Type
             </summary>
             <exclude/>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTimeConverter.Create(System.TimeSpan)">
+            <summary>
+            Creates a <see cref="T:TwinCAT.PlcOpen.TIME"/> object.
+            </summary>
+            <param name="value">The value.</param>
+            <returns>TIME.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTimeConverter.Create(System.UInt32)">
+            <summary>
+            Creates a <see cref="T:TwinCAT.PlcOpen.TIME"/> object.
+            </summary>
+            <param name="ticks">The ticks.</param>
+            <returns>TIME.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTimeConverter.Create(System.Int64)">
+            <summary>
+            Creates a <see cref="T:TwinCAT.PlcOpen.TIME"/> object.
+            </summary>
+            <param name="ticks">The ticks.</param>
+            <returns>TIME.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTimeConverter.Create(System.String)">
+            <summary>
+            Creates a <see cref="T:TwinCAT.PlcOpen.TIME"/> object.
+            </summary>
+            <param name="time">The time.</param>
+            <returns>TIME.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTimeConverter.TryConvert(System.Object,TwinCAT.PlcOpen.TIME@)">
+            <summary>
+            Tries to convert the source object to <see cref="T:TwinCAT.PlcOpen.TIME"/>.
+            </summary>
+            <param name="source">The source.</param>
+            <param name="time">The time.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:TwinCAT.PlcOpen.PlcOpenTimeConverter.TryConvert(TwinCAT.PlcOpen.TIME,System.Type,System.Object@)">
+            <summary>
+            Tries to convert the <see cref="T:TwinCAT.PlcOpen.TIME"/> object to the specified targetType.
+            </summary>
+            <param name="time">The time.</param>
+            <param name="targetType">Type of the target.</param>
+            <param name="targetValue">The target value.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         </member>
         <member name="M:TwinCAT.PlcOpen.PlcOpenTimeConverter.ToTicks(System.TimeSpan)">
             <summary>
@@ -1675,7 +1895,7 @@
             Initializes a new instance of the <see cref="T:TwinCAT.Ads.SumCommand.SumHandleRead"/> class.
             </summary>
             <param name="connection">The connection.</param>
-            <param name="handles">The handles.</param>
+            <param name="serverHandles">The server Handles</param>
             <param name="valueTypes">The value types (ANY/Primitive .NET types only)</param>
             <exclude/>
         </member>
@@ -1684,7 +1904,7 @@
             Initializes a new instance of the <see cref="T:TwinCAT.Ads.SumCommand.SumHandleRead"/> class.
             </summary>
             <param name="connection">The connection.</param>
-            <param name="handles">The handles.</param>
+            <param name="serverHandles">The handles.</param>
             <param name="valueTypes">The value types (ANY/Primitive .NET types only)</param>
             <param name="unicode">if set to <c>true</c> use unicode access.</param>
             <param name="strlen">Default (fixed) string len.</param>
@@ -1734,7 +1954,7 @@
             Initializes a new instance of the <see cref="T:TwinCAT.Ads.SumCommand.SumHandleWrite"/> class.
             </summary>
             <param name="connection">The connection.</param>
-            <param name="handles">The handles.</param>
+            <param name="serverHandles">The handles.</param>
             <param name="valueTypes">The value types (ANY/Primitive .NET types only)</param>
         </member>
         <member name="M:TwinCAT.Ads.SumCommand.SumHandleWrite.TryWrite(System.Object[],TwinCAT.Ads.AdsErrorCode[]@)">
@@ -1771,7 +1991,7 @@
             The connection
             </summary>
         </member>
-        <member name="F:TwinCAT.Ads.SumCommand.SumReleaseHandles._handles">
+        <member name="F:TwinCAT.Ads.SumCommand.SumReleaseHandles._serverHandles">
             <summary>
             The handles to release.
             </summary>
@@ -1781,7 +2001,7 @@
             Initializes a new instance of the <see cref="T:TwinCAT.Ads.SumCommand.SumReleaseHandles"/> class.
             </summary>
             <param name="connection">The connection.</param>
-            <param name="handles">The handles.</param>
+            <param name="serverHandles">The handles.</param>
         </member>
         <member name="M:TwinCAT.Ads.SumCommand.SumReleaseHandles.CreateSumEntityInfos">
             <summary>
@@ -11295,7 +11515,7 @@
             Value array size mismatch!;value</exception>
             <exclude/>
         </member>
-        <member name="M:TwinCAT.Ads.ValueAccess.AdsValueAccessor.calcAccessMethod(TwinCAT.TypeSystem.IProcessImageAddress)">
+        <member name="M:TwinCAT.Ads.ValueAccess.AdsValueAccessor.calcAccessMethodByAddress(TwinCAT.TypeSystem.IProcessImageAddress)">
             <summary>
             Calculates the access method dependent on Symbol Type and <see cref="T:TwinCAT.Ads.ValueAccess.ValueAccessMode"/> setting.
             </summary>
@@ -11486,6 +11706,30 @@
             <param name="offset">The offset.</param>
             <returns>A primitive value.</returns>
         </member>
+        <member name="T:TwinCAT.ValueAccess.IAccessorValueFactory2">
+            <summary>
+            Interface IAccessorValueFactory2
+            </summary>
+            <seealso cref="T:TwinCAT.ValueAccess.IAccessorValueFactory"/>
+            <exclude/>
+        </member>
+        <member name="M:TwinCAT.ValueAccess.IAccessorValueFactory2.SetValueAccessor(TwinCAT.ValueAccess.IAccessorRawValue)">
+            <summary>
+            Sets the value accessor
+            </summary>
+            <param name="accessor">The accessor.</param>
+        </member>
+        <member name="P:TwinCAT.ValueAccess.IAccessorValueFactory2.ValueAccessor">
+            <summary>
+            Gets the value accessor.
+            </summary>
+            <value>The value accessor or NULL</value>
+            <remarks>
+            The Value accessor can be used for the possibility to Read Values on ValueAccess on the Fly.
+            E.g. when dereferencing ReferenceTypes on property access.
+            The 'on-the-fly' access is optional and doesn't have to be supported, but the DynamicValueFactory can use if available.
+            </remarks>
+        </member>
         <member name="T:TwinCAT.ValueAccess.IAccessorDynamicValue">
             <summary>
             Accessor interface for dynamic values (Read/Write Access for Dynamic Values).
@@ -11528,6 +11772,18 @@
             Initializes a new instance of the <see cref="T:TwinCAT.ValueAccess.ValueFactory"/> class.
             </summary>
         </member>
+        <member name="F:TwinCAT.ValueAccess.ValueFactory.accessor">
+            <summary>
+            A Backlink to the Value Accessor.
+            </summary>
+            <remarks>This enables the DynamicValueFactory to Dereference References 'On the fly'</remarks>
+        </member>
+        <member name="M:TwinCAT.ValueAccess.ValueFactory.SetValueAccessor(TwinCAT.ValueAccess.IAccessorRawValue)">
+            <summary>
+            Sets the value accessor
+            </summary>
+            <param name="accessor">The accessor.</param>
+        </member>
         <member name="M:TwinCAT.ValueAccess.ValueFactory.CreatePrimitiveValue(TwinCAT.TypeSystem.ISymbol,System.Byte[],System.Int32)">
             <summary>
             Creates a primitive value, independent of any settings.
@@ -11563,6 +11819,15 @@
             </summary>
             <value>The mode.</value>
         </member>
+        <member name="P:TwinCAT.ValueAccess.ValueFactory.ValueAccessor">
+            <summary>
+            Gets the value accessor.
+            </summary>
+            <value>The value accessor or NULL</value>
+            <remarks>The Value accessor can be used for the possibility to Read Values on ValueAccess on the Fly.
+            E.g. when dereferencing ReferenceTypes on property access.
+            The 'on-the-fly' access is optional and doesn't have to be supported, but the DynamicValueFactory can use if available.</remarks>
+        </member>
         <member name="T:TwinCAT.ValueAccess.DynamicValueAccessor">
             <summary>
             Dynamic Value Accessor implementation class
@@ -11579,14 +11844,14 @@
             The inner value accessor
             </summary>
         </member>
-        <member name="M:TwinCAT.ValueAccess.DynamicValueAccessor.#ctor(TwinCAT.ValueAccess.IAccessorValue,TwinCAT.ValueAccess.ValueCreationMode)">
+        <member name="M:TwinCAT.ValueAccess.DynamicValueAccessor.#ctor(TwinCAT.ValueAccess.IAccessorValue,TwinCAT.ValueAccess.IAccessorValueFactory,TwinCAT.ValueAccess.ValueCreationMode)">
             <summary>
             Initializes a new instance of the <see cref="T:TwinCAT.ValueAccess.DynamicValueAccessor"/> class.
             </summary>
             <param name="inner">The inner Accessor</param>
+            <param name="factory">The factory.</param>
             <param name="mode">The mode.</param>
             <exception cref="T:System.ArgumentNullException">valueAccessor</exception>
-            <exclude/>
         </member>
         <member name="M:TwinCAT.ValueAccess.DynamicValueAccessor.ReadArrayElement(TwinCAT.TypeSystem.IArrayInstance,System.Int32[],System.DateTime@)">
             <summary>
@@ -16896,6 +17161,11 @@
             The resolved alias type
             </summary>
         </member>
+        <member name="F:TwinCAT.TypeSystem.DynamicReferenceInstance.normalizedDict">
+            <summary>
+            Dictionary of normalized Instance Names
+            </summary>
+        </member>
         <member name="M:TwinCAT.TypeSystem.DynamicReferenceInstance.#ctor(TwinCAT.TypeSystem.IReferenceInstance)">
             <summary>
             Initializes a new instance of the <see cref="T:TwinCAT.TypeSystem.DynamicReferenceInstance"/> class.
@@ -16907,6 +17177,22 @@
             Returns the enumeration of all dynamic member names.
             </summary>
             <returns>A sequence that contains dynamic member names.</returns>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicReferenceInstance.TryGetMember(System.Dynamic.GetMemberBinder,System.Object@)">
+            <summary>
+            Provides the implementation for operations that get member values. Classes derived from the <see cref="T:System.Dynamic.DynamicObject" /> class can override this method to specify dynamic behavior for operations such as getting a value for a property.
+            </summary>
+            <param name="binder">Provides information about the object that called the dynamic operation. The binder.Name property provides the name of the member on which the dynamic operation is performed. For example, for the Console.WriteLine(sampleObject.SampleProperty) statement, where sampleObject is an instance of the class derived from the <see cref="T:System.Dynamic.DynamicObject" /> class, binder.Name returns "SampleProperty". The binder.IgnoreCase property specifies whether the member name is case-sensitive.</param>
+            <param name="result">The result of the get operation. For example, if the method is called for a property, you can assign the property value to <paramref name="result" />.</param>
+            <returns>true if the operation is successful; otherwise, false. If this method returns false, the run-time binder of the language determines the behavior. (In most cases, a run-time exception is thrown.)</returns>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicReferenceInstance.TrySetMember(System.Dynamic.SetMemberBinder,System.Object)">
+            <summary>
+            Provides the implementation for operations that set member values. Classes derived from the <see cref="T:System.Dynamic.DynamicObject" /> class can override this method to specify dynamic behavior for operations such as setting a value for a property.
+            </summary>
+            <param name="binder">Provides information about the object that called the dynamic operation. The binder.Name property provides the name of the member to which the value is being assigned. For example, for the statement sampleObject.SampleProperty = "Test", where sampleObject is an instance of the class derived from the <see cref="T:System.Dynamic.DynamicObject" /> class, binder.Name returns "SampleProperty". The binder.IgnoreCase property specifies whether the member name is case-sensitive.</param>
+            <param name="value">The value to set to the member. For example, for sampleObject.SampleProperty = "Test", where sampleObject is an instance of the class derived from the <see cref="T:System.Dynamic.DynamicObject" /> class, the <paramref name="value" /> is "Test".</param>
+            <returns>true if the operation is successful; otherwise, false. If this method returns false, the run-time binder of the language determines the behavior. (In most cases, a language-specific run-time exception is thrown.)</returns>
         </member>
         <member name="M:TwinCAT.TypeSystem.DynamicReferenceInstance.TryGetIndex(System.Dynamic.GetIndexBinder,System.Object[],System.Object@)">
             <summary>
@@ -16956,6 +17242,20 @@
             Initializes a new instance of the <see cref="T:TwinCAT.TypeSystem.DynamicPointerInstance"/> class.
             </summary>
             <param name="pointerInstance">The pointer instance.</param>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicPointerInstance.GetDynamicMemberNames">
+            <summary>
+            Returns the enumeration of all dynamic member names.
+            </summary>
+            <returns>A sequence that contains dynamic member names.</returns>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicPointerInstance.TryGetMember(System.Dynamic.GetMemberBinder,System.Object@)">
+            <summary>
+            Provides the implementation for operations that get member values. Classes derived from the <see cref="T:System.Dynamic.DynamicObject" /> class can override this method to specify dynamic behavior for operations such as getting a value for a property.
+            </summary>
+            <param name="binder">Provides information about the object that called the dynamic operation. The binder.Name property provides the name of the member on which the dynamic operation is performed. For example, for the Console.WriteLine(sampleObject.SampleProperty) statement, where sampleObject is an instance of the class derived from the <see cref="T:System.Dynamic.DynamicObject" /> class, binder.Name returns "SampleProperty". The binder.IgnoreCase property specifies whether the member name is case-sensitive.</param>
+            <param name="result">The result of the get operation. For example, if the method is called for a property, you can assign the property value to <paramref name="result" />.</param>
+            <returns>true if the operation is successful; otherwise, false. If this method returns false, the run-time binder of the language determines the behavior. (In most cases, a run-time exception is thrown.)</returns>
         </member>
         <member name="P:TwinCAT.TypeSystem.DynamicPointerInstance.Reference">
             <summary>
@@ -22751,7 +23051,10 @@
             <summary>
             Gets the dynamic Symbols
             </summary>
-            <value>The dynamic symbols.</value>
+            <value>The dynamic symbols (when activated)</value>
+            <remarks>
+            The Dynamic Symbols can only be returned if the <see cref="F:TwinCAT.SymbolsLoadMode.DynamicTree"/> is active.
+            </remarks>
         </member>
         <member name="P:TwinCAT.Ads.TypeSystem.AdsSymbolLoader.DefaultNotificationSettings">
             <summary>
@@ -23414,6 +23717,16 @@
             Type of symbol not supported
             </exception>
         </member>
+        <member name="M:TwinCAT.Ads.Internal.SymbolInfoTable.updateSymbolHandle(TwinCAT.Ads.Internal.TcAdsSymbol)">
+            <summary>
+            Updates the symbol handle for Symbolic access
+            </summary>
+            <param name="adsSymbol">The ads symbol.</param>
+            <returns>AdsErrorCode.</returns>
+            <remarks>
+            xxxx
+            </remarks>
+        </member>
         <member name="M:TwinCAT.Ads.Internal.SymbolInfoTable.ReadSymbol(System.String,System.Type,System.Boolean)">
             <summary>
             Reads the symbol.
@@ -23606,6 +23919,33 @@
             <param name="netId">The net identifier.</param>
             <param name="localNetId">The local net identifier.</param>
             <returns><c>true</c> if [is local net identifier] [the specified net identifier]; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:TwinCAT.Ads.Internal.TcAdsDllWrapper.Write(System.UInt32,System.UInt32,System.String,System.Int32,System.Boolean)">
+            <summary>
+            Writes the specified index group.
+            </summary>
+            <param name="indexGroup">The index group.</param>
+            <param name="indexOffset">The index offset.</param>
+            <param name="val">The value.</param>
+            <param name="characters">The characters (without trailing Zero)</param>
+            <param name="throwAdsException">if set to <c>true</c> [throw ads exception].</param>
+            <returns>AdsErrorCode.</returns>
+            <remarks>Method will write characters * sizeof(char) + 1 (Trailing Zero)</remarks>
+        </member>
+        <member name="M:TwinCAT.Ads.Internal.TcAdsDllWrapper.WriteArrayOfString(System.UInt32,System.UInt32,System.String[],System.Int32,System.Boolean)">
+            <summary>
+            Writes the array of string.
+            </summary>
+            <param name="indexGroup">The index group.</param>
+            <param name="indexOffset">The index offset.</param>
+            <param name="val">The value.</param>
+            <param name="characters">The number of characters in each string (without trailing /0).</param>
+            <param name="throwAdsException">if set to <c>true</c> [throw ads exception].</param>
+            <returns>AdsErrorCode.</returns>
+            <remarks>
+            This method will write an Array of strings. Each string has a fixed size of 'characters' + '\0'.
+            So the dataarea size will be val.Length * (characters + 1)
+            </remarks>
         </member>
         <member name="M:TwinCAT.Ads.Internal.TcAdsDllWrapper.ThrowAdsException(TwinCAT.Ads.AdsErrorCode)">
             <summary>
@@ -24394,17 +24734,97 @@
         </member>
         <member name="F:TwinCAT.Ads.AdsTransMode.CyclicInContext">
             <summary>
-            The AdsSyncNotification-Event is fired cyclically within the given context (ADSTRANS_SERVERCYCLE2 = 5)
+            The AdsSyncNotification-Event is fired cyclically within the given context - LEGACY (ADSTRANS_SERVERCYCLE2 = 5)
             </summary>
         </member>
         <member name="F:TwinCAT.Ads.AdsTransMode.OnChangeInContext">
             <summary>
-            The AdsSyncNotification-Event is fired when the data changes within the given context (ADSTRANS_SERVERONCHA2 = 6)
+            The AdsSyncNotification-Event is fired when the data changes within the given context - LEGACY (ADSTRANS_SERVERONCHA2 = 6)
             </summary>
         </member>
         <member name="F:TwinCAT.Ads.AdsTransMode.Client1Req">
             <summary>
             The client1 req (ADSTRANS_CLIENT1REQ = 10)
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC0">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C0 = 16). Same as 'Cyclic'.
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC1">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C1 = 17).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC2">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C2 = 18).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC3">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C3 = 19).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC4">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C4 = 20).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC5">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C5 = 21).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC6">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C6 = 22).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC7">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C7 = 23).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC8">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C8 = 24).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC9">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C9 = 25).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC10">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C10 = 26).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC11">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C11 = 27).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC12">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C12 = 28).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC13">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C13 = 29).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC14">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C14 = 30).
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsTransMode.CyclicC15">
+            <summary>
+            The AdsSyncNotification-Event is fired cyclically (ADSTRANS_SERVERCYCLE_C15 = 31).
             </summary>
         </member>
         <member name="T:TwinCAT.Ads.AmsRouterState">
@@ -24447,6 +24867,31 @@
             AMS Debugger (Port 2)
             </summary>
         </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R0_TComServer">
+            <summary>
+            The TCom Server. Dpc or passive level.
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R0_TComServerTask">
+            <summary>
+            TCom Serve Task. RT context.
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R0_TComServer_PL">
+            <summary>
+            TCom Serve Task. Passive level.
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R0_TcDebugger">
+            <summary>
+            TwinCAT Debugger
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R0_TcDebuggerTask">
+            <summary>
+            TwinCAT Debugger Task
+            </summary>
+        </member>
         <member name="F:TwinCAT.Ads.AmsPort.R0_LicenseServer">
             <summary>
             The License Server (Port 30)
@@ -24460,6 +24905,26 @@
         <member name="F:TwinCAT.Ads.AmsPort.EventLog">
             <summary>
             Event Logger (Port 110)
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.DeviceApplication">
+            <summary>
+            application for coupler (EK), gateway (EL), etc.
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.EventLog_UM">
+            <summary>
+            Event Logger UM
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.EventLog_RT">
+            <summary>
+            Event Logger RT
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.EventLogPublisher">
+            <summary>
+            Event Logger Publisher
             </summary>
         </member>
         <member name="F:TwinCAT.Ads.AmsPort.R0_Realtime">
@@ -24490,6 +24955,11 @@
         <member name="F:TwinCAT.Ads.AmsPort.R0_NCSVB">
             <summary>
             R0 Satzvorbereitung (Port 511)
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R0_NCINSTANCE">
+            <summary>
+            Preconfigured Nc2-Nc3-Instance
             </summary>
         </member>
         <member name="F:TwinCAT.Ads.AmsPort.R0_ISG">
@@ -24556,6 +25026,11 @@
             Tc2 PLC RuntimeSystem 4 (Port 831)
             </summary>
         </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R0_RTS">
+            <summary>
+            R0 RTS (Port 850)
+            </summary>
+        </member>
         <member name="F:TwinCAT.Ads.AmsPort.CamshaftController">
             <summary>
             Camshaft Controller (R0) (Port 900)
@@ -24616,14 +25091,34 @@
             Port 10500
             </summary>
         </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_AMSLOGGER">
+            <summary>
+            Port 10502
+            </summary>
+        </member>
         <member name="F:TwinCAT.Ads.AmsPort.R3_S7SERVER">
             <summary>
             Port 10600
             </summary>
         </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_XMLDATASERVER">
+            <summary>
+            Port 10600
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_AUTOCONFIG">
+            <summary>
+            Port 10700
+            </summary>
+        </member>
         <member name="F:TwinCAT.Ads.AmsPort.R3_PLCCONTROL">
             <summary>
             Port 10800
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_FTPCLIENT">
+            <summary>
+            Port 10900
             </summary>
         </member>
         <member name="F:TwinCAT.Ads.AmsPort.R3_NCCTRL">
@@ -24634,6 +25129,11 @@
         <member name="F:TwinCAT.Ads.AmsPort.R3_NCINTERPRETER">
             <summary>
             Port 11500
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_GSTINTERPRETER">
+            <summary>
+            Port 11600
             </summary>
         </member>
         <member name="F:TwinCAT.Ads.AmsPort.R3_STRECKECTRL">
@@ -24649,6 +25149,11 @@
         <member name="F:TwinCAT.Ads.AmsPort.R3_SCOPE">
             <summary>
             Port 14000
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_CONDITIONMON">
+            <summary>
+            Port 14100
             </summary>
         </member>
         <member name="F:TwinCAT.Ads.AmsPort.R3_SINECH1">
@@ -24669,6 +25174,36 @@
         <member name="F:TwinCAT.Ads.AmsPort.R3_OPCCLIENT">
             <summary>
             Port 17500
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_MAILSERVER">
+            <summary>
+            Port 18000
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_EL60XX">
+            <summary>
+            Port 19000
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_MANAGEMENT">
+            <summary>
+            Port 19100
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_MIELEHOME">
+            <summary>
+            Port 19200
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_CPLINK3">
+            <summary>
+            Port 19300
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AmsPort.R3_VNSERVICE">
+            <summary>
+            Port 19500
             </summary>
         </member>
         <member name="F:TwinCAT.Ads.AmsPort.USEDEFAULT">
@@ -24938,6 +25473,38 @@
             ADS sum Read/Write command (ADSIGRP_SUMUP_READWRITE, 0xF082, 61570)
             </summary>
         </member>
+        <member name="F:TwinCAT.Ads.AdsReservedIndexGroups.SumCommandReadEx">
+            <summary>
+            ADS sum ReadEx command (ADSIGRP_SUMUP_READEX, 0xF083, 61571)
+            AdsRW  IOffs list size 
+            W: {list of IGrp, IOffs, Length} 
+            R: {list of results, Length} followed by {list of data (expepted lengths)}
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsReservedIndexGroups.SumCommandReadEx2">
+            <summary>
+            ADS sum ReadEx2 command (ADSIGRP_SUMUP_READEX2, 0xF084, 61572)
+            AdsRW  IOffs list size 
+            W: {list of IGrp, IOffs, Length} 
+            R: {list of results, Length} followed by {list of data (returned lengths)}
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsReservedIndexGroups.SumCommandAddDevNote">
+            <summary>
+            ADS sum AddDevNote command (ADSIGRP_SUMUP_ADDDEVNOTE, 0xF085, 61573)
+            AdsRW  IOffs list size
+            W: {list of IGrp, IOffs, Attrib} 
+            R: {list of results, handles}
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsReservedIndexGroups.SumCommandDelDevNote">
+            <summary>
+            ADS sum DelDevNot command (ADSIGRP_SUMUP_DELDEVNOTE, 0xF086, 61574)
+            AdsRW  IOffs list size
+            W: {list of handles} 
+            R: {list of results}
+            </summary>
+        </member>
         <member name="F:TwinCAT.Ads.AdsReservedIndexGroups.DeviceData">
             <summary>
             DeviceData (0xF100,61696)
@@ -24962,6 +25529,11 @@
         <member name="F:TwinCAT.Ads.AdsReservedIndexOffsets.DeviceDataConfigID">
             <summary>
             DeviceDataConfigID
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsReservedIndexOffsets.DeviceDataAdsVersionCheck">
+            <summary>
+            DeviceDataAdsVersionCheck
             </summary>
         </member>
         <member name="T:TwinCAT.Ads.AdsErrorCode">
@@ -25438,10 +26010,124 @@
             <para>Error code: 1828(0x724).</para>
             </summary>
         </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseNotFound">
+            <summary>
+            Device: license not found
+            <para>Error code: 1828(0x724).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseExpired">
+            <summary>
+            Device: license expired
+            <para>Error code: 1829(0x725).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseExceeded">
+            <summary>
+            Device: license exceeded
+            <para>Error code: 1830(0x726).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseInvalid">
+            <summary>
+            Device: license invalid 
+            <para>Error code: 1831(0x727).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseSystemId">
+            <summary>
+            Device: license invalid system id
+            <para>Error code: 1832(0x728).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseNoTimeLimit">
+            <summary>
+            Device: license not time limited
+            <para>Error code: 1833(0x729).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseFutureIssue">
+            <summary>
+            Device: license issue time in the future
+            <para>Error code: 1834(0x72A).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseTimeToLong">
+            <summary>
+            Device: license time period to long
+            <para>Error code: 1835(0x72B).</para>
+            </summary>
+        </member>
         <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceExceptionDuringStartup">
             <summary>
             Device: Exception occured during system start.
             <para>Error code: 1836(0x72C).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceException">
+            <summary>
+            Device: Exception in device specific code
+            <para>Error code: 1836(0x72C).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseDuplicated">
+            <summary>
+            Device: license file read twice
+            <para>Error code: 1837(0x72D).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceSignatureInvalid">
+            <summary>
+            Device:  invalid signature
+            <para>Error code: 1838(0x72E).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceCertificateInvalid">
+            <summary>
+            Device: public key certificate
+            <para>Error code: 1839(0x72F).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseOemNotFound">
+            <summary>
+            Device: public key of OEM unknown
+            <para>Error code: 1840(0x730).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseRestricted">
+            <summary>
+            Device: license not valid for this system id type
+            <para>Error code: 1841(0x731).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicenseDemoDenied">
+            <summary>
+            Device: trial license denied
+            <para>Error code: 1842(0x732).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceInvalidFncId">
+            <summary>
+            Device: function id is invalid
+            <para>Error code: 1843(0x733).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceOutOfRange">
+            <summary>
+            Device:  a parameter, an index, an iterator, ... is out of range
+            <para>Error code: 1844(0x734).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceInvalidAlignment">
+            <summary>
+            Device: invalid alignment
+            <para>Error code: 1845(0x735).</para>
+            </summary>
+        </member>
+        <member name="F:TwinCAT.Ads.AdsErrorCode.DeviceLicensePlatform">
+            <summary>
+            Device: license invalid platform level
+            <para>Error code: 1846(0x736).</para>
             </summary>
         </member>
         <member name="F:TwinCAT.Ads.AdsErrorCode.ClientError">
@@ -27872,6 +28558,13 @@
             <param name="name">Name of the ADS symbol.</param>
             <param name="value">Object holding the value to be written to the ADS symbol</param>
             <param name="reloadSymbolInfo">If reload is true previously stored symbol information is cleared. As a consequence the symbol information must be obtained from the ADS server again.</param>
+        </member>
+        <member name="M:TwinCAT.Ads.TcAdsClient.useSymbolPathAccess(TwinCAT.Ads.ITcAdsSymbol)">
+            <summary>
+            Uses the symbol path access.
+            </summary>
+            <param name="symbol">The symbol.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         </member>
         <member name="M:TwinCAT.Ads.TcAdsClient.ReadSymbol(TwinCAT.Ads.ITcAdsSymbol)">
             <summary>
@@ -33030,6 +33723,11 @@
             Dynamic value (uses RuntimeBinding for <see cref="T:TwinCAT.TypeSystem.ISymbol"/> value reading / writing).
             </summary>
         </member>
+        <member name="F:TwinCAT.TypeSystem.DynamicValue.valueFactory">
+            <summary>
+            The value factory
+            </summary>
+        </member>
         <member name="M:TwinCAT.TypeSystem.DynamicValue.#ctor(TwinCAT.TypeSystem.IDynamicSymbol,System.Byte[],System.Int32,System.DateTime,TwinCAT.ValueAccess.IAccessorValueFactory)">
             <summary>
             Initializes a new instance of the <see cref="T:TwinCAT.TypeSystem.DynamicValue"/> class.
@@ -33327,6 +34025,97 @@
             Gets the resolved type.
             </summary>
             <value>Resolved type.</value>
+        </member>
+        <member name="T:TwinCAT.TypeSystem.DynamicReferenceValue">
+            <summary>
+            Class DynamicReferenceValue.
+            </summary>
+            <seealso cref="T:TwinCAT.TypeSystem.DynamicValue"/>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicReferenceValue.#ctor(TwinCAT.TypeSystem.IDynamicSymbol,System.Byte[],System.Int32,System.DateTime,TwinCAT.ValueAccess.IAccessorValueFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TwinCAT.TypeSystem.DynamicReferenceValue"/> class.
+            </summary>
+            <param name="symbol">The symbol.</param>
+            <param name="data">RawData</param>
+            <param name="offset">RawData Offset</param>
+            <param name="timeStamp">The time stamp (UserMode,</param>
+            <param name="factory">The factory.</param>
+            <exception cref="T:System.ArgumentNullException">
+            factory
+            or
+            symbol
+            </exception>
+            <exception cref="T:System.ArgumentNullException">symbol</exception>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicReferenceValue.#ctor(TwinCAT.TypeSystem.IDynamicSymbol,System.Byte[],System.Int32,TwinCAT.TypeSystem.DynamicValue)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TwinCAT.TypeSystem.DynamicValue"/> class.
+            </summary>
+            <param name="symbol">The symbol.</param>
+            <param name="data">RawData</param>
+            <param name="offset">RawData Offset</param>
+            <param name="parentValue">The parent value.</param>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicReferenceValue.ReadMember(TwinCAT.TypeSystem.ISymbol)">
+            <summary>
+            Reads the specified member element.
+            </summary>
+            <param name="memberInstance">The member instance.</param>
+            <returns></returns>
+        </member>
+        <member name="T:TwinCAT.TypeSystem.DynamicPointerValue">
+            <summary>
+            Class DynamicPointerValue.
+            </summary>
+            <seealso cref="T:TwinCAT.TypeSystem.DynamicValue"/>
+        </member>
+        <member name="F:TwinCAT.TypeSystem.DynamicPointerValue.s_pointerDeref">
+            <summary>
+            Pointer Deref indicator
+            </summary>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicPointerValue.#ctor(TwinCAT.TypeSystem.IDynamicSymbol,System.Byte[],System.Int32,System.DateTime,TwinCAT.ValueAccess.IAccessorValueFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TwinCAT.TypeSystem.DynamicReferenceValue"/> class.
+            </summary>
+            <param name="symbol">The symbol.</param>
+            <param name="data">RawData</param>
+            <param name="offset">RawData Offset</param>
+            <param name="timeStamp">The time stamp (UserMode,</param>
+            <param name="factory">The factory.</param>
+            <exception cref="T:System.ArgumentNullException">
+            factory
+            or
+            symbol
+            </exception>
+            <exception cref="T:System.ArgumentNullException">symbol</exception>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicPointerValue.#ctor(TwinCAT.TypeSystem.IDynamicSymbol,System.Byte[],System.Int32,TwinCAT.TypeSystem.DynamicValue)">
+            <summary>
+            Initializes a new instance of the <see cref="T:TwinCAT.TypeSystem.DynamicValue"/> class.
+            </summary>
+            <param name="symbol">The symbol.</param>
+            <param name="data">RawData</param>
+            <param name="offset">RawData Offset</param>
+            <param name="parentValue">The parent value.</param>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicPointerValue.GetDynamicMemberNames">
+            <summary>
+            Returns the enumeration of all dynamic member names.
+            </summary>
+            <returns>
+            A sequence that contains dynamic member names.
+            </returns>
+        </member>
+        <member name="M:TwinCAT.TypeSystem.DynamicPointerValue.TryGetMemberValue(System.String,System.Object@)">
+            <summary>
+            Tries the get member value.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="result">The result.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+            <exception cref="T:TwinCAT.Ads.SymbolException"></exception>
         </member>
     </members>
 </doc>
