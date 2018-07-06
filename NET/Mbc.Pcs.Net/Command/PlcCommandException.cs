@@ -34,7 +34,7 @@ namespace Mbc.Pcs.Net.Command
 
         public string CommandVariable { get; }
 
-        public override string Message
+        public virtual string DebugMessage
         {
             get
             {
