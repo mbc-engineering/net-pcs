@@ -112,6 +112,60 @@ namespace Mbc.Pcs.Net.Test
             act.Should().NotThrow();
         }
 
+        [Fact]
+        public async Task ExecuteAsync_NiceErrorForMissingCommand()
+        {
+            // Arrange     
+            var fakeConnection = new AdsCommandConnectionFake();
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "cmd");
+
+            // Act
+            var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync());
+
+            // Assert
+            ex.Should().BeOfType<PlcCommandException>();
+            (ex as PlcCommandException).Message.Should().Be(string.Format(CommandResources.ERR_CommandNotFound, "cmd"));
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_NiceErrorForMissingInputVarialbe()
+        {
+            // Arrange     
+            var fakeConnection = new AdsCommandConnectionFake();
+            var input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>
+            {
+                { "Val1", 11 },
+                { "Val2", 22 },
+            });
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "cmd");
+
+            // Act
+            var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync(input));
+
+            // Assert
+            ex.Should().BeOfType<PlcCommandException>();
+            (ex as PlcCommandException).Message.Should().Be(string.Format(CommandResources.ERR_InputVariablesMissing, "Val1,Val2"));
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_NiceErrorForMissingOutputVarialbe()
+        {
+            // Arrange     
+            var fakeConnection = new AdsCommandConnectionFake();
+            var output = CommandOutputBuilder.FromDictionary(new Dictionary<string, object>
+            {
+                { "Result", null }
+            });
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "cmd");
+
+            // Act
+            var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync(output: output));
+
+            // Assert
+            ex.Should().BeOfType<PlcCommandException>();
+            (ex as PlcCommandException).Message.Should().Be(string.Format(CommandResources.ERR_OutputVariablesMissing, "Result"));
+        }
+
         /// <summary>
         /// Example for customer code. see also constructor
         /// </summary>

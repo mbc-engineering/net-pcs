@@ -70,6 +70,15 @@ namespace Mbc.Pcs.Net.Command {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The command with the variable path &apos;{0}&apos; could not be found on the connected PLC. .
+        /// </summary>
+        internal static string ERR_CommandNotFound {
+            get {
+                return ResourceManager.GetString("ERR_CommandNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Command is already running and is therefore locked..
         /// </summary>
         internal static string ERR_ExecutionBehaviorCommandLocked {

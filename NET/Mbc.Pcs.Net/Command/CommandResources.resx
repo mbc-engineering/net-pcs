@@ -120,6 +120,10 @@
   <data name="ERR_CommandCanceled" xml:space="preserve">
     <value>The command was cancelled by user request.</value>
   </data>
+  <data name="ERR_CommandNotFound" xml:space="preserve">
+    <value>The command with the variable path '{0}' could not be found on the connected PLC. </value>
+    <comment>{0} = replace with the PLC command Variable Path</comment>
+  </data>
   <data name="ERR_ExecutionBehaviorCommandLocked" xml:space="preserve">
     <value>Command is already running and is therefore locked.</value>
   </data>
