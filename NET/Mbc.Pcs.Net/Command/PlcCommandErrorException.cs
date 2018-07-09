@@ -16,11 +16,11 @@ namespace Mbc.Pcs.Net.Command
 
         public ushort ResultCode { get; }
 
-        public override string Message
+        public override string DebugMessage
         {
             get
             {
-                var message = base.Message;
+                var message = base.DebugMessage;
                 if (!string.IsNullOrEmpty(CommandVariable))
                 {
                     message += Environment.NewLine + $"Result Code: {ResultCode}";

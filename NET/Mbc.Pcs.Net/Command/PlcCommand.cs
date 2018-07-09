@@ -26,6 +26,7 @@ namespace Mbc.Pcs.Net.Command
 
         private readonly IAdsConnection _adsConnection;
         private readonly string _adsCommandFbPath;
+        private readonly CommandResource _commandResource = new CommandResource();
 
         public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath)
         {
@@ -34,11 +35,17 @@ namespace Mbc.Pcs.Net.Command
             _adsCommandFbPath = adsCommandFbPath;
         }
 
+        public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath, CommandResource commandResource)
+            : this(adsConnection, adsCommandFbPath)
+        {
+            _commandResource = commandResource;
+        }
+
         /// <summary>
         /// Maximale time to wait for command completion.
         /// </summary>
         public TimeSpan Timeout { get; set; } = DefaultTimeout;
-
+        
         /// <summary>
         /// The PLC Variable 
         /// </summary>
@@ -91,7 +98,7 @@ namespace Mbc.Pcs.Net.Command
             using (PlcCommandLock.AcquireLock(_adsCommandFbPath, _adsConnection.Address, ExecutionBehavior))
             {
                 if (!_adsConnection.IsConnected)
-                    throw new InvalidOperationException("ADS-Client is not connect.");
+                    throw new InvalidOperationException(CommandResources.ERR_NotConnected);
 
                 if (input != null)
                     WriteInputData(input);
@@ -119,7 +126,7 @@ namespace Mbc.Pcs.Net.Command
                         {
                             // Im Falle eines Abbruch durch einen User-Request (CancellationToken) wird
                             // die Framework-Exception zurückgegeben.
-                            throw new OperationCanceledException("The command was cancelled by user request.", ex, cancellationToken);
+                            throw new OperationCanceledException(CommandResources.ERR_CommandCanceled, ex, cancellationToken);
                         }
                         finally
                         {
@@ -162,7 +169,7 @@ namespace Mbc.Pcs.Net.Command
             if (missingOutputVariables.Length > 0)
             {
                 throw new PlcCommandException(_adsCommandFbPath,
-                    $"Missing output variables on the PLC implementation: '{string.Join(",", missingOutputVariables)}'");
+                    string.Format(CommandResources.ERR_OutputVariablesMissing, string.Join(",", missingOutputVariables)));
             }
 
             var symbols = new List<string>();
@@ -205,7 +212,7 @@ namespace Mbc.Pcs.Net.Command
             if (missingInputVariables.Length > 0)
             {
                 throw new PlcCommandException(_adsCommandFbPath,
-                    $"Missing input variables on the PLC implementation: '{string.Join(",", missingInputVariables)}'");
+                    string.Format(CommandResources.ERR_InputVariablesMissing, string.Join(",", missingInputVariables)));
             }
 
             var symbols = new List<string>();
@@ -257,7 +264,7 @@ namespace Mbc.Pcs.Net.Command
                     // Update state
                     StateChanged?.Invoke(this, new PlcCommandEventArgs(dataExchange.Data.Progress, dataExchange.Data.SubTask, false, false, true));
 
-                    throw new PlcCommandTimeoutException(_adsCommandFbPath, $"The command timed out after {Timeout.Seconds} [s].", ex);
+                    throw new PlcCommandTimeoutException(_adsCommandFbPath, string.Format(CommandResources.ERR_TimeOut, Timeout.Seconds), ex);
                 }
             }
         }
@@ -301,7 +308,7 @@ namespace Mbc.Pcs.Net.Command
                 case AdsDatatypeId.ADST_UINT32:
                     return typeof(uint);
                 default:
-                    throw new InvalidOperationException($"Unhandled ADS-Datatype '{subitem.BaseType}'. Please extend implementation!");
+                    throw new InvalidOperationException(string.Format(CommandResources.ERR_UnknownAdsType, subitem.BaseType));
             }
         }
 
@@ -316,12 +323,8 @@ namespace Mbc.Pcs.Net.Command
                 case (ushort)CommandResultCode.Done:
                     return;
 
-                case (ushort)CommandResultCode.Cancelled:
-                    errorMsg = "The command was cancelled.";
-                    break;
-
                 default:
-                    errorMsg = "The command execution failed.";
+                    errorMsg = _commandResource.GetResultCodeString(resultCode);
                     break;
             }
 
@@ -362,7 +365,7 @@ namespace Mbc.Pcs.Net.Command
                 _adsConnection.DeleteVariableHandle(varHandle);
             }
         }
-
+        
         [StructLayout(LayoutKind.Sequential, Pack = 0)]
         internal struct CommandHandshakeStruct
         {

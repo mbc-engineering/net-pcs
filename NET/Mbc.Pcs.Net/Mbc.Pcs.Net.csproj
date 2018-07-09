@@ -3,5 +3,18 @@
   <ItemGroup>
     <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads" Version="4.2.163.1" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Command\CommandResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CommandResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Command\CommandResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CommandResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 
 </Project>

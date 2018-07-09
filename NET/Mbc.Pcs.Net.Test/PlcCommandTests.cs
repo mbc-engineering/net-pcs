@@ -210,13 +210,38 @@ namespace Mbc.Pcs.Net.Test
             fakeConnection.ResponseStatusCode = 101;
 
             IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "cmd");
-            
+
             // Act
             var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync());
 
             // Assert            
             ex.Should().BeOfType<PlcCommandErrorException>();
             (ex as PlcCommandErrorException).ResultCode.Should().Be(101);
+            (ex as PlcCommandErrorException).Message.Should().Be(string.Format(CommandResources.ERR_ResultCode, 101));
+        }
+
+        /// <summary>
+        /// Example for customer status code. see also constructor
+        /// </summary>
+        [Fact]
+        public async Task ExecuteAsync_FailWithCustomFailStatusCode_CustomText()
+        {
+            // Arrange     
+            var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.ResponseImmediatelyFinished);
+            fakeConnection.ResponseStatusCode = 101;
+            string resultCode101Text = "Test Status code message.";
+            CommandResource subjectResources = new CommandResource();
+            subjectResources.AddCustomResultCodeText(101, resultCode101Text);
+
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "cmd", subjectResources);            
+
+            // Act
+            var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync());
+
+            // Assert            
+            ex.Should().BeOfType<PlcCommandErrorException>();
+            (ex as PlcCommandErrorException).ResultCode.Should().Be(101);
+            (ex as PlcCommandErrorException).Message.Should().Be(resultCode101Text);
         }
 
         [Fact]

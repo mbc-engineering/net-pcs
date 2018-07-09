@@ -22,7 +22,7 @@ namespace Mbc.Pcs.Net.Command
                 {
                     if(behavior == ExecutionBehavior.ThrowException)
                     {
-                        throw new PlcCommandLockException(adsCommandFbPath, behavior, "Command is already running and is therefore locked.");
+                        throw new PlcCommandLockException(adsCommandFbPath, behavior, CommandResources.ERR_ExecutionBehaviorCommandLocked);
                     }
 
                     // Wait for Pulse and retest
