@@ -133,7 +133,7 @@ namespace Mbc.Pcs.Net.Command {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The command timed out after {Timeout.Seconds} [s]..
+        ///   Looks up a localized string similar to The command timed out after {0} [s]..
         /// </summary>
         internal static string ERR_TimeOut {
             get {

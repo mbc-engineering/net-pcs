@@ -146,7 +146,7 @@
     <value>The command was cancelled.</value>
   </data>
   <data name="ERR_TimeOut" xml:space="preserve">
-    <value>The command timed out after {Timeout.Seconds} [s].</value>
+    <value>The command timed out after {0} [s].</value>
     <comment>{0} = replace with the timeout value</comment>
   </data>
   <data name="ERR_UnknownAdsType" xml:space="preserve">
