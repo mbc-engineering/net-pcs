@@ -2,9 +2,22 @@
 
 namespace Mbc.Pcs.Net.Command
 {
+    /// <summary>
+    /// Helps to manage Translation resources for a specific command. 
+    /// It also uses the build in CommandResources.resx as fallback values.
+    /// </summary>
     public class CommandResource
     {
         private Dictionary<ushort, string> _customResultCodeTranslations = new Dictionary<ushort, string>();
+
+        public CommandResource()
+        {
+        }
+
+        public CommandResource(IDictionary<ushort, string> customResultCodeTexts)
+        {
+            _customResultCodeTranslations = new Dictionary<ushort, string>(customResultCodeTexts);
+        }
 
         /// <summary>
         /// Adds a Knowing Result Code Plain Text result

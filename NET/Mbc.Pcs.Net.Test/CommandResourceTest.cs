@@ -15,11 +15,13 @@ namespace Mbc.Pcs.Net.Test
         public void AddCustomResultCodeText()
         {
             // Arrange
-            var subject = new CommandResource();
+            var subject = new CommandResource(new Dictionary<ushort, string>()
+                {
+                    [101] = "custom text 101",
+                    [102] = "custom text 102"
+                });            
 
             // Act
-            subject.AddCustomResultCodeText(101, "custom text 101");
-            subject.AddCustomResultCodeText(102, "custom text 102");
             subject.AddCustomResultCodeText(103, "custom text 103");
 
             // Assert
