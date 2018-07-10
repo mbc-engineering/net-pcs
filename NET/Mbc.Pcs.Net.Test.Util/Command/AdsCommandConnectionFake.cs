@@ -13,11 +13,13 @@ namespace Mbc.Pcs.Net.Test.Util.Command
 {
     public class AdsCommandConnectionFake
     {
+        private static IAdsConnection _systemTestAdsConnection = null;
         private readonly IAdsConnection _adsConnection = A.Fake<IAdsConnection>();
         private readonly ITcAdsSymbol5 _adsSymbols = A.Fake<ITcAdsSymbol5>();
         private readonly List<ITcAdsSubItem> _fakedVariables = new List<ITcAdsSubItem>();
         private readonly Dictionary<int, string> _variableHandles = new Dictionary<int, string>();
         Tuple<PlcCommand, DataExchange<CommandHandshakeStruct>> _userData = null;
+
         private object _userDataLock = new object();
 
         public AdsCommandConnectionFake() 
@@ -41,14 +43,27 @@ namespace Mbc.Pcs.Net.Test.Util.Command
             A.CallTo(() => _adsConnection.ReadSymbolInfo(A<string>._))
                 .ReturnsLazily(parm =>
                 {
-                    Debug.WriteLine($"call faked AdsConnection.ReadSymbolInfo(name={parm.Arguments[0].ToString()}) and return faked symbols");                    string symbolPath = (string)parm.Arguments[0];
+                    string symbolPath = (string)parm.Arguments[0];
+                    
+                    if(option == PlcCommandFakeOption.ResponseFbPathNotExist)
+                    {
+                        Debug.WriteLine($"call faked AdsConnection.ReadSymbolInfo(name={symbolPath}) and return no symbols because simulation of command does not exist");
+                        return null;
+                    }
 
+                    Debug.WriteLine($"call faked AdsConnection.ReadSymbolInfo(name={symbolPath}) and return faked symbols");
                     return _adsSymbols;
                 });
 
             A.CallTo(() => _adsConnection.CreateVariableHandle(A<string>._))
                 .ReturnsLazily(parm =>
                 {
+                    if (option == PlcCommandFakeOption.ResponseFbPathNotExist)
+                    {
+                        Debug.WriteLine($"call faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()}) and throw AdsErrorException because simulation of command does not exist");
+                        throw new AdsErrorException($"simulation symbol {parm.Arguments[0].ToString()} does not exist", AdsErrorCode.DeviceSymbolNotFound);
+                    }
+
                     Debug.WriteLine($"call faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()})");
 
                     int hndl = parm.Arguments[0].GetHashCode();
@@ -110,6 +125,11 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                                 }
                                 else
                                 {
+                                    if (option == PlcCommandFakeOption.ResponseDelayedFinished)
+                                    {
+                                        Task.Delay(200);
+                                    }
+
                                     handshake.Progress = 100;
                                     handshake.ResultCode = ResponseStatusCode;
                                 }
@@ -133,7 +153,22 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         
         public ushort ResponseSubTask { get; set; } = 0;
 
-        public IAdsConnection AdsConnection => _adsConnection;
+        public IAdsConnection AdsConnection
+        {
+            get
+            {
+                return _systemTestAdsConnection ?? _adsConnection;
+            }
+        }
+
+        /// <summary>
+        /// When a real system test will be executed, all fakes are ignored and a real PLC Connection will be established
+        /// </summary>
+        /// <param name="adsClient"></param>
+        public static void SetSystemTestConnection(IAdsConnection adsConnection)
+        {
+            _systemTestAdsConnection = adsConnection;
+        }
 
         public void AddAdsSubItem(string itemName, Type managedType, bool input)
         {
