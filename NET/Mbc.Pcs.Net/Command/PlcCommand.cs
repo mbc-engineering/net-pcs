@@ -276,7 +276,14 @@ namespace Mbc.Pcs.Net.Command
         /// <returns></returns>
         private IReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)> ReadFbSymbols(string attributeName)
         {
-            var fbSymbolNames = ((ITcAdsSymbol5)_adsConnection.ReadSymbolInfo(_adsCommandFbPath))
+            ITcAdsSymbol commandSymbol = _adsConnection.ReadSymbolInfo(_adsCommandFbPath);
+            if(commandSymbol == null)
+            {
+                // command Symbol not found
+                throw new PlcCommandException(_adsCommandFbPath, string.Format(CommandResources.ERR_CommandNotFound, _adsCommandFbPath));
+            }
+
+            var fbSymbolNames = ((ITcAdsSymbol5)commandSymbol)
                 .DataType.SubItems
                 .Where(item => 
                     new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String }.Contains(item.BaseType.Category)
@@ -344,7 +351,18 @@ namespace Mbc.Pcs.Net.Command
 
         private void SetExecuteFlag()
         {
-            WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", true);
+            try
+            {
+                WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", true);
+            }
+            catch (AdsErrorException ex)
+            {
+                if (ex.ErrorCode == AdsErrorCode.DeviceSymbolNotFound)
+                {
+                    throw new PlcCommandException(_adsCommandFbPath, string.Format(CommandResources.ERR_CommandNotFound, _adsCommandFbPath), ex);
+                }
+                throw;
+            }            
         }
 
         private void ResetExecuteFlag()
