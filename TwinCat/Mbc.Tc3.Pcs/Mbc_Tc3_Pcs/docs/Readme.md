@@ -34,3 +34,9 @@ When the library is installed, it is possible add the Library reference in the P
 ## In a Nutshell
 
 - [CommandBase](CommandBase.md)
+
+# License
+    Copyright (c) 2018 BY mbc engineering GmbH, CH-6015 Luzern
+    Licensed under the Apache License, Version 2.0
+
+[Read the full license](https://www.apache.org/licenses/LICENSE-2.0)
