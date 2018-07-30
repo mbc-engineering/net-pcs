@@ -1,7 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
   <DUT Name="ST_CommandBaseHandshake" Id="{32bcade6-9e18-0fb5-177f-7513fed5a572}">
-    <Declaration><![CDATA[// Strukture for communication with PCS in the ``CommandBase`` class
+    <Declaration><![CDATA[(*---------------------------------------------------------------------------
+ Copyright (c) 2018 BY mbc engineering GmbH, CH-6015 Luzern
+ Licensed under the Apache License, Version 2.0
+-----------------------------------------------------------------------------*)
+// Strukture for communication with PCS in the ``CommandBase`` class
 TYPE ST_CommandBaseHandshake :
 STRUCT
 	bExecute		: BOOL;		// Will be set to true from the PCS to start the command. When the operation is finished, the PLC will it set to false. On a long running Task, the PCS can reset to false for Abort the operation. 

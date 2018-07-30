@@ -15,8 +15,4 @@
     <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Systemtest\" />
-  </ItemGroup>
-
 </Project>
