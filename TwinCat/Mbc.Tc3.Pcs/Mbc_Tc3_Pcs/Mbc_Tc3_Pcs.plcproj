@@ -21,7 +21,7 @@
     <DefaultNamespace>Mbc_Tc3_Pcs</DefaultNamespace>
     <Author>mbc engineering GmbH</Author>
     <DocFormat>reStructuredText</DocFormat>
-    <ProjectVersion>1.2.0.0</ProjectVersion>
+    <ProjectVersion>1.2.1.0</ProjectVersion>
     <Description>Copyright mbc engineering GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License");
