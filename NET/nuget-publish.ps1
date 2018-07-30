@@ -21,9 +21,9 @@ function Main{
     dotnet pack -c Release --include-source --include-symbols .\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj
     dotnet pack -c Release --include-source --include-symbols .\Mbc.Pcs.Net.Test.Util\Mbc.Pcs.Net.Test.Util.csproj
     
-    # Push the Packages    
-    dotnet nuget push --source mbcpublic --api-key VSTS .\Mbc.Pcs.Net\bin\Release\*.nupkg    
-    dotnet nuget push --source mbcpublic --api-key VSTS .\Mbc.Pcs.Net.Test.Util\bin\Release\*.nupkg
+    # Push the symbols Package to VSTS
+    dotnet nuget push --source mbcpublic --api-key VSTS .\Mbc.Pcs.Net\bin\Release\*.symbols.nupkg    
+    dotnet nuget push --source mbcpublic --api-key VSTS .\Mbc.Pcs.Net.Test.Util\bin\Release\*.symbols.nupkg
 }
 
 

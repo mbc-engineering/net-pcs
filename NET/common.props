@@ -2,7 +2,7 @@
 <Project>
   <PropertyGroup>
     <VersionPrefix>1.2.1</VersionPrefix>
-    <VersionSuffix>beta2</VersionSuffix>
+    <VersionSuffix></VersionSuffix>
     <Company>mbc engineering GmbH</Company>
     <Copyright>mbc engineering GmbH</Copyright>
     <Product>Mbc.Pcs.Net</Product>
