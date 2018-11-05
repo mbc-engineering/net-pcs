@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Test.Util", "Mb
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{601F9B25-851D-4A95-8DC9-2866FE1F07C5}"
 	ProjectSection(SolutionItems) = preProject
+		build.cake = build.cake
+		build.ps1 = build.ps1
 		Build\common.props = Build\common.props
 		Build\Mbc.CodeAnalysis.ruleset = Build\Mbc.CodeAnalysis.ruleset
 		Mbc.Pcs.Net.TwinCat.Ads.nuspec = Mbc.Pcs.Net.TwinCat.Ads.nuspec
@@ -24,13 +26,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{601F9B25
 		Build\stylecop.json = Build\stylecop.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Ads.Mapper", "Mbc.Ads.Mapper\Mbc.Ads.Mapper.csproj", "{BB178DAD-A07B-4CEE-B8C3-63F3DFB671E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Ads.Mapper", "Mbc.Ads.Mapper\Mbc.Ads.Mapper.csproj", "{BB178DAD-A07B-4CEE-B8C3-63F3DFB671E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Ads.Mapper.Test", "Mbc.Ads.Mapper.Test\Mbc.Ads.Mapper.Test.csproj", "{F5B71575-EE54-4DAB-A353-A831894D2AE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Ads.Mapper.Test", "Mbc.Ads.Mapper.Test\Mbc.Ads.Mapper.Test.csproj", "{F5B71575-EE54-4DAB-A353-A831894D2AE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Ads.Utils", "Mbc.Ads.Utils\Mbc.Ads.Utils.csproj", "{61521D27-8FA4-4BBE-800C-7AF5F72B7994}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Ads.Utils", "Mbc.Ads.Utils\Mbc.Ads.Utils.csproj", "{61521D27-8FA4-4BBE-800C-7AF5F72B7994}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Ads.Utils.Test", "Mbc.Ads.Utils.Test\Mbc.Ads.Utils.Test.csproj", "{206857C7-8674-42C6-8606-66650AA6C0EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Ads.Utils.Test", "Mbc.Ads.Utils.Test\Mbc.Ads.Utils.Test.csproj", "{206857C7-8674-42C6-8606-66650AA6C0EC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{738812BE-0EF1-41A6-BB06-09B12538559E}"
 	ProjectSection(SolutionItems) = preProject

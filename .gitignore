@@ -270,3 +270,6 @@ __pycache__/
 
 # others
 /tart .
+
+# Cake Build Tools
+/NET/tools
