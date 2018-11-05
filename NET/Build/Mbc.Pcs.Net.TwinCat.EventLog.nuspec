@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Mbc.Pcs.Net.TwinCat.EventLog</id>
+    <version>1.0.0</version>
+    <authors>mbc engineering GmbH</authors>
+    <owners>Beckhoff Automation GmbH</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>assemblies from type libraries for TwinCat Alarm and Event alias TcEventLoggerLib and TcEventLogProxyLib</description>
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\libs\Interop.TCEVENTLOGGERLib.dll" target="lib\net461\Interop.TCEVENTLOGGERLib.dll" />
+    <file src="..\libs\Interop.TcEventLogProxyLib.dll" target="lib\net461\Interop.TcEventLogProxyLib.dll" />
+  </files>
+</package>

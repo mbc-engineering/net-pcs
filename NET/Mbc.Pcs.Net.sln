@@ -21,8 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{601F9B25
 		build.ps1 = build.ps1
 		Build\common.props = Build\common.props
 		Build\Mbc.CodeAnalysis.ruleset = Build\Mbc.CodeAnalysis.ruleset
-		Mbc.Pcs.Net.TwinCat.Ads.nuspec = Mbc.Pcs.Net.TwinCat.Ads.nuspec
-		nuget-publish.ps1 = nuget-publish.ps1
+		Build\Mbc.Pcs.Net.TwinCat.Ads.nuspec = Build\Mbc.Pcs.Net.TwinCat.Ads.nuspec
+		Build\Mbc.Pcs.Net.TwinCat.EventLog.nuspec = Build\Mbc.Pcs.Net.TwinCat.EventLog.nuspec
 		Build\stylecop.json = Build\stylecop.json
 	EndProjectSection
 EndProject

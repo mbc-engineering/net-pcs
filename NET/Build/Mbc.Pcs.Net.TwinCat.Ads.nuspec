@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>Mbc.Pcs.Net.TwinCat.Ads</id>
-    <version>0.0.0</version>
+    <version>4.2.166.0</version>
     <authors>Beckhoff</authors>
     <owners>Beckhoff Automation GmbH</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -13,7 +13,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="libs\TwinCAT.Ads.dll" target="lib\net461\TwinCAT.Ads.dll" />
-    <file src="libs\TwinCAT.Ads.xml" target="lib\net461\TwinCAT.Ads.xml" />
+    <file src="..\libs\TwinCAT.Ads.dll" target="lib\net461\TwinCAT.Ads.dll" />
+    <file src="..\libs\TwinCAT.Ads.xml" target="lib\net461\TwinCAT.Ads.xml" />
   </files>
 </package>

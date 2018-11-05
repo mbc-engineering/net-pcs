@@ -7,7 +7,17 @@
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var testreportfolder = Argument("testreportfolder", "testresult");
+var nuspecPath = Argument("nuspec", "");
+var nugetOutputDirectory =  $"./{Argument("nugetoutputfolder", "nuget")}";
 
+///////////////////////////////////////////////////////////////////////////////
+// VARIABLES
+///////////////////////////////////////////////////////////////////////////////
+var nugetPushServerConfiguration = new NuGetPushSettings() 
+{
+    Source = "mbcpublic",    // Is defined in nuget.config!
+    ApiKey = "VSTS"
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
@@ -54,14 +64,7 @@ Task("Test")
 Task("NugetPublish")
     .IsDependentOn("Test")
     .Does(() =>
-{    
-    string source = "mbcpublic";    // Is defined in nuget.config!
-    var serverConfiguration = new NuGetPushSettings() 
-    {
-        Source = source,
-        ApiKey = "VSTS"
-    };
-
+{
     // Collect all nuget files
     var nugetPackages = GetFiles($"./**/bin/{configuration}/**/*.symbols.nupkg");
 
@@ -72,13 +75,53 @@ Task("NugetPublish")
         {
             // ToDo: check for already published!
 
-            NuGetPush(package, serverConfiguration);
+            NuGetPush(package, nugetPushServerConfiguration);
         }
         catch (CakeException cex)
         {
             Information(cex);   // Should be somthing like: Response status code does not indicate success: 409 (Conflict - The feed already contains 'Mbc.Common.Interface 0.1.0'. (DevOps Activity ID: EC51694F-2AFF-4B2F-A98F-58FBC3C974FB)).
-            Information($"Nuget package {package} perhaps is already published at {source}. It will not be try to publish it in this task!");
+            Information($"Nuget package {package} perhaps is already published at {nugetPushServerConfiguration.Source}. It will not be try to publish it in this task!");
 
+        }
+    }      
+});
+
+// Creates a nuget from nuspec file
+Task("NugetCreate")
+    .Does(() =>
+{   
+    Information($"Clean Output Folder {nugetOutputDirectory}");
+    CleanDirectory(nugetOutputDirectory);
+
+    Information($"Create nuget from nuspec: {nuspecPath}");
+    var packSettings = new NuGetPackSettings()
+    {
+        OutputDirectory = nugetOutputDirectory,
+    };
+    NuGetPack(nuspecPath, packSettings);
+});
+
+// Create and Push from a nuspec file
+Task("NugetPush")
+    .IsDependentOn("NugetCreate")
+    .Does(() =>
+{    
+    // Collect all nuget files
+    var nugetPackages = GetFiles($"{nugetOutputDirectory}/*.nupkg");
+
+    foreach (var package in nugetPackages)
+    {
+        // Push the package
+        try
+        {
+            // ToDo: check for already published!
+
+            NuGetPush(package, nugetPushServerConfiguration);
+        }
+        catch (CakeException cex)
+        {
+            Information(cex);   // Should be somthing like: Response status code does not indicate success: 409 (Conflict - The feed already contains 'Mbc.Common.Interface 0.1.0'. (DevOps Activity ID: EC51694F-2AFF-4B2F-A98F-58FBC3C974FB)).
+            Information($"Nuget package {package} perhaps is already published at {nugetPushServerConfiguration.Source}. It will not be try to publish it in this task!");
         }
     }      
 });
