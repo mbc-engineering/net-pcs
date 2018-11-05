@@ -60,24 +60,27 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                     return _adsSymbols;
                 });
 
-            A.CallTo(() => _adsConnection.CreateVariableHandle(A<string>._))
-                .ReturnsLazily(parm =>
-                {
-                    if (option == PlcCommandFakeOption.ResponseFbPathNotExist)
+            if (option == PlcCommandFakeOption.ResponseFbPathNotExist)
+            {
+                A.CallTo(() => _adsConnection.CreateVariableHandle(A<string>._))
+                    .Invokes(parm => Debug.WriteLine($"call faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()}) and throw AdsErrorException because simulation of command does not exist"))
+                    .Throws(parm => throw new AdsErrorException($"simulation symbol {parm.Arguments[0].ToString()} does not exist", AdsErrorCode.DeviceSymbolNotFound));
+            }
+            else
+            {
+                A.CallTo(() => _adsConnection.CreateVariableHandle(A<string>._))
+                    .ReturnsLazily(parm =>
                     {
-                        Debug.WriteLine($"call faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()}) and throw AdsErrorException because simulation of command does not exist");
-                        throw new AdsErrorException($"simulation symbol {parm.Arguments[0].ToString()} does not exist", AdsErrorCode.DeviceSymbolNotFound);
-                    }
+                        Debug.WriteLine($"call faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()})");
 
-                    Debug.WriteLine($"call faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()})");
+                        int hndl = parm.Arguments[0].GetHashCode();
+                                    // save handle
+                                    _variableHandles[hndl] = parm.Arguments[0].ToString();
 
-                    int hndl = parm.Arguments[0].GetHashCode();
-                    // save handle
-                    _variableHandles[hndl] = parm.Arguments[0].ToString();
-
-                    Debug.WriteLine($"Return faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()}) value => {hndl}");
-                    return hndl;
-                });
+                        Debug.WriteLine($"Return faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()}) value => {hndl}");
+                        return hndl;
+                    });
+            }            
 
             A.CallTo(() => _adsConnection.WriteAny(A<int>._, A<object>._))
                 .Invokes(parm =>

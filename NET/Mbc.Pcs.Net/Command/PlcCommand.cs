@@ -359,15 +359,22 @@ namespace Mbc.Pcs.Net.Command
             try
             {
                 WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", true);
-            }
-            catch (AdsErrorException ex)
+            }            
+            catch (Exception ex)
             {
-                if (ex.ErrorCode == AdsErrorCode.DeviceSymbolNotFound)
+                // Need because of fake connection
+                AdsErrorException adsEx = null;
+                if (ex is AdsErrorException exIsAds)
+                    adsEx = exIsAds;
+                if (ex.InnerException is AdsErrorException inexIsAds)
+                    adsEx = inexIsAds;
+
+                if (adsEx != null && adsEx.ErrorCode == AdsErrorCode.DeviceSymbolNotFound)
                 {
-                    throw new PlcCommandException(_adsCommandFbPath, string.Format(CommandResources.ERR_CommandNotFound, _adsCommandFbPath), ex);
+                    throw new PlcCommandException(_adsCommandFbPath, string.Format(CommandResources.ERR_CommandNotFound, _adsCommandFbPath), adsEx);
                 }
                 throw;
-            }            
+            }
         }
 
         private void ResetExecuteFlag()

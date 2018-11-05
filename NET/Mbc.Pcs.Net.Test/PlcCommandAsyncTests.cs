@@ -394,9 +394,9 @@ namespace Mbc.Pcs.Net.Test
             tasks[lastCommand-1].Result.Should().BeNull();
             for (int idx = 0; idx < tasks.Length; idx++)
             {
-                if(idx != lastCommand - 1)
+                if(tasks[idx].Result != null)
                 {
-                    tasks[idx].Result.Should().BeOfType<PlcCommandLockException>();
+                    tasks[idx].Result.Should().BeOfType<PlcCommandLockException>($"{idx} is not the last command {lastCommand - 1}");
                     (tasks[idx].Result as PlcCommandLockException).CommandVariable.Should().Be("Commands.fbDelayedAddCommand1");
                     (tasks[idx].Result as PlcCommandLockException).Behavior.Should().Be(ExecutionBehavior.ThrowException);
                 }
