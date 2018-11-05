@@ -2,7 +2,7 @@
   <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->
-    <VersionPrefix>1.2.1</VersionPrefix>
+    <VersionPrefix>1.3.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
 
     <Product>Mbc.Pcs.Net</Product>
@@ -12,20 +12,13 @@
     <PackageReference Include="Ensure.That" Version="8.0.0" />
     <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
     <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads" Version="4.2.166" />
+    <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
     <PackageReference Include="NLog" Version="4.5.10" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Ads.Mapper\Mbc.Ads.Mapper.csproj" />
     <ProjectReference Include="..\Mbc.Ads.Utils\Mbc.Ads.Utils.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Interop.TCEVENTLOGGERLib">
-      <HintPath>..\Libs\Interop.TCEVENTLOGGERLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Interop.TcEventLogProxyLib">
-      <HintPath>..\Libs\Interop.TcEventLogProxyLib.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Command\CommandResources.Designer.cs">

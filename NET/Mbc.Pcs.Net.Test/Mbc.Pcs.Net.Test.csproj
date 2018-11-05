@@ -2,9 +2,6 @@
   <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->
-    <VersionPrefix>1.2.1</VersionPrefix>
-    <VersionSuffix></VersionSuffix>
-
     <Product>Mbc.Pcs.Net.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -25,15 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Pcs.Net.Test.Util\Mbc.Pcs.Net.Test.Util.csproj" />
     <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Interop.TCEVENTLOGGERLib">
-      <HintPath>..\Libs\Interop.TCEVENTLOGGERLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Interop.TcEventLogProxyLib">
-      <HintPath>..\Libs\Interop.TcEventLogProxyLib.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
