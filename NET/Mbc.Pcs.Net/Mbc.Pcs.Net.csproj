@@ -1,5 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-   <Import Project="..\common.props" />
+  <Import Project="$(SolutionDir)Build\common.props" />
+  <PropertyGroup>
+    <!-- common nuget configuration see common.props-->
+    <VersionPrefix>1.2.1</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+
+    <Product>Mbc.Pcs.Net</Product>
+
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads" Version="4.2.163.1" />
   </ItemGroup>

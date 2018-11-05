@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project>
+  <!-- CSPROJ Reference see: https://docs.microsoft.com/en-us/dotnet/core/tools/csproj -->
+  
+  <!-- Build configuration Settings 
+       ############################ -->
+  <PropertyGroup>
+    <TargetFramework>net471</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <!-- Nuget Configuration 
+       ################### -->
+  <PropertyGroup>
+    <Company>mbc engineering GmbH</Company>
+    <Copyright>mbc engineering GmbH</Copyright>
+    <Authors>mbc engineering GmbH</Authors>
+
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>        
+    <RepositoryUrl>http://gitlab.mbc-engineering.ch/mbc/pcs.git</RepositoryUrl>
+    <PackageProjectUrl>http://gitlab.mbc-engineering.ch/mbc/pcs</PackageProjectUrl>
+    <IncludeSource>true</IncludeSource>
+
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>    
+    <Description>
+Copyright mbc engineering GmbH
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+    </Description>
+  </PropertyGroup>
+
+  <!-- Enable Roslyn analyzers 
+       ####################### -->
+  <PropertyGroup>
+    <!-- Not need if Roslyn analysis is used (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/2122)
+    <RunCodeAnalysis>true</RunCodeAnalysis> -->
+    <CodeAnalysisRuleSet>$(SolutionDir)\Build\Mbc.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/Configuration.md -->
+    <None Include="$(SolutionDir)\Build\stylecop.json">
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- add add cli tool so it not a dependency in nuget -->
+    <DotNetCliToolReference Include="StyleCop.Analyzers" Version="1.1.0-beta008" />
+    <DotNetCliToolReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.2" />
+    <DotNetCliToolReference Include="Microsoft.CodeQuality.Analyzers" Version="2.6.2" />
+    <DotNetCliToolReference Include="Microsoft.NetFramework.Analyzers" Version="2.6.2" />
+    <DotNetCliToolReference Include="Roslyn.Diagnostics.Analyzers" Version="2.6.2" />
+  </ItemGroup>
+</Project>

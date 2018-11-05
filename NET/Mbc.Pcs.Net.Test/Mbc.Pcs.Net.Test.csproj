@@ -1,5 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\common.props" />
+  <Import Project="$(SolutionDir)Build\common.props" />
+  <PropertyGroup>
+    <!-- common nuget configuration see common.props-->
+    <VersionPrefix>1.2.1</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+
+    <Product>Mbc.Pcs.Net.Test</Product>
+
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="4.6.0" />

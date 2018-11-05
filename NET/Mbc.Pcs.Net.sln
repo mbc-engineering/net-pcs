@@ -17,9 +17,24 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Test.Util", "Mb
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{601F9B25-851D-4A95-8DC9-2866FE1F07C5}"
 	ProjectSection(SolutionItems) = preProject
-		common.props = common.props
+		Build\common.props = Build\common.props
+		Build\Mbc.CodeAnalysis.ruleset = Build\Mbc.CodeAnalysis.ruleset
 		Mbc.Pcs.Net.TwinCat.Ads.nuspec = Mbc.Pcs.Net.TwinCat.Ads.nuspec
 		nuget-publish.ps1 = nuget-publish.ps1
+		Build\stylecop.json = Build\stylecop.json
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Ads.Mapper", "Mbc.Ads.Mapper\Mbc.Ads.Mapper.csproj", "{BB178DAD-A07B-4CEE-B8C3-63F3DFB671E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Ads.Mapper.Test", "Mbc.Ads.Mapper.Test\Mbc.Ads.Mapper.Test.csproj", "{F5B71575-EE54-4DAB-A353-A831894D2AE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Ads.Utils", "Mbc.Ads.Utils\Mbc.Ads.Utils.csproj", "{61521D27-8FA4-4BBE-800C-7AF5F72B7994}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Ads.Utils.Test", "Mbc.Ads.Utils.Test\Mbc.Ads.Utils.Test.csproj", "{206857C7-8674-42C6-8606-66650AA6C0EC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{738812BE-0EF1-41A6-BB06-09B12538559E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		NuGet.Config = NuGet.Config
 	EndProjectSection
 EndProject
@@ -49,12 +64,29 @@ Global
 		{D2C84786-F215-43EF-B1AE-5A8CC7D193A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2C84786-F215-43EF-B1AE-5A8CC7D193A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2C84786-F215-43EF-B1AE-5A8CC7D193A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB178DAD-A07B-4CEE-B8C3-63F3DFB671E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB178DAD-A07B-4CEE-B8C3-63F3DFB671E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB178DAD-A07B-4CEE-B8C3-63F3DFB671E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB178DAD-A07B-4CEE-B8C3-63F3DFB671E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5B71575-EE54-4DAB-A353-A831894D2AE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5B71575-EE54-4DAB-A353-A831894D2AE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5B71575-EE54-4DAB-A353-A831894D2AE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5B71575-EE54-4DAB-A353-A831894D2AE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61521D27-8FA4-4BBE-800C-7AF5F72B7994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61521D27-8FA4-4BBE-800C-7AF5F72B7994}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61521D27-8FA4-4BBE-800C-7AF5F72B7994}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61521D27-8FA4-4BBE-800C-7AF5F72B7994}.Release|Any CPU.Build.0 = Release|Any CPU
+		{206857C7-8674-42C6-8606-66650AA6C0EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206857C7-8674-42C6-8606-66650AA6C0EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206857C7-8674-42C6-8606-66650AA6C0EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206857C7-8674-42C6-8606-66650AA6C0EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{08056A54-605C-4ACC-ADD7-3DB109298C28} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
+		{9E261388-7847-46BD-8D2F-7E928279AB89} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {41EBCC31-1BB3-4F43-BB31-8BD9166775A7}
