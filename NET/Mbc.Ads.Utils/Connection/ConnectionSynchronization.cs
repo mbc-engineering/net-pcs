@@ -1,4 +1,9 @@
-﻿using Castle.DynamicProxy;
+﻿//-----------------------------------------------------------------------------
+// Copyright (c) 2018 by mbc engineering GmbH, CH-6015 Luzern
+// Licensed under the Apache License, Version 2.0
+//-----------------------------------------------------------------------------
+
+using Castle.DynamicProxy;
 using System;
 using System.Linq;
 using System.Threading;

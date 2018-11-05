@@ -1,4 +1,9 @@
-﻿using EnsureThat;
+﻿//-----------------------------------------------------------------------------
+// Copyright (c) 2018 by mbc engineering GmbH, CH-6015 Luzern
+// Licensed under the Apache License, Version 2.0
+//-----------------------------------------------------------------------------
+
+using EnsureThat;
 using Mbc.Ads.Mapper;
 using Mbc.Pcs.Net.Connection;
 using NLog;

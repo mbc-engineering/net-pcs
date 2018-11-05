@@ -1,4 +1,9 @@
-﻿namespace Mbc.Ads.Mapper
+﻿//-----------------------------------------------------------------------------
+// Copyright (c) 2018 by mbc engineering GmbH, CH-6015 Luzern
+// Licensed under the Apache License, Version 2.0
+//-----------------------------------------------------------------------------
+
+namespace Mbc.Ads.Mapper
 {
     /// <summary>
     /// Provides information about the source (the PLC) member configuration.
