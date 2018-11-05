@@ -66,7 +66,7 @@ limitations under the License.
   </ItemGroup>
   <ItemGroup>
     <!-- add add cli tool so it not a dependency in nuget -->
-    <DotNetCliToolReference Include="StyleCop.Analyzers" Version="1.1.0-beta008" />
+    <DotNetCliToolReference Include="StyleCop.Analyzers" Version="1.1.0-beta009" />
     <DotNetCliToolReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.2" />
     <DotNetCliToolReference Include="Microsoft.CodeQuality.Analyzers" Version="2.6.2" />
     <DotNetCliToolReference Include="Microsoft.NetFramework.Analyzers" Version="2.6.2" />

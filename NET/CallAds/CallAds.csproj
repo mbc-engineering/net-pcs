@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads">
-      <Version>4.2.163.1</Version>
+      <Version>4.2.166</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

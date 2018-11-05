@@ -38,7 +38,7 @@ namespace Cli
                 command.Timeout = TimeSpan.FromSeconds(60);
                 command.StateChanged += (sender, args) => PrintProgress(args.Progress, args.SubTask);
                 CancellationTokenSource cancellationToken = new CancellationTokenSource();
-                Task.Factory.StartNew(() =>
+                var runningTask = Task.Factory.StartNew(() =>
                  {
                      bool quit = false;
                      do
@@ -55,7 +55,7 @@ namespace Cli
                     Console.WriteLine(" press q + ENTER to cancel");
                     await command.ExecuteAsync(cancellationToken.Token, input: CommandInputBuilder.FromDictionary(input));
                 }
-                catch (Exception ex)
+                catch
                 {
                     Console.WriteLine(" canceled by user.");
                 }

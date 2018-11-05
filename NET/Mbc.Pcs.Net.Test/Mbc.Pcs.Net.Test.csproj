@@ -11,17 +11,29 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FakeItEasy" Version="4.6.0" />
-    <PackageReference Include="FluentAssertions" Version="5.3.2" />
-    <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads" Version="4.2.163.1" />
-    <PackageReference Include="Xbehave" Version="2.3.1" />
-    <PackageReference Include="xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <PackageReference Include="FakeItEasy" Version="4.9.1" />
+    <PackageReference Include="FluentAssertions" Version="5.4.2" />
+    <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads" Version="4.2.166" />
+    <PackageReference Include="Xbehave" Version="2.4.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Pcs.Net.Test.Util\Mbc.Pcs.Net.Test.Util.csproj" />
     <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Interop.TCEVENTLOGGERLib">
+      <HintPath>..\Libs\Interop.TCEVENTLOGGERLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.TcEventLogProxyLib">
+      <HintPath>..\Libs\Interop.TcEventLogProxyLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
