@@ -267,3 +267,6 @@ __pycache__/
 *.project.~u
 *.tpy
 **/_Boot/
+
+# others
+/tart .
