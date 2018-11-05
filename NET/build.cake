@@ -50,6 +50,7 @@ Task("Test")
     // ToDo: https://cakebuild.net/api/Cake.Common.Tools.XUnit/XUnit2Aliases/
     var testAssemblies = GetFiles($"./**/bin/{configuration}/**/*.test.dll");
     var xunitSettings = new XUnit2Settings {
+        UseX86 = true,
         Parallelism = ParallelismOption.Assemblies,
         HtmlReport = true,
         NoAppDomain = true,
