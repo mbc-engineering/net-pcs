@@ -32,12 +32,14 @@ namespace Mbc.Pcs.Net.Command
         private readonly IAdsConnection _adsConnection;
         private readonly string _adsCommandFbPath;
         private readonly CommandResource _commandResource = new CommandResource();
+        private readonly CommandArgumentHandler _commandArgumentHandler;
 
         public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath)
         {
             // needs not be connected yet
             _adsConnection = adsConnection;
             _adsCommandFbPath = adsCommandFbPath;
+            _commandArgumentHandler = new PrimitiveCommandArgumentHandler();
         }
 
         public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath, CommandResource commandResource)
@@ -169,85 +171,12 @@ namespace Mbc.Pcs.Net.Command
 
         private void ReadOutputData(ICommandOutput output)
         {
-            // read symbols with attribute flags for output data
-            var fbSymbols = ReadFbSymbols(PlcAttributeNames.PlcCommandOutput);
-
-            // ToList => deterministische Reihenfolge notwendig
-            var outputNames = output.GetOutputNames().ToList();
-
-            var missingOutputVariables = outputNames.Where(x => !fbSymbols.ContainsKey(x)).ToArray();
-            if (missingOutputVariables.Length > 0)
-            {
-                throw new PlcCommandException(_adsCommandFbPath,
-                    string.Format(CommandResources.ERR_OutputVariablesMissing, string.Join(",", missingOutputVariables)));
-            }
-
-            var symbols = new List<string>();
-            var types = new List<Type>();
-            foreach (var name in outputNames)
-            {
-                var symbolInfo = fbSymbols[name];
-                symbols.Add(symbolInfo.variablePath);
-                types.Add(symbolInfo.type);
-            }
-
-            var handleCreator = new SumCreateHandles(_adsConnection, symbols);
-            var handles = handleCreator.CreateHandles();
-            try
-            {
-                var sumReader = new SumHandleRead(_adsConnection, handles, types.ToArray());
-                var values = sumReader.Read();
-
-                for (int i = 0; i < values.Length; i++)
-                {
-                    output.SetOutputData(outputNames[i], values[i]);
-                }
-            }
-            finally
-            {
-                var handleReleaser = new SumReleaseHandles(_adsConnection, handles);
-                handleReleaser.ReleaseHandles();
-            }
-
+            _commandArgumentHandler.ReadOutputData(_adsConnection, _adsCommandFbPath, output);
         }
 
         private void WriteInputData(ICommandInput input)
         {
-            // read symbols with attribute flags for input data
-            var fbSymbols = ReadFbSymbols(PlcAttributeNames.PlcCommandInput);
-            
-            var inputData = input.GetInputData();
-
-            var missingInputVariables = inputData.Keys.Where(x => !fbSymbols.ContainsKey(x)).ToArray();
-            if (missingInputVariables.Length > 0)
-            {
-                throw new PlcCommandException(_adsCommandFbPath,
-                    string.Format(CommandResources.ERR_InputVariablesMissing, string.Join(",", missingInputVariables)));
-            }
-
-            var symbols = new List<string>();
-            var types = new List<Type>();
-            var values = new List<object>();
-            foreach (var name in inputData.Keys)
-            {
-                var symbolInfo = fbSymbols[name];
-                symbols.Add(symbolInfo.variablePath);
-                types.Add(symbolInfo.type);
-                values.Add(Convert.ChangeType(inputData[name], symbolInfo.type));
-            }
-
-            var handleCreator = new SumCreateHandles(_adsConnection, symbols);
-            var handles = handleCreator.CreateHandles();
-            try
-            {
-                var sumWriter = new SumHandleWrite(_adsConnection, handles, types.ToArray());
-                sumWriter.Write(values.ToArray());
-            }
-            finally
-            {
-                var handleReleaser = new SumReleaseHandles(_adsConnection, handles);
-                handleReleaser.ReleaseHandles();
-            }
+            _commandArgumentHandler.WriteInputData(_adsConnection, _adsCommandFbPath, input);
         }
 
         private DateTime WaitForExecution(DataExchange<CommandChangeData> dataExchange)
@@ -284,56 +213,6 @@ namespace Mbc.Pcs.Net.Command
 
                     throw new PlcCommandTimeoutException(_adsCommandFbPath, string.Format(CommandResources.ERR_TimeOut, Timeout.Seconds), ex);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Reads all symbols in the same hierarchy as the function block they are flaged with the Attribute named in <para>attributeName</para>
-        /// </summary>
-        /// <param name="attributeName">The attribute flag to filter (Case Insensitive)</param>
-        /// <returns></returns>
-        private IReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)> ReadFbSymbols(string attributeName)
-        {
-            ITcAdsSymbol commandSymbol = _adsConnection.ReadSymbolInfo(_adsCommandFbPath);
-            if(commandSymbol == null)
-            {
-                // command Symbol not found
-                throw new PlcCommandException(_adsCommandFbPath, string.Format(CommandResources.ERR_CommandNotFound, _adsCommandFbPath));
-            }
-
-            var fbSymbolNames = ((ITcAdsSymbol5)commandSymbol)
-                .DataType.SubItems
-                .Where(item => 
-                    new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String }.Contains(item.BaseType.Category)
-                    && item.Attributes.Any(a => string.Equals(a.Name, attributeName, StringComparison.OrdinalIgnoreCase)))
-                .ToDictionary(
-                    item => item.SubItemName, 
-                    item => (variablePath: _adsCommandFbPath + "." + item.SubItemName, type: GetManagedTypeForSubItem(item), byteSize: item.ByteSize));
-
-            return new ReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)>(fbSymbolNames);
-        }
-
-        private Type GetManagedTypeForSubItem(ITcAdsSubItem subitem)
-        {
-            if (subitem.BaseType.ManagedType != null)
-                return subitem.BaseType.ManagedType;
-
-            switch (subitem.BaseType.DataTypeId)
-            {
-                case AdsDatatypeId.ADST_INT8:
-                    return typeof(sbyte);
-                case AdsDatatypeId.ADST_INT16:
-                    return typeof(short);
-                case AdsDatatypeId.ADST_INT32:
-                    return typeof(int);
-                case AdsDatatypeId.ADST_UINT8:
-                    return typeof(byte);
-                case AdsDatatypeId.ADST_UINT16:
-                    return typeof(ushort);
-                case AdsDatatypeId.ADST_UINT32:
-                    return typeof(uint);
-                default:
-                    throw new InvalidOperationException(string.Format(CommandResources.ERR_UnknownAdsType, subitem.BaseType));
             }
         }
 
