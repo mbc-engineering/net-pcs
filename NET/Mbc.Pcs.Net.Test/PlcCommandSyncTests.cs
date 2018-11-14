@@ -20,7 +20,10 @@ namespace Mbc.Pcs.Net.Test.Systemtest
         public void Execute_WithoutArguments()
         {
             // Arrange            
-            var fakeConnection = new AdsCommandConnectionFake();
+            var fakeConnection = new AdsCommandConnectionFake()
+            {
+                ResponseTimestamp = new DateTime(2000, 1, 2, 3, 4, 5),
+            };
             var subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbBaseCommand1");
             var stateChanges = new List<PlcCommandEventArgs>();
             subject.StateChanged += (sender, arg) => stateChanges.Add(arg);

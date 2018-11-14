@@ -141,8 +141,7 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                                 _handshakeStruct.ResultCode = ResponseStatusCode;
                             }
 
-                            var ts = new DateTime(2000, 1, 2, 3, 4, 5).ToFileTime();
-                            var eventArgs = new AdsNotificationExEventArgs(ts, _userData, 80, _handshakeStruct);
+                            var eventArgs = new AdsNotificationExEventArgs(ResponseTimestamp.ToFileTime(), _userData, 80, _handshakeStruct);
 
                             Debug.WriteLine("Raise faked AdsConnection.AdsNotificationEx");
                             _adsConnection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>
@@ -160,6 +159,8 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         public ushort ResponseStatusCode { get; set; } = (ushort)CommandResultCode.Done;
 
         public ushort ResponseSubTask { get; set; } = 0;
+
+        public DateTime ResponseTimestamp { get; set; } = DateTime.FromFileTime(1);
 
         public IAdsConnection AdsConnection
         {
