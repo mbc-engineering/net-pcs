@@ -4,15 +4,15 @@
 //-----------------------------------------------------------------------------
 
 using FakeItEasy;
+using Mbc.Pcs.Net.Command;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using TwinCAT.Ads;
 using TwinCAT.TypeSystem;
-using Mbc.Pcs.Net.Command;
 using static Mbc.Pcs.Net.Command.PlcCommand;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace Mbc.Pcs.Net.Test.Util.Command
 {
@@ -23,11 +23,12 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         private readonly ITcAdsSymbol5 _adsSymbols = A.Fake<ITcAdsSymbol5>();
         private readonly List<ITcAdsSubItem> _fakedVariables = new List<ITcAdsSubItem>();
         private readonly Dictionary<int, string> _variableHandles = new Dictionary<int, string>();
-        Tuple<PlcCommand, DataExchange<CommandHandshakeStruct>> _userData = null;
+        private Tuple<PlcCommand, DataExchange<CommandChangeData>> _userData = null;
+        private CommandHandshakeStruct _handshakeStruct;
 
         private object _userDataLock = new object();
 
-        public AdsCommandConnectionFake() 
+        public AdsCommandConnectionFake()
             : this(PlcCommandFakeOption.ResponseImmediatelyFinished)
         {
         }
@@ -49,8 +50,8 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                 .ReturnsLazily(parm =>
                 {
                     string symbolPath = (string)parm.Arguments[0];
-                    
-                    if(option == PlcCommandFakeOption.ResponseFbPathNotExist)
+
+                    if (option == PlcCommandFakeOption.ResponseFbPathNotExist)
                     {
                         Debug.WriteLine($"call faked AdsConnection.ReadSymbolInfo(name={symbolPath}) and return no symbols because simulation of command does not exist");
                         return null;
@@ -74,13 +75,13 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                         Debug.WriteLine($"call faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()})");
 
                         int hndl = parm.Arguments[0].GetHashCode();
-                                    // save handle
-                                    _variableHandles[hndl] = parm.Arguments[0].ToString();
+                        // save handle
+                        _variableHandles[hndl] = parm.Arguments[0].ToString();
 
                         Debug.WriteLine($"Return faked AdsConnection.CreateVariableHandle(variableName={parm.Arguments[0].ToString()}) value => {hndl}");
                         return hndl;
                     });
-            }            
+            }
 
             A.CallTo(() => _adsConnection.WriteAny(A<int>._, A<object>._))
                 .Invokes(parm =>
@@ -94,13 +95,12 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                             && parm.Arguments[1] is bool cancelValue && cancelValue == false && _userData != null)
                         {
                             // Raise Cancel Data Exchange from SPS
-                            var handshake = _userData.Item2.Data;
-                            handshake.Progress = 50;
-                            handshake.ResultCode = (ushort)CommandResultCode.Cancelled;
-                            handshake.Busy = true;
-                            handshake.Execute = false;
+                            _handshakeStruct.Progress = 50;
+                            _handshakeStruct.ResultCode = (ushort)CommandResultCode.Cancelled;
+                            _handshakeStruct.Busy = true;
+                            _handshakeStruct.Execute = false;
 
-                            var eventArgs = new AdsNotificationExEventArgs(1, _userData, 80, handshake);
+                            var eventArgs = new AdsNotificationExEventArgs(1, _userData, 80, _handshakeStruct);
 
                             Debug.WriteLine("Raise Faked AdsConnection.AdsNotificationEx");
                             _adsConnection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>
@@ -109,48 +109,47 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                     }
                 });
 
-                A.CallTo(() => _adsConnection.AddDeviceNotificationEx(A<string>._, A<AdsTransMode>._, A<int>._, A<int>._, A<object>._, A<Type>._))
-                    .Invokes(parm =>
+            A.CallTo(() => _adsConnection.AddDeviceNotificationEx(A<string>._, A<AdsTransMode>._, A<int>._, A<int>._, A<object>._, A<Type>._))
+                .Invokes(parm =>
+                {
+                    Debug.WriteLine($"call faked AdsConnection.AddDeviceNotificationEx(variableName={parm.Arguments[0].ToString()}, userData={parm.Arguments[4].ToString()})");
+                    lock (_userDataLock)
                     {
-                        Debug.WriteLine($"call faked AdsConnection.AddDeviceNotificationEx(variableName={parm.Arguments[0].ToString()}, userData={parm.Arguments[4].ToString()})");
-                        lock (_userDataLock)
+                        _userData = parm.Arguments[4] as Tuple<PlcCommand, DataExchange<CommandChangeData>>;
+
+                        if (option != PlcCommandFakeOption.NoResponse)
                         {
-                            _userData = parm.Arguments[4] as Tuple<PlcCommand, DataExchange<CommandHandshakeStruct>>;
+                            _handshakeStruct = new CommandHandshakeStruct();
+                            _handshakeStruct.SubTask = ResponseSubTask;
 
-
-                            if (option != PlcCommandFakeOption.NoResponse)
+                            if (option == PlcCommandFakeOption.ResponseDelayedCancel)
                             {
-                                var handshake = _userData.Item2.Data; // Return the blank strukture, this is like the finish command
-                                handshake.SubTask = ResponseSubTask;
-
-                                if (option == PlcCommandFakeOption.ResponseDelayedCancel)
+                                Task.Delay(200);
+                                _handshakeStruct.Progress = 50;
+                                _handshakeStruct.ResultCode = (ushort)CommandResultCode.Cancelled;
+                                _handshakeStruct.Busy = true;
+                                _handshakeStruct.Execute = false;
+                            }
+                            else
+                            {
+                                if (option == PlcCommandFakeOption.ResponseDelayedFinished)
                                 {
                                     Task.Delay(200);
-                                    handshake.Progress = 50;
-                                    handshake.ResultCode = (ushort)CommandResultCode.Cancelled;
-                                    handshake.Busy = true;
-                                    handshake.Execute = false;
-                                }
-                                else
-                                {
-                                    if (option == PlcCommandFakeOption.ResponseDelayedFinished)
-                                    {
-                                        Task.Delay(200);
-                                    }
-
-                                    handshake.Progress = 100;
-                                    handshake.ResultCode = ResponseStatusCode;
                                 }
 
-                                var eventArgs = new AdsNotificationExEventArgs(1, _userData, 80, handshake);
-
-                                Debug.WriteLine("Raise faked AdsConnection.AdsNotificationEx");
-                                _adsConnection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>
-                                    .With(_adsConnection, eventArgs);
+                                _handshakeStruct.Progress = 100;
+                                _handshakeStruct.ResultCode = ResponseStatusCode;
                             }
+
+                            var eventArgs = new AdsNotificationExEventArgs(ResponseTimestamp.ToFileTime(), _userData, 80, _handshakeStruct);
+
+                            Debug.WriteLine("Raise faked AdsConnection.AdsNotificationEx");
+                            _adsConnection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>
+                                .With(_adsConnection, eventArgs);
                         }
-                    })
-                    .Returns(80);            
+                    }
+                })
+                .Returns(80);
         }
 
         /// <summary>
@@ -158,8 +157,10 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         /// Default is Done, but can be used for simulation of user specifc codes
         /// </summary>
         public ushort ResponseStatusCode { get; set; } = (ushort)CommandResultCode.Done;
-        
+
         public ushort ResponseSubTask { get; set; } = 0;
+
+        public DateTime ResponseTimestamp { get; set; } = DateTime.FromFileTime(1);
 
         public IAdsConnection AdsConnection
         {

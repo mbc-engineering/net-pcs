@@ -66,16 +66,16 @@ namespace Mbc.Pcs.Net.Command
         /// Executes a PLC command.
         /// </summary>
         /// <seealso cref="Execute(CancellationToken, ICommandInput, ICommandOutput)"/>
-        public void Execute(ICommandInput input = null, ICommandOutput output = null)
+        public DateTime Execute(ICommandInput input = null, ICommandOutput output = null)
         {
-            Execute(CancellationToken.None, input, output);
+            return Execute(CancellationToken.None, input, output);
         }
 
         /// <summary>
         /// Executes a PLC command asynchronously.
         /// </summary>
         /// <seealso cref="Execute(CancellationToken, ICommandInput, ICommandOutput)"/>
-        public Task ExecuteAsync(ICommandInput input = null, ICommandOutput output = null)
+        public Task<DateTime> ExecuteAsync(ICommandInput input = null, ICommandOutput output = null)
         {
             return Task.Run(() => Execute(CancellationToken.None, input, output));
         }
@@ -84,7 +84,7 @@ namespace Mbc.Pcs.Net.Command
         /// Executes a PLC command asynchronously.
         /// </summary>
         /// <seealso cref="Execute(CancellationToken, ICommandInput, ICommandOutput)"/>
-        public Task ExecuteAsync(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
+        public Task<DateTime> ExecuteAsync(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
         {
             return Task.Run(() => Execute(cancellationToken, input, output));
         }
@@ -98,7 +98,7 @@ namespace Mbc.Pcs.Net.Command
         /// <exception cref="InvalidOperationException">The ADS-Client given at construction
         /// time is not connected.</exception>
         /// <example
-        protected void Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
+        protected DateTime Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
         {
             using (PlcCommandLock.AcquireLock(_adsCommandFbPath, _adsConnection.Address, ExecutionBehavior))
             {
@@ -113,9 +113,12 @@ namespace Mbc.Pcs.Net.Command
                 {
                     SetExecuteFlag();
 
+                    DateTime executionTimestamp;
+
                     using (var cancellationRegistration = cancellationToken.Register(ResetExecuteFlag))
                     {
-                        var handshakeExchange = new DataExchange<CommandHandshakeStruct>();
+                        var handshakeExchange = new DataExchange<CommandChangeData>();
+
                         var cmdHandle = _adsConnection.AddDeviceNotificationEx(
                             $"{_adsCommandFbPath}.stHandshake",
                             AdsTransMode.OnChange,
@@ -125,7 +128,7 @@ namespace Mbc.Pcs.Net.Command
                             typeof(CommandHandshakeStruct));
                         try
                         {
-                            WaitForExecution(handshakeExchange);
+                            executionTimestamp = WaitForExecution(handshakeExchange);
                         }
                         catch (PlcCommandErrorException ex) when (ex.ResultCode == 3 && cancellationToken.IsCancellationRequested)
                         {
@@ -141,6 +144,8 @@ namespace Mbc.Pcs.Net.Command
 
                     if (output != null)
                         ReadOutputData(output);
+
+                    return executionTimestamp;
                 }
                 catch (Exception ex)
                 {
@@ -245,29 +250,37 @@ namespace Mbc.Pcs.Net.Command
             }
         }
 
-        private void WaitForExecution(DataExchange<CommandHandshakeStruct> dataExchange)
+        private DateTime WaitForExecution(DataExchange<CommandChangeData> dataExchange)
         {
             var timeoutStopWatch = Stopwatch.StartNew();
+
+            int lastProgress = 0;
+            int lastSubTask = 0;
             while (true)
             {
                 try
                 {
                     var remainingTimeout = Timeout - timeoutStopWatch.Elapsed;
-                    var handshakeData = dataExchange.GetOrWait(remainingTimeout);
+                    var commandChangeData = dataExchange.GetOrWait(remainingTimeout);
+                    var handshakeData = commandChangeData.CommandHandshake;
 
-                    StateChanged?.Invoke(this, new PlcCommandEventArgs(handshakeData.Progress, handshakeData.SubTask, 
-                        handshakeData.IsCommandFinished, handshakeData.IsCommandCancelled, false));
+                    lastProgress = handshakeData.Progress;
+                    lastSubTask = handshakeData.SubTask;
+
+                    StateChanged?.Invoke(this, new PlcCommandEventArgs(lastProgress, lastSubTask, handshakeData.IsCommandFinished, handshakeData.IsCommandCancelled, false));
 
                     if (handshakeData.IsCommandFinished || handshakeData.IsCommandCancelled)
                     {
                         CheckResultCode(handshakeData.ResultCode);
-                        break;
+
+                        // Ausführungzeitpunkt TC-Zeitstempel des Commands
+                        return commandChangeData.Timestamp;
                     }
                 }
                 catch (TimeoutException ex)
                 {
                     // Update state
-                    StateChanged?.Invoke(this, new PlcCommandEventArgs(dataExchange.Data.Progress, dataExchange.Data.SubTask, false, false, true));
+                    StateChanged?.Invoke(this, new PlcCommandEventArgs(lastProgress, lastSubTask, false, false, true));
 
                     throw new PlcCommandTimeoutException(_adsCommandFbPath, string.Format(CommandResources.ERR_TimeOut, Timeout.Seconds), ex);
                 }
@@ -345,13 +358,15 @@ namespace Mbc.Pcs.Net.Command
 
         private void OnAdsNotification(object sender, AdsNotificationExEventArgs e)
         {
-            var userDataTuple = e.UserData as Tuple<PlcCommand, DataExchange<CommandHandshakeStruct>>;
+            var userDataTuple = e.UserData as Tuple<PlcCommand, DataExchange<CommandChangeData>>;
             if (userDataTuple == null || userDataTuple.Item1 != this)
             {
                 return;
             }
 
-            userDataTuple.Item2.Set((CommandHandshakeStruct) e.Value);
+            var timeStamp = DateTime.FromFileTime(e.TimeStamp);
+
+            userDataTuple.Item2.Set(new CommandChangeData(timeStamp, (CommandHandshakeStruct) e.Value));
         }
 
         private void SetExecuteFlag()
@@ -413,6 +428,22 @@ namespace Mbc.Pcs.Net.Command
 
             public override string ToString() 
                 => $"Execute={Execute} Busy={Busy} ResultCode={ResultCode} Progress={Progress} SubTask={SubTask}";
+        }
+
+        /// <summary>
+        /// Enthält Daten eines einer Änderung der CommandHandshake-Struct.
+        /// </summary>
+        internal class CommandChangeData
+        {
+            public CommandChangeData(DateTime timestamp, CommandHandshakeStruct commandHandshake)
+            {
+                Timestamp = timestamp;
+                CommandHandshake = commandHandshake;
+            }
+
+            public DateTime Timestamp { get; }
+
+            public CommandHandshakeStruct CommandHandshake { get; }
         }
     }
 }

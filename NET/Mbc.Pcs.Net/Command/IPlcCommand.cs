@@ -35,16 +35,16 @@ namespace Mbc.Pcs.Net.Command
         /// <summary>
         /// Executes a PLC command.
         /// </summary>
-        void Execute(ICommandInput input = null, ICommandOutput output = null);
+        DateTime Execute(ICommandInput input = null, ICommandOutput output = null);
 
         /// <summary>
         /// Executes a PLC command asynchronously.
         /// </summary>
-        Task ExecuteAsync(ICommandInput input = null, ICommandOutput output = null);
+        Task<DateTime> ExecuteAsync(ICommandInput input = null, ICommandOutput output = null);
 
         /// <summary>
         /// Executes a PLC command asynchronously.
         /// </summary>
-        Task ExecuteAsync(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null);
+        Task<DateTime> ExecuteAsync(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null);
     }
 }
