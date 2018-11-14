@@ -16,8 +16,6 @@ namespace Mbc.Pcs.Net.Command
         private bool _signaled;
         private T _data;
 
-        public T Data { get; }
-
         public void Set(T data)
         {
             lock (this)

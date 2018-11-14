@@ -3,11 +3,7 @@ using Mbc.Pcs.Net.Command;
 using Mbc.Pcs.Net.Test.Util.Command;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using TwinCAT.Ads;
 using Xunit;
 
 namespace Mbc.Pcs.Net.Test.Systemtest
@@ -19,7 +15,7 @@ namespace Mbc.Pcs.Net.Test.Systemtest
     /// All thest should be executed in serial order => [assembly: CollectionBehavior(DisableTestParallelization = true)]
     /// </summary>
     public class PlcCommandSyncTests : MbcPlcCommandTestBase
-    { 
+    {
         [Fact]
         public void Execute_WithoutArguments()
         {
@@ -30,21 +26,21 @@ namespace Mbc.Pcs.Net.Test.Systemtest
             subject.StateChanged += (sender, arg) => stateChanges.Add(arg);
 
             // Act
-            var ex = Record.Exception(() => subject.Execute());
+            var executionTimestamp = subject.Execute();
 
             // Assert
-            ex.Should().BeNull();
+            executionTimestamp.Should().Be(new DateTime(2000, 1, 2, 3, 4, 5));
             stateChanges.Count.Should().Be(1);
             stateChanges[0].IsFinished.Should().Be(true);
             stateChanges[0].IsCancelled.Should().Be(false);
             stateChanges[0].Progress.Should().Be(100);
         }
-        
-        [Fact(Skip = "true")]        
+
+        [Fact(Skip = "true")]
         public void Execute_WithArguments()
         {
             // Arrange            
-            var fakeConnection = new AdsCommandConnectionFake();            
+            var fakeConnection = new AdsCommandConnectionFake();
             var input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>
             {
                 { "Val1", 11 },
@@ -64,7 +60,7 @@ namespace Mbc.Pcs.Net.Test.Systemtest
             ex.Should().BeNull();
         }
 
-        [Fact(DisplayName="SystemTestOnly", Skip = "true")]
+        [Fact(DisplayName = "SystemTestOnly", Skip = "true")]
         [Trait("Category", "SystemTest")]
         public async Task Execute_fbDelayedAddCommand1_Async()
         {
