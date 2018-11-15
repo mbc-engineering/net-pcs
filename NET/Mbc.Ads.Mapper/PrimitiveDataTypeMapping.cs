@@ -84,6 +84,11 @@ namespace Mbc.Ads.Mapper
                 return (adsReader) => Position(adsReader, streamByteOffset).ReadPlcDATE();
             }
 
+            if (managedType == typeof(DT))
+            {
+                return (adsReader) => Position(adsReader, streamByteOffset).ReadPlcDATE();
+            }
+
             throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");
         }
 
@@ -96,7 +101,7 @@ namespace Mbc.Ads.Mapper
         /// <summary>
         /// Create a function for writing primitive data type to an ADS writer.
         /// </summary>
-        /// <param name="managedType">The .NET type to write.</param>
+        /// <param name="managedType">The ADS managed type to write.</param>
         /// <param name="streamByteOffset">The offset of the subtime in bytes.</param>
         /// <returns>A function (=Action) to write a primitive value to a given ADS writer (not <c>null</c>).</returns>
         public static Action<AdsBinaryWriter, object> CreatePrimitiveTypeWriteFunction(Type managedType, int streamByteOffset)
@@ -152,16 +157,20 @@ namespace Mbc.Ads.Mapper
                 return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((double)value);
             }
 
-            //TODO keine inversen Funktione wie bei Read
-            //if (managedType == typeof(TIME))
-            //{
-            //    return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((TimeSpan)value);
-            //}
+            if (managedType == typeof(TIME))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((uint)new TIME((TimeSpan)value).Value);
+            }
 
-            //if (managedType == typeof(DATE))
-            //{
-            //    return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((DateTime)value);
-            //}
+            if (managedType == typeof(DATE))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((uint)new DATE((DateTime)value).Value);
+            }
+
+            if (managedType == typeof(DT))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((uint)new DT((DateTime)value).Value);
+            }
 
             throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");
         }

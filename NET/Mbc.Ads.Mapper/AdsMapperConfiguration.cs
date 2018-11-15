@@ -31,7 +31,7 @@ namespace Mbc.Ads.Mapper
         /// <returns>A <see cref="AdsMapper{TDataObject}"/> for the given symbol</returns>
         public AdsMapper<TDataObject> CreateAdsMapper(IAdsSymbolInfo symbolInfo)
         {
-            var mapper = new AdsMapper<TDataObject>();
+            var mapper = new AdsMapper<TDataObject>(symbolInfo.SymbolsSize);
 
             // ToDo: @MiHe can call directly AddSymbolsMappingRecursive ensteed of looping subitems when structs are supported
             if (symbolInfo.Symbol.Category != DataTypeCategory.Struct)

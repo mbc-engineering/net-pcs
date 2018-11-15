@@ -131,7 +131,7 @@ namespace Mbc.Ads.Mapper.Test
         {
             // Arrange
             AdsMapperConfiguration<DestinationDataObject> config = new AdsMapperConfiguration<DestinationDataObject>(
-                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix('f', 'n', 'b', 'a', 'e'))
+                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix('f', 'n', 'b', 'a', 'e', 't', 'd'))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertUsing(value => Math.Min(100.0, (double)value))));
             var dataObject = new DestinationDataObject
@@ -147,10 +147,16 @@ namespace Mbc.Ads.Mapper.Test
                 DoubleValue1 = default,
                 DoubleValue2 = double.MaxValue,
                 DoubleValue3 = double.MaxValue,
-                DoubleValue4MappedName = 100,
+                DoubleValue4MappedName = 0,
+                PlcTimeValue1 = new TimeSpan(19, 33, 44),
+                PlcDateValue1 = new DateTime(2018, 08, 30),
+                PlcDateTimeValue1 = new DateTime(2018, 08, 30, 19, 33, 44),
                 IntArrayValue = new int[] { 100, 101, 102 },
                 EnumStateValue = State.Running,
             };
+            byte[] expectedData = _fakePlcData.AdsStream.ToArray();
+            Array.Clear(expectedData, 48, 8); // DoubleValue4 -> Convert fehlt
+            Array.Clear(expectedData, 82, 8); // nested MotorObject
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
@@ -158,7 +164,7 @@ namespace Mbc.Ads.Mapper.Test
 
             // Assert
             stream.Should().NotBeNull();
-            stream.ToArray().Should().BeEquivalentTo(_fakePlcData.AdsStream.ToArray());
+            stream.ToArray().Should().BeEquivalentTo(expectedData);
         }
 
 

@@ -12,8 +12,18 @@ namespace Mbc.Ads.Mapper
     public class AdsMapper<TDataObject>
         where TDataObject : new()
     {
-
         private List<AdsMappingDefinition<TDataObject>> _streamMappingDefinition = new List<AdsMappingDefinition<TDataObject>>();
+        private readonly int _size;
+
+        internal AdsMapper(int size)
+        {
+            _size = size;
+        }
+
+        internal void AddStreamMapping(AdsMappingDefinition<TDataObject> mappingDefinition)
+        {
+            _streamMappingDefinition.Add(mappingDefinition);
+        }
 
         public TDataObject MapStream(AdsStream adsStream)
         {
@@ -23,7 +33,7 @@ namespace Mbc.Ads.Mapper
 
         public AdsStream MapDataObject(TDataObject dataObject)
         {
-            var adsStream = new AdsStream();
+            var adsStream = new AdsStream(_size);
             var writer = new AdsBinaryWriter(adsStream);
             foreach (var def in _streamMappingDefinition)
             {
@@ -41,11 +51,6 @@ namespace Mbc.Ads.Mapper
             writer.Flush();
 
             return adsStream;
-        }
-
-        internal void AddStreamMapping(AdsMappingDefinition<TDataObject> mappingDefinition)
-        {
-            _streamMappingDefinition.Add(mappingDefinition);
         }
 
         private TDataObject ReadStream(AdsStream adsStream)

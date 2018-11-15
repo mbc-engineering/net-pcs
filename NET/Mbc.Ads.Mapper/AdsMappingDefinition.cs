@@ -6,6 +6,8 @@
 using System;
 using System.Linq;
 using TwinCAT.Ads;
+using TwinCAT.PlcOpen;
+using TwinCAT.TypeSystem;
 
 namespace Mbc.Ads.Mapper
 {
@@ -14,9 +16,24 @@ namespace Mbc.Ads.Mapper
         internal AdsMappingDefinition(ITcAdsDataType sourceType)
         {
             SourceType = sourceType;
+
+            if (sourceType.BaseType.Category == DataTypeCategory.Array)
+            {
+                SourceElementType = sourceType.BaseType.BaseType.ManagedType;
+            }
+            else if (sourceType.BaseType.Category == DataTypeCategory.Enum)
+            {
+                SourceElementType = sourceType.BaseType.BaseType.ManagedType;
+            }
+            else
+            {
+                SourceElementType = sourceType.BaseType.ManagedType;
+            }
         }
 
         internal ITcAdsDataType SourceType { get; }
+
+        internal Type SourceElementType { get; }
 
         internal Func<AdsBinaryReader, object> StreamReadFunction { get; set; }
 
@@ -53,10 +70,39 @@ namespace Mbc.Ads.Mapper
             {
                 return ConvertEnumValueToPlc(value);
             }
-
-            return value;
+            else
+            {
+                // Die SPS kennt zwei spezielle primitive Typen: TIME und DATE
+                if (SourceElementType == typeof(TIME))
+                {
+                    if (value is TimeSpan)
+                    {
+                        return value;
+                    }
+                    return new TIME(Convert.ToInt64(value)).Time;
+                }
+                else if (SourceElementType == typeof(DATE))
+                {
+                    if (value is DateTime)
+                    {
+                        return value;
+                    }
+                    return new DATE(Convert.ToInt64(value)).Date;
+                }
+                else if (SourceElementType == typeof(DT))
+                {
+                    if (value is DateTime)
+                    {
+                        return value;
+                    }
+                    return new DT(Convert.ToInt64(value)).Date;
+                }
+                else
+                {
+                    return Convert.ChangeType(value, SourceElementType);
+                }
+            }
         }
-
 
         /// <summary>
         /// Converts a PLC enum value to a .NET enum value.

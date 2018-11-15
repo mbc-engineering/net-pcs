@@ -57,13 +57,13 @@ namespace Mbc.Ads.Mapper.Test
 
             A.CallTo(() => tcAdsSymbol5Fake.Category).Returns(DataTypeCategory.Struct);
             A.CallTo(() => tcAdsSymbol5Fake.Name).Returns("PCS_Status.aPcsTestPlace[1].stTest");
-            A.CallTo(() => tcAdsSymbol5Fake.Size).Returns(88);
+            A.CallTo(() => tcAdsSymbol5Fake.Size).Returns(90);
             A.CallTo(() => tcAdsSymbol5Fake.DataType.Category).Returns(DataTypeCategory.Struct);
             A.CallTo(() => tcAdsSymbol5Fake.DataType.HasSubItemInfo).Returns(true);
             A.CallTo(() => tcAdsSymbol5Fake.DataType.SubItems).Returns(new ReadOnlySubItemCollection(subItemListFake_ST_Test));
 
             IAdsSymbolInfo fakeSymbolInfo = A.Fake<IAdsSymbolInfo>();
-            A.CallTo(() => fakeSymbolInfo.SymbolsSize).Returns(88);
+            A.CallTo(() => fakeSymbolInfo.SymbolsSize).Returns(90);
             A.CallTo(() => fakeSymbolInfo.SymbolPath).Returns("PCS_Status.aPcsTestPlace[1].stTest");
             A.CallTo(() => fakeSymbolInfo.Symbol).Returns(tcAdsSymbol5Fake);
 
@@ -320,19 +320,19 @@ namespace Mbc.Ads.Mapper.Test
 
             var subItemFake_eEnumStateValueEnumValues = new List<IEnumValue>();
             IEnumValue subItemFake_eEnumStateValue_EnumValue_eNone = A.Fake<IEnumValue>();
-            A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eNone.Primitive).Returns(0);
+            A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eNone.Primitive).Returns((short)0);
             A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eNone.Name).Returns("eNone");
             subItemFake_eEnumStateValueEnumValues.Add(subItemFake_eEnumStateValue_EnumValue_eNone);
             IEnumValue subItemFake_eEnumStateValue_EnumValue_eStartup = A.Fake<IEnumValue>();
-            A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eStartup.Primitive).Returns(1);
+            A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eStartup.Primitive).Returns((short)1);
             A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eStartup.Name).Returns("eStartup");
             subItemFake_eEnumStateValueEnumValues.Add(subItemFake_eEnumStateValue_EnumValue_eStartup);
             IEnumValue subItemFake_eEnumStateValue_EnumValue_eRunning = A.Fake<IEnumValue>();
-            A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eRunning.Primitive).Returns(2);
+            A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eRunning.Primitive).Returns((short)2);
             A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eRunning.Name).Returns("eRunning");
             subItemFake_eEnumStateValueEnumValues.Add(subItemFake_eEnumStateValue_EnumValue_eRunning);
             IEnumValue subItemFake_eEnumStateValue_EnumValue_eStop = A.Fake<IEnumValue>();
-            A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eStop.Primitive).Returns(3);
+            A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eStop.Primitive).Returns((short)3);
             A.CallTo(() => subItemFake_eEnumStateValue_EnumValue_eStop.Name).Returns("eStop");
             subItemFake_eEnumStateValueEnumValues.Add(subItemFake_eEnumStateValue_EnumValue_eStop);
             A.CallTo(() => subItemFake_eEnumStateValue.BaseType.EnumValues).Returns(new ReadOnlyEnumValueCollection(new EnumValueCollection(subItemFake_eEnumStateValueEnumValues)));
@@ -376,10 +376,10 @@ namespace Mbc.Ads.Mapper.Test
             adsWriter.Write(102);                  // offset 76
 
             // Write enum
-            adsWriter.Write((ushort)2);                 // offset 80 (Enum of type INT16)
+            adsWriter.Write((ushort)2);            // offset 80 (Enum of type INT16)
 
             // Write Motor Object
-            adsWriter.Write(double.MaxValue);
+            adsWriter.Write(double.MaxValue);      // offset 82
 
             adsStream.Position = 0;
             return adsStream;
