@@ -56,7 +56,7 @@ namespace Mbc.Ads.Mapper
             switch (item.BaseType.Category)
             {
                 case DataTypeCategory.Primitive:
-                    AddPrimitiveSymbolsMapping(item.BaseType.ManagedType, offset, name, mapper);
+                    AddPrimitiveSymbolsMapping(item, offset, name, mapper);
                     break;
                 case DataTypeCategory.Enum:
                     AddEnumSymbolsMapping(item, offset, name, mapper);
@@ -97,18 +97,21 @@ namespace Mbc.Ads.Mapper
             }
         }
 
-        private void AddPrimitiveSymbolsMapping(Type primitiveManagedType, int offset, string name, AdsMapper<TDataObject> mapper)
+        private void AddPrimitiveSymbolsMapping(ITcAdsDataType adsDataType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
             memberMappingConfiguration.Destination.MatchSome(dest =>
             {
-                var definition = new AdsMappingDefinition<TDataObject>();
+                var primitiveManagedType = adsDataType.BaseType.ManagedType;
+
+                var definition = new AdsMappingDefinition<TDataObject>(adsDataType);
                 definition.DestinationMemberConfiguration = dest;
 
                 definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(primitiveManagedType, offset);
                 definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest);
 
                 definition.StreamWriterFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeWriteFunction(primitiveManagedType, offset);
+                definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest);
 
                 mapper.AddStreamMapping(definition);
             });
@@ -117,51 +120,54 @@ namespace Mbc.Ads.Mapper
         /// <summary>
         /// Adds a <see cref="AdsMappingDefinition{TDataObject}"/> to the given <paramref name="mapper"/> instance.
         /// </summary>
-        /// <param name="item">the ADS item of the mapping</param>
+        /// <param name="adsDataType">the ADS item of the mapping</param>
         /// <param name="offset">the byte offset of the item in the data stream</param>
         /// <param name="name">the name of the symbol</param>
         /// <param name="mapper">the ADS mapper</param>
-        private void AddEnumSymbolsMapping(ITcAdsDataType item, int offset, string name, AdsMapper<TDataObject> mapper)
+        private void AddEnumSymbolsMapping(ITcAdsDataType adsDataType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
-            var definition = new AdsMappingDefinition<TDataObject>();
-
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
 
             memberMappingConfiguration.Destination.MatchSome(dest =>
             {
-                var enumValues = item.BaseType.EnumValues.ToDictionary(i => i.Primitive, i => i.Name);
+                var enumValues = adsDataType.BaseType.EnumValues.ToDictionary(i => i.Primitive, i => i.Name);
 
+                var definition = new AdsMappingDefinition<TDataObject>(adsDataType);
                 definition.DestinationMemberConfiguration = dest;
 
-                definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(item.BaseType.BaseType.ManagedType, offset);
+                definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(adsDataType.BaseType.BaseType.ManagedType, offset);
                 definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest, enumValues:enumValues);
 
-                definition.StreamWriterFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeWriteFunction(item.BaseType.BaseType.ManagedType, offset);
+                definition.StreamWriterFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeWriteFunction(adsDataType.BaseType.BaseType.ManagedType, offset);
+                definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest, enumValues:enumValues);
 
                 mapper.AddStreamMapping(definition);
             });
         }
 
-        private void AddArraySymbolsMapping(ITcAdsDataType arrayItem, int offset, string name, AdsMapper<TDataObject> mapper)
+        private void AddArraySymbolsMapping(ITcAdsDataType adsDataType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
-            ITcAdsDataType arrayValueType = arrayItem.BaseType.BaseType;
-            int valuesInArray = arrayItem.BaseType.Dimensions.ElementCount;
+            ITcAdsDataType arrayValueType = adsDataType.BaseType.BaseType;
+            int valuesInArray = adsDataType.BaseType.Dimensions.ElementCount;
 
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
             memberMappingConfiguration.Destination.MatchSome(dest =>
             {
                 for (int idx = 0; idx < valuesInArray; idx++)
                 {
-                    var definition = new AdsMappingDefinition<TDataObject>();
+                    var definition = new AdsMappingDefinition<TDataObject>(adsDataType);
                     definition.DestinationMemberConfiguration = dest;
 
                     int actStreamOffset = offset + (idx * arrayValueType.Size);
-                    definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(arrayValueType.ManagedType, actStreamOffset);
-
                     var capturedIdx = idx;
-                    definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest, arrayIndex: idx);
+
+                    definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(arrayValueType.ManagedType, actStreamOffset);
+                    definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest, arrayIndex: capturedIdx);
 
                     definition.StreamWriterFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeWriteFunction(arrayValueType.ManagedType, actStreamOffset);
+                    definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest, arrayIndex: capturedIdx);
+
+
                     mapper.AddStreamMapping(definition);
                 }
             });

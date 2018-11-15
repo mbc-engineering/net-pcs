@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using System;
 using System.Reflection;
 
 namespace Mbc.Ads.Mapper
@@ -16,6 +17,11 @@ namespace Mbc.Ads.Mapper
         /// Gets the reflection member of the destination type.
         /// </summary>
         MemberInfo Member { get; }
+
+        /// <summary>
+        /// Gets the element type of the destination type.
+        /// </summary>
+        Type MemberElementType { get; }
 
         /// <summary>
         /// Gets a value indicating if this member is required for mapping.

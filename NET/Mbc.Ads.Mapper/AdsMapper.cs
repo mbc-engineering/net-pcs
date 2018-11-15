@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using TwinCAT.Ads;
 
 namespace Mbc.Ads.Mapper
@@ -30,8 +29,9 @@ namespace Mbc.Ads.Mapper
             {
                 try
                 {
-                    var value = GetObjectValue(dataObject, def);
-                    def.StreamWriterFunction(writer, value);
+                    object value = def.DataObjectValueGetter(dataObject);
+                    object convertedValue = def.ConvertFromDestinationToSource(value);
+                    def.StreamWriterFunction(writer, convertedValue);
                 }
                 catch (Exception e) when (!(e is AdsMapperException))
                 {
@@ -58,7 +58,8 @@ namespace Mbc.Ads.Mapper
                 try
                 {
                     object value = def.StreamReadFunction(reader);
-                    def.DataObjectValueSetter(dataObject, value);
+                    object convertedValue = def.ConvertFromSourceToDestination(value);
+                    def.DataObjectValueSetter(dataObject, convertedValue);
                 }
                 catch (Exception e) when (!(e is AdsMapperException))
                 {
@@ -67,32 +68,6 @@ namespace Mbc.Ads.Mapper
             }
 
             return dataObject;
-        }
-
-
-        private object GetObjectValue(TDataObject sourceObject, AdsMappingDefinition<TDataObject> definition)
-        {
-            var destinationConfig = definition.DestinationMemberConfiguration;
-
-            switch (destinationConfig.Member.MemberType)
-            {
-                case MemberTypes.Field:
-                    var fieldInfo = (FieldInfo)destinationConfig.Member;
-
-                    // TODO enum + array
-
-                    return fieldInfo.GetValue(sourceObject);
-
-                case MemberTypes.Property:
-                    var propertyInfo = (PropertyInfo)destinationConfig.Member;
-
-                    // TODO enum + array
-
-                    return propertyInfo.GetValue(sourceObject);
-
-                default:
-                    throw new AdsMapperException("IDestinationMemberConfiguration.Member of type MemberInfo must be of type FieldInfo or PropertyInfo");
-            }
         }
     }
 }

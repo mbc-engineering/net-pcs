@@ -18,6 +18,12 @@ namespace Mbc.Ads.Mapper
         internal AdsDestinationMemberConfigurationExpression(MemberInfo destinationMember)
         {
             Member = destinationMember;
+            var type = destinationMember.GetSettableDataType();
+            if (type.IsArray)
+            {
+                type = type.GetElementType();
+            }
+            MemberElementType = type;
         }
 
         public string MapFromSourceSymbolName { get; private set; } = string.Empty;
@@ -59,7 +65,9 @@ namespace Mbc.Ads.Mapper
         /// <summary>
         /// Gets the Reflection member of the Destination Type
         /// </summary>
-        public MemberInfo Member { get; private set; }
+        public MemberInfo Member { get; }
+
+        public Type MemberElementType { get; }
 
         /// <summary>
         /// Gets a value if this member is required.
