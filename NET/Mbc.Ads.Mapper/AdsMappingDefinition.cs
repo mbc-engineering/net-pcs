@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TwinCAT.Ads;
 
 namespace Mbc.Ads.Mapper
 {
@@ -34,7 +35,7 @@ namespace Mbc.Ads.Mapper
             EnumValues = enumvalues;
         }
 
-        internal AdsMapper<TDestination>.AdsMappingStreamReaderDelegate StreamReadFunction { get; set; }
+        internal Func<AdsBinaryReader, object> StreamReadFunction { get; set; }
 
         internal IDestinationMemberConfiguration DestinationMemberConfiguration { get; set; }
 

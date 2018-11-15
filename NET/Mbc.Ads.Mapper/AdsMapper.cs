@@ -6,44 +6,46 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using TwinCAT.Ads;
 
 namespace Mbc.Ads.Mapper
 {
-    public class AdsMapper<TDestination>
-        where TDestination : new()
+    public class AdsMapper<TDataObject>
+        where TDataObject : new()
     {
-        /// <summary>
-        /// Delegate to set a value from a source stream to a destination Object
-        /// </summary>
-        /// <param name="destination">Testination type to set the values</param>
-        /// <param name="adsStreamReader">The source stream to read from</param>
-        /// <returns>the actual value of the symbol</returns>
-        internal delegate object AdsMappingStreamReaderDelegate(TDestination destination, AdsBinaryReader adsStreamReader);
 
-        private List<AdsMappingDefinition<TDestination>> _streamMappingDefinition = new List<AdsMappingDefinition<TDestination>>();
+        private List<AdsMappingDefinition<TDataObject>> _streamMappingDefinition = new List<AdsMappingDefinition<TDataObject>>();
 
-        public TDestination MapStream(AdsStream adsStream)
+        public TDataObject MapStream(AdsStream adsStream)
         {
-            TDestination filledData = ReadStream(adsStream);
+            TDataObject filledData = ReadStream(adsStream);
             return filledData;
         }
 
-        internal void AddStreamMapping(AdsMappingDefinition<TDestination> mappingDefinition)
+        public AdsStream MapDataObject(TDataObject dataObject)
+        {
+            foreach (var def in _streamMappingDefinition)
+            {
+
+            }
+
+            return null;
+        }
+
+        internal void AddStreamMapping(AdsMappingDefinition<TDataObject> mappingDefinition)
         {
             _streamMappingDefinition.Add(mappingDefinition);
         }
 
-        private TDestination ReadStream(AdsStream adsStream)
+        private TDataObject ReadStream(AdsStream adsStream)
         {
-            var data = new TDestination();
+            var data = new TDataObject();
 
             var reader = new AdsBinaryReader(adsStream);
             foreach (var def in _streamMappingDefinition)
             {
-                object value = def.StreamReadFunction(data, reader);
+                object value = def.StreamReadFunction(reader);
                 try
                 {
                     SetObjectValue(data, value, def);
@@ -57,7 +59,7 @@ namespace Mbc.Ads.Mapper
             return data;
         }
 
-        private void SetObjectValue(TDestination destinationObject, object value, AdsMappingDefinition<TDestination> definition)
+        private void SetObjectValue(TDataObject destinationObject, object value, AdsMappingDefinition<TDataObject> definition)
         {
             object valueToSet = value;
 

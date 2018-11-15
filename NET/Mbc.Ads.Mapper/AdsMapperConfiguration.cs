@@ -7,32 +7,31 @@ using EnsureThat;
 using System;
 using System.Linq;
 using TwinCAT.Ads;
-using TwinCAT.PlcOpen;
 using TwinCAT.TypeSystem;
 
 namespace Mbc.Ads.Mapper
 {
-    public class AdsMapperConfiguration<TDestination>
-        where TDestination : new()
+    public class AdsMapperConfiguration<TDataObject>
+        where TDataObject : new()
     {
-        private readonly AdsMappingExpression<TDestination> _config;
+        private readonly AdsMappingExpression<TDataObject> _config;
 
-        public AdsMapperConfiguration(Action<IAdsMappingExpression<TDestination>> config)
+        public AdsMapperConfiguration(Action<IAdsMappingExpression<TDataObject>> config)
         {
             // Setup Mapper
-            _config = new AdsMappingExpression<TDestination>();
+            _config = new AdsMappingExpression<TDataObject>();
             config(_config);
         }
 
         /// <summary>
-        /// Create a instance of a <see cref="AdsMapper{TDestination}"/> from a <see cref="IAdsSymbolInfo"/>
+        /// Create a instance of a <see cref="AdsMapper{TDataObject}"/> from a <see cref="IAdsSymbolInfo"/>
         /// It analyze the symbol structure and create a mapping from the configuration.
         /// </summary>
         /// <param name="symbolInfo">the ADS symbol information to construct the mapper</param>
-        /// <returns>a <see cref="AdsMapper{TDestination}"/> for the given symbol</returns>
-        public AdsMapper<TDestination> CreateAdsMapper(IAdsSymbolInfo symbolInfo)
+        /// <returns>A <see cref="AdsMapper{TDataObject}"/> for the given symbol</returns>
+        public AdsMapper<TDataObject> CreateAdsMapper(IAdsSymbolInfo symbolInfo)
         {
-            var mapper = new AdsMapper<TDestination>();
+            var mapper = new AdsMapper<TDataObject>();
 
             // ToDo: @MiHe can call directly AddSymbolsMappingRecursive ensteed of looping subitems when structs are supported
             if (symbolInfo.Symbol.Category != DataTypeCategory.Struct)
@@ -50,7 +49,7 @@ namespace Mbc.Ads.Mapper
             return mapper;
         }
 
-        private void AddSymbolsMappingRecursive(ITcAdsDataType item, int offset, string name, AdsMapper<TDestination> mapper)
+        private void AddSymbolsMappingRecursive(ITcAdsDataType item, int offset, string name, AdsMapper<TDataObject> mapper)
         {
             // Check for the right item type
             // -----------------------------
@@ -98,9 +97,9 @@ namespace Mbc.Ads.Mapper
             }
         }
 
-        private void AddPrimitiveSymbolsMapping(Type primitiveManagedType, int offset, string name, AdsMapper<TDestination> mapper)
+        private void AddPrimitiveSymbolsMapping(Type primitiveManagedType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
-            var definition = new AdsMappingDefinition<TDestination>();
+            var definition = new AdsMappingDefinition<TDataObject>();
 
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
             if (memberMappingConfiguration == null)
@@ -110,23 +109,22 @@ namespace Mbc.Ads.Mapper
 
             memberMappingConfiguration.Destination.MatchSome(dest => definition.DestinationMemberConfiguration = dest);
 
-            var readFunction = CreatePrimitiveTypeReadFunction(primitiveManagedType, offset);
-            definition.StreamReadFunction = readFunction;
+            definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(primitiveManagedType, offset);
 
             mapper.AddStreamMapping(definition);
         }
 
         /// <summary>
-        /// Adds a <see cref="AdsMappingDefinition{TDestination}"/> to the given <paramref name="mapper"/> instance.
+        /// Adds a <see cref="AdsMappingDefinition{TDataObject}"/> to the given <paramref name="mapper"/> instance.
         /// </summary>
         /// <param name="item">the ADS item of the mapping</param>
         /// <param name="offset">the byte offset of the item in the data stream</param>
         /// <param name="name">the name of the symbol</param>
         /// <param name="mapper">the ADS mapper</param>
-        private void AddEnumSymbolsMapping(ITcAdsDataType item, int offset, string name, AdsMapper<TDestination> mapper)
+        private void AddEnumSymbolsMapping(ITcAdsDataType item, int offset, string name, AdsMapper<TDataObject> mapper)
         {
             var enumValues = item.BaseType.EnumValues.ToDictionary(i => i.Primitive, i => i.Name);
-            var definition = new AdsMappingDefinition<TDestination>(enumValues);
+            var definition = new AdsMappingDefinition<TDataObject>(enumValues);
 
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
             if (memberMappingConfiguration == null)
@@ -136,13 +134,12 @@ namespace Mbc.Ads.Mapper
 
             memberMappingConfiguration.Destination.MatchSome(dest => definition.DestinationMemberConfiguration = dest);
 
-            var readFunction = CreatePrimitiveTypeReadFunction(item.BaseType.BaseType.ManagedType, offset);
-            definition.StreamReadFunction = readFunction;
+            definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(item.BaseType.BaseType.ManagedType, offset);
 
             mapper.AddStreamMapping(definition);
         }
 
-        private void AddArraySymbolsMapping(ITcAdsDataType arrayItem, int offset, string name, AdsMapper<TDestination> mapper)
+        private void AddArraySymbolsMapping(ITcAdsDataType arrayItem, int offset, string name, AdsMapper<TDataObject> mapper)
         {
             ITcAdsDataType arrayValueType = arrayItem.BaseType.BaseType;
             int valuesInArray = arrayItem.BaseType.Dimensions.ElementCount;
@@ -155,168 +152,28 @@ namespace Mbc.Ads.Mapper
 
             for (int idx = 0; idx < valuesInArray; idx++)
             {
-                var definition = new AdsMappingDefinition<TDestination>(idx);
+                var definition = new AdsMappingDefinition<TDataObject>(idx);
                 memberMappingConfiguration.Destination.MatchSome(dest => definition.DestinationMemberConfiguration = dest);
                 int actStreamOffset = offset + (idx * arrayValueType.Size);
-                var readFunction = CreatePrimitiveTypeReadFunction(arrayValueType.ManagedType, actStreamOffset);
-
-                if (readFunction != null)
-                {
-                    definition.StreamReadFunction = readFunction;
-                    mapper.AddStreamMapping(definition);
-                }
+                definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(arrayValueType.ManagedType, actStreamOffset);
+                mapper.AddStreamMapping(definition);
             }
         }
 
         private MemberMappingConfiguration FindAdsMappingDefinition(string sourceSymbolName)
         {
-            var mappingDefinition = new AdsMappingDefinition<TDestination>();
+            var mappingDefinition = new AdsMappingDefinition<TDataObject>();
 
             // Get Mapping configuration from source member name
             var memberMapping = _config.GetMappingFromSource(sourceSymbolName);
 
             if (!memberMapping.Destination.HasValue)
             {
-                // TDestionation member does not exist, skip to read this symbol
+                // TDataObject member does not exist, skip to read this symbol
                 return null;
             }
 
             return memberMapping;
-        }
-
-        /// <summary>
-        /// Create a <see cref="AdsMapper<TDestination>.AdsStreamMappingDelegate"/> to read the stream with the correct
-        /// configuration characteristics and set it to the <see cref="TDestination"/> mapped member
-        /// </summary>
-        /// <param name="managedType">the .net type to read</param>
-        /// <param name="streamOffset">The offset of the SubItem in Bytes</param>
-        /// <returns></returns>
-        private AdsMapper<TDestination>.AdsMappingStreamReaderDelegate CreatePrimitiveTypeReadFunction(Type managedType, int streamByteOffset)
-        {
-            // Guards
-            Ensure.Any.IsNotNull(managedType, optsFn: opts => opts.WithMessage("Could not create AdsStreamMappingDelegate for a PrimitiveType because the managedType is null."));
-
-            // Declare repeated code for reading the stream symbol
-            // ---------------------------------------------------
-            void BevoreReadSymbol(AdsBinaryReader adsReader)
-            {
-                // Move reader position to the right offset
-                adsReader.BaseStream.Position = streamByteOffset;
-            }
-
-            // Create Read delegate functions
-            // ---------------------
-            if (managedType == typeof(bool))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadBoolean();
-                    return value;
-                };
-            }
-
-            if (managedType == typeof(byte))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadByte();
-                    return value;
-                };
-            }
-
-            if (managedType == typeof(sbyte))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadSByte();
-                    return value;
-                };
-            }
-
-            if (managedType == typeof(ushort))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadUInt16();
-                    return value;
-                };
-            }
-
-            if (managedType == typeof(short))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadInt16();
-                    return value;
-                };
-            }
-
-            if (managedType == typeof(uint))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadUInt32();
-                    return value;
-                };
-            }
-
-            if (managedType == typeof(int))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadInt32();
-                    return value;
-                };
-            }
-
-            if (managedType == typeof(float))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadSingle();
-                    return value;
-                };
-            }
-
-            if (managedType == typeof(double))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadDouble();
-                    return value;
-                };
-            }
-
-            if (managedType == typeof(TIME))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadPlcTIME();
-                    return value;
-                };
-            }
-
-            if (managedType == typeof(DATE))
-            {
-                return (destinationObject, adsReader) =>
-                {
-                    BevoreReadSymbol(adsReader);
-                    object value = adsReader.ReadPlcDATE();
-                    return value;
-                };
-            }
-
-            throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");
         }
     }
 }
