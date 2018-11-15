@@ -4,7 +4,6 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using TwinCAT.Ads;
@@ -25,12 +24,23 @@ namespace Mbc.Ads.Mapper
 
         public AdsStream MapDataObject(TDataObject dataObject)
         {
+            var adsStream = new AdsStream();
+            var writer = new AdsBinaryWriter(adsStream);
             foreach (var def in _streamMappingDefinition)
             {
-
+                try
+                {
+                    var value = GetObjectValue(dataObject, def);
+                    def.StreamWriterFunction(writer, value);
+                }
+                catch (Exception e) when (!(e is AdsMapperException))
+                {
+                    throw new AdsMapperException($"Error mapping from source '{def.DestinationMemberConfiguration.Member.Name}'.", e);
+                }
             }
+            writer.Flush();
 
-            return null;
+            return adsStream;
         }
 
         internal void AddStreamMapping(AdsMappingDefinition<TDataObject> mappingDefinition)
@@ -40,15 +50,15 @@ namespace Mbc.Ads.Mapper
 
         private TDataObject ReadStream(AdsStream adsStream)
         {
-            var data = new TDataObject();
+            var dataObject = new TDataObject();
 
             var reader = new AdsBinaryReader(adsStream);
             foreach (var def in _streamMappingDefinition)
             {
-                object value = def.StreamReadFunction(reader);
                 try
                 {
-                    SetObjectValue(data, value, def);
+                    object value = def.StreamReadFunction(reader);
+                    def.DataObjectValueSetter(dataObject, value);
                 }
                 catch (Exception e) when (!(e is AdsMapperException))
                 {
@@ -56,13 +66,12 @@ namespace Mbc.Ads.Mapper
                 }
             }
 
-            return data;
+            return dataObject;
         }
 
-        private void SetObjectValue(TDataObject destinationObject, object value, AdsMappingDefinition<TDataObject> definition)
-        {
-            object valueToSet = value;
 
+        private object GetObjectValue(TDataObject sourceObject, AdsMappingDefinition<TDataObject> definition)
+        {
             var destinationConfig = definition.DestinationMemberConfiguration;
 
             switch (destinationConfig.Member.MemberType)
@@ -70,60 +79,17 @@ namespace Mbc.Ads.Mapper
                 case MemberTypes.Field:
                     var fieldInfo = (FieldInfo)destinationConfig.Member;
 
-                    if (fieldInfo.FieldType.IsEnum)
-                    {
-                        valueToSet = definition.GetEnumValue(valueToSet);
-                    }
+                    // TODO enum + array
 
-                    if (fieldInfo.FieldType.IsArray)
-                    {
-                        IList array = (IList)fieldInfo.GetValue(destinationObject);
-                        array[definition.ArrayIndex] = destinationConfig.Convert(valueToSet);
-                        return;
-                    }
-
-                    // change to target type
-                    valueToSet = Convert.ChangeType(valueToSet, fieldInfo.FieldType);
-
-                    fieldInfo.SetValue(destinationObject, destinationConfig.Convert(valueToSet));
-                    break;
+                    return fieldInfo.GetValue(sourceObject);
 
                 case MemberTypes.Property:
                     var propertyInfo = (PropertyInfo)destinationConfig.Member;
 
-                    if (propertyInfo.PropertyType.IsEnum)
-                    {
-                        valueToSet = definition.GetEnumValue(valueToSet);
-                    }
+                    // TODO enum + array
 
-                    if (propertyInfo.PropertyType.IsArray)
-                    {
-                        Array array = (Array)propertyInfo.GetValue(destinationObject);
+                    return propertyInfo.GetValue(sourceObject);
 
-                        if (array.Rank == 1)
-                        {
-                            array.SetValue(destinationConfig.Convert(valueToSet), definition.ArrayIndex);
-                        }
-                        else if (array.Rank == 2)
-                        {
-                            array.SetValue(
-                                destinationConfig.Convert(valueToSet),
-                                definition.ArrayIndex / array.GetLength(1),
-                                definition.ArrayIndex % array.GetLength(1));
-                        }
-                        else
-                        {
-                            throw new AdsMapperException("Only 1 or 2 dimensional arrays are currently supported.");
-                        }
-
-                        return;
-                    }
-
-                    // change to target type
-                    valueToSet = Convert.ChangeType(valueToSet, propertyInfo.PropertyType);
-
-                    propertyInfo.SetValue(destinationObject, destinationConfig.Convert(valueToSet));
-                    break;
                 default:
                     throw new AdsMapperException("IDestinationMemberConfiguration.Member of type MemberInfo must be of type FieldInfo or PropertyInfo");
             }

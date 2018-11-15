@@ -66,10 +66,7 @@ namespace Mbc.Ads.Mapper
         /// </summary>
         public bool IsRequired { get; private set; }
 
-        /// <summary>
-        /// Gets a bool value if a convertion function exists.
-        /// </summary>
-        public bool HasConvertion => ConvertionFunction != null;
+        public bool HasConverter => ConvertionFunction != null;
 
         /// <summary>
         /// Gets or sets the convertion function.
@@ -83,7 +80,7 @@ namespace Mbc.Ads.Mapper
         /// <returns>the converted value</returns>
         public object Convert(object value)
         {
-            if (HasConvertion)
+            if (ConvertionFunction != null)
             {
                 return ConvertionFunction(value);
             }

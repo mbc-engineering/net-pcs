@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using System;
+using TwinCAT.Ads;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -124,6 +125,42 @@ namespace Mbc.Ads.Mapper.Test
             mappedResult.MotorObject.Should().NotBeNull();
             mappedResult.MotorObject.ActualSpeed.Should().Be(double.MaxValue);
         }
+
+        [Fact]
+        public void AdsMappingConfigurationShouldMapDataObjectToAdsStream()
+        {
+            // Arrange
+            AdsMapperConfiguration<DestinationDataObject> config = new AdsMapperConfiguration<DestinationDataObject>(
+                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix('f', 'n', 'b', 'a', 'e'))
+                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
+                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertUsing(value => Math.Min(100.0, (double)value))));
+            var dataObject = new DestinationDataObject
+            {
+                BoolValue1 = true,
+                ByteValue1 = byte.MaxValue,
+                SbyteValue1 = sbyte.MaxValue,
+                UshortValue1 = ushort.MaxValue,
+                ShortValue1 = short.MaxValue,
+                UintValue1 = uint.MaxValue,
+                IntValue1 = int.MaxValue,
+                FloatValue1 = float.MaxValue,
+                DoubleValue1 = default,
+                DoubleValue2 = double.MaxValue,
+                DoubleValue3 = double.MaxValue,
+                DoubleValue4MappedName = 100,
+                IntArrayValue = new int[] { 100, 101, 102 },
+                EnumStateValue = State.Running,
+            };
+
+            // Act
+            AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
+            AdsStream stream = mapper.MapDataObject(dataObject);
+
+            // Assert
+            stream.Should().NotBeNull();
+            stream.ToArray().Should().BeEquivalentTo(_fakePlcData.AdsStream.ToArray());
+        }
+
 
         #region " Test Data "
 

@@ -23,9 +23,10 @@ namespace Mbc.Ads.Mapper
         bool IsRequired { get; }
 
         /// <summary>
-        /// Gets a value indiciatng if a custom convertion is configured.
+        /// Gets if this configuration has an converter function
+        /// (<see cref="Convert(object)"/>.
         /// </summary>
-        bool HasConvertion { get; }
+        bool HasConverter { get; }
 
         /// <summary>
         /// Converts a source value to the destination value

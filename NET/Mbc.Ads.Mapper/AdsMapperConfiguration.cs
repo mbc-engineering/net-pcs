@@ -16,11 +16,11 @@ namespace Mbc.Ads.Mapper
     {
         private readonly AdsMappingExpression<TDataObject> _config;
 
-        public AdsMapperConfiguration(Action<IAdsMappingExpression<TDataObject>> config)
+        public AdsMapperConfiguration(Action<IAdsMappingExpression<TDataObject>> cfgExpression)
         {
             // Setup Mapper
             _config = new AdsMappingExpression<TDataObject>();
-            config(_config);
+            cfgExpression(_config);
         }
 
         /// <summary>
@@ -99,19 +99,19 @@ namespace Mbc.Ads.Mapper
 
         private void AddPrimitiveSymbolsMapping(Type primitiveManagedType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
-            var definition = new AdsMappingDefinition<TDataObject>();
-
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
-            if (memberMappingConfiguration == null)
+            memberMappingConfiguration.Destination.MatchSome(dest =>
             {
-                return;
-            }
+                var definition = new AdsMappingDefinition<TDataObject>();
+                definition.DestinationMemberConfiguration = dest;
 
-            memberMappingConfiguration.Destination.MatchSome(dest => definition.DestinationMemberConfiguration = dest);
+                definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(primitiveManagedType, offset);
+                definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest);
 
-            definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(primitiveManagedType, offset);
+                definition.StreamWriterFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeWriteFunction(primitiveManagedType, offset);
 
-            mapper.AddStreamMapping(definition);
+                mapper.AddStreamMapping(definition);
+            });
         }
 
         /// <summary>
@@ -123,20 +123,23 @@ namespace Mbc.Ads.Mapper
         /// <param name="mapper">the ADS mapper</param>
         private void AddEnumSymbolsMapping(ITcAdsDataType item, int offset, string name, AdsMapper<TDataObject> mapper)
         {
-            var enumValues = item.BaseType.EnumValues.ToDictionary(i => i.Primitive, i => i.Name);
-            var definition = new AdsMappingDefinition<TDataObject>(enumValues);
+            var definition = new AdsMappingDefinition<TDataObject>();
 
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
-            if (memberMappingConfiguration == null)
+
+            memberMappingConfiguration.Destination.MatchSome(dest =>
             {
-                return;
-            }
+                var enumValues = item.BaseType.EnumValues.ToDictionary(i => i.Primitive, i => i.Name);
 
-            memberMappingConfiguration.Destination.MatchSome(dest => definition.DestinationMemberConfiguration = dest);
+                definition.DestinationMemberConfiguration = dest;
 
-            definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(item.BaseType.BaseType.ManagedType, offset);
+                definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(item.BaseType.BaseType.ManagedType, offset);
+                definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest, enumValues:enumValues);
 
-            mapper.AddStreamMapping(definition);
+                definition.StreamWriterFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeWriteFunction(item.BaseType.BaseType.ManagedType, offset);
+
+                mapper.AddStreamMapping(definition);
+            });
         }
 
         private void AddArraySymbolsMapping(ITcAdsDataType arrayItem, int offset, string name, AdsMapper<TDataObject> mapper)
@@ -145,35 +148,29 @@ namespace Mbc.Ads.Mapper
             int valuesInArray = arrayItem.BaseType.Dimensions.ElementCount;
 
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
-            if (memberMappingConfiguration == null)
+            memberMappingConfiguration.Destination.MatchSome(dest =>
             {
-                return;
-            }
+                for (int idx = 0; idx < valuesInArray; idx++)
+                {
+                    var definition = new AdsMappingDefinition<TDataObject>();
+                    definition.DestinationMemberConfiguration = dest;
 
-            for (int idx = 0; idx < valuesInArray; idx++)
-            {
-                var definition = new AdsMappingDefinition<TDataObject>(idx);
-                memberMappingConfiguration.Destination.MatchSome(dest => definition.DestinationMemberConfiguration = dest);
-                int actStreamOffset = offset + (idx * arrayValueType.Size);
-                definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(arrayValueType.ManagedType, actStreamOffset);
-                mapper.AddStreamMapping(definition);
-            }
+                    int actStreamOffset = offset + (idx * arrayValueType.Size);
+                    definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(arrayValueType.ManagedType, actStreamOffset);
+
+                    var capturedIdx = idx;
+                    definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest, arrayIndex: idx);
+
+                    definition.StreamWriterFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeWriteFunction(arrayValueType.ManagedType, actStreamOffset);
+                    mapper.AddStreamMapping(definition);
+                }
+            });
         }
 
         private MemberMappingConfiguration FindAdsMappingDefinition(string sourceSymbolName)
         {
-            var mappingDefinition = new AdsMappingDefinition<TDataObject>();
-
             // Get Mapping configuration from source member name
-            var memberMapping = _config.GetMappingFromSource(sourceSymbolName);
-
-            if (!memberMapping.Destination.HasValue)
-            {
-                // TDataObject member does not exist, skip to read this symbol
-                return null;
-            }
-
-            return memberMapping;
+            return _config.GetMappingFromSource(sourceSymbolName);
         }
     }
 }

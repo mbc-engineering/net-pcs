@@ -1,4 +1,9 @@
-﻿using EnsureThat;
+﻿//-----------------------------------------------------------------------------
+// Copyright (c) 2018 by mbc engineering GmbH, CH-6015 Luzern
+// Licensed under the Apache License, Version 2.0
+//-----------------------------------------------------------------------------
+
+using EnsureThat;
 using System;
 using TwinCAT.Ads;
 using TwinCAT.PlcOpen;
@@ -14,7 +19,7 @@ namespace Mbc.Ads.Mapper
         /// Create a function for reading a primitive data type from an ADS reader.
         /// </summary>
         /// <param name="managedType">The .NET type to read</param>
-        /// <param name="streamOffset">The offset of the SubItem in Bytes</param>
+        /// <param name="streamOffset">The offset of the subitem in bytes</param>
         /// <returns>A function to read a primitive value from the given ADS reader (not <c>null</c>).</returns>
         public static Func<AdsBinaryReader, object> CreatePrimitiveTypeReadFunction(Type managedType, int streamByteOffset)
         {
@@ -88,6 +93,83 @@ namespace Mbc.Ads.Mapper
             return adsReader;
         }
 
+        /// <summary>
+        /// Create a function for writing primitive data type to an ADS writer.
+        /// </summary>
+        /// <param name="managedType">The .NET type to write.</param>
+        /// <param name="streamByteOffset">The offset of the subtime in bytes.</param>
+        /// <returns>A function (=Action) to write a primitive value to a given ADS writer (not <c>null</c>).</returns>
+        public static Action<AdsBinaryWriter, object> CreatePrimitiveTypeWriteFunction(Type managedType, int streamByteOffset)
+        {
+            // Guards
+            Ensure.Any.IsNotNull(managedType, optsFn: opts => opts.WithMessage("Could not create AdsStreamMappingDelegate for a PrimitiveType because the managedType is null."));
+            EnsureArg.IsGte(streamByteOffset, 0, nameof(streamByteOffset));
 
+            // Create Write delegate functions
+            // ---------------------
+            if (managedType == typeof(bool))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((bool)value);
+            }
+
+            if (managedType == typeof(byte))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((byte)value);
+            }
+
+            if (managedType == typeof(sbyte))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((sbyte)value);
+            }
+
+            if (managedType == typeof(ushort))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((ushort)value);
+            }
+
+            if (managedType == typeof(short))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((short)value);
+            }
+
+            if (managedType == typeof(uint))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((uint)value);
+            }
+
+            if (managedType == typeof(int))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((int)value);
+            }
+
+            if (managedType == typeof(float))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((float)value);
+            }
+
+            if (managedType == typeof(double))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((double)value);
+            }
+
+            //TODO keine inversen Funktione wie bei Read
+            //if (managedType == typeof(TIME))
+            //{
+            //    return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((TimeSpan)value);
+            //}
+
+            //if (managedType == typeof(DATE))
+            //{
+            //    return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((DateTime)value);
+            //}
+
+            throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");
+        }
+
+        private static AdsBinaryWriter Position(AdsBinaryWriter adsReader, int offset)
+        {
+            adsReader.BaseStream.Position = offset;
+            return adsReader;
+        }
     }
 }
