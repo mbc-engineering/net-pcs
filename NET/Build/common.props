@@ -65,11 +65,21 @@ limitations under the License.
     </None>
   </ItemGroup>
   <ItemGroup>
-    <!-- add add cli tool so it not a dependency in nuget -->
-    <DotNetCliToolReference Include="StyleCop.Analyzers" Version="1.1.0-beta009" />
-    <DotNetCliToolReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.2" />
-    <DotNetCliToolReference Include="Microsoft.CodeQuality.Analyzers" Version="2.6.2" />
-    <DotNetCliToolReference Include="Microsoft.NetFramework.Analyzers" Version="2.6.2" />
-    <DotNetCliToolReference Include="Roslyn.Diagnostics.Analyzers" Version="2.6.2" />
+    <!-- Mark Analyzers as Private so it will not result in a dependency in the nuget -->
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.1-beta.61">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.2">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.6.2">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NetFramework.Analyzers" Version="2.6.2">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Roslyn.Diagnostics.Analyzers" Version="2.6.2">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>
