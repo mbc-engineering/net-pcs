@@ -47,60 +47,60 @@ namespace Mbc.Ads.Mapper
 
         internal object ConvertFromSourceToDestination(object value)
         {
-            if (DestinationMemberConfiguration.HasConverter)
+            if (DestinationMemberConfiguration.HasSourceToDestinationConverter)
             {
-                return DestinationMemberConfiguration.Convert(value);
+                return DestinationMemberConfiguration.ConvertSourceToDestination(value);
             }
-            else
+
+            if (DestinationMemberConfiguration.MemberElementType.IsEnum)
             {
-                if (DestinationMemberConfiguration.MemberElementType.IsEnum)
-                {
-                    return ConvertEnumValueFromPlc(value);
-                }
-                else
-                {
-                    return Convert.ChangeType(value, DestinationMemberConfiguration.MemberElementType);
-                }
+                return ConvertEnumValueFromPlc(value);
             }
+
+            return Convert.ChangeType(value, DestinationMemberConfiguration.MemberElementType);
         }
 
         internal object ConvertFromDestinationToSource(object value)
         {
+            if (DestinationMemberConfiguration.HasDestinationToSourceConverter)
+            {
+                return DestinationMemberConfiguration.ConvertDestinationToSource(value, SourceElementType);
+            }
+
             if (DestinationMemberConfiguration.MemberElementType.IsEnum)
             {
                 return ConvertEnumValueToPlc(value);
             }
+
+            // Die SPS kennt zwei spezielle primitive Typen (TIME und DATE) die
+            // von Convert nicht gewandelt werden können.
+            if (SourceElementType == typeof(TIME))
+            {
+                if (value is TimeSpan)
+                {
+                    return value;
+                }
+                return new TIME(Convert.ToInt64(value)).Time;
+            }
+            else if (SourceElementType == typeof(DATE))
+            {
+                if (value is DateTime)
+                {
+                    return value;
+                }
+                return new DATE(Convert.ToInt64(value)).Date;
+            }
+            else if (SourceElementType == typeof(DT))
+            {
+                if (value is DateTime)
+                {
+                    return value;
+                }
+                return new DT(Convert.ToInt64(value)).Date;
+            }
             else
             {
-                // Die SPS kennt zwei spezielle primitive Typen: TIME und DATE
-                if (SourceElementType == typeof(TIME))
-                {
-                    if (value is TimeSpan)
-                    {
-                        return value;
-                    }
-                    return new TIME(Convert.ToInt64(value)).Time;
-                }
-                else if (SourceElementType == typeof(DATE))
-                {
-                    if (value is DateTime)
-                    {
-                        return value;
-                    }
-                    return new DATE(Convert.ToInt64(value)).Date;
-                }
-                else if (SourceElementType == typeof(DT))
-                {
-                    if (value is DateTime)
-                    {
-                        return value;
-                    }
-                    return new DT(Convert.ToInt64(value)).Date;
-                }
-                else
-                {
-                    return Convert.ChangeType(value, SourceElementType);
-                }
+                return Convert.ChangeType(value, SourceElementType);
             }
         }
 

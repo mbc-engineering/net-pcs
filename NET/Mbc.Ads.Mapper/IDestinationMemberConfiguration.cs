@@ -29,16 +29,19 @@ namespace Mbc.Ads.Mapper
         bool IsRequired { get; }
 
         /// <summary>
-        /// Gets if this configuration has an converter function
-        /// (<see cref="Convert(object)"/>.
+        /// Gets a value indicating if a custom source to destination
+        /// value converter exists.
         /// </summary>
-        bool HasConverter { get; }
+        bool HasSourceToDestinationConverter { get; }
+
+        object ConvertSourceToDestination(object value);
 
         /// <summary>
-        /// Converts a source value to the destination value
+        /// Gets a value indicating if a custom destination to source
+        /// value converter exists.
         /// </summary>
-        /// <param name="value">the source value</param>
-        /// <returns>the converted destination value</returns>
-        object Convert(object value);
+        bool HasDestinationToSourceConverter { get; }
+
+        object ConvertDestinationToSource(object value, Type type);
     }
 }

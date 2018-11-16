@@ -32,9 +32,13 @@ namespace Mbc.Ads.Mapper
 
         #region "IAdsDestinationMemberConfigurationExpression<TDestination>"
 
-        public void ConvertUsing<TMember>(Func<object, TMember> convertionFunction)
+        public void ConvertFromSourceUsing<TMember>(Func<object, TMember> conversionFunction)
         {
-            ConvertionFunction = (value) => convertionFunction(value);
+            ConvertSourceToDestinationFunction = (value) => conversionFunction(value);
+        }
+        public void ConvertToSourceUsing<TMember>(Func<TMember, Type, object> conversionFunction)
+        {
+            ConvertDestinationToSourceFunction = (value, type) => conversionFunction((TMember)value, type);
         }
 
         public void Ignore()
@@ -74,23 +78,37 @@ namespace Mbc.Ads.Mapper
         /// </summary>
         public bool IsRequired { get; private set; }
 
-        public bool HasConverter => ConvertionFunction != null;
+        public bool HasSourceToDestinationConverter => ConvertSourceToDestinationFunction != null;
 
         /// <summary>
         /// Gets or sets the convertion function.
         /// </summary>
-        private Func<object, object> ConvertionFunction { get; set; }
+        private Func<object, object> ConvertSourceToDestinationFunction { get; set; }
 
         /// <summary>
         /// Converts a source value to the destination value
         /// </summary>
         /// <param name="value">the value to convert</param>
         /// <returns>the converted value</returns>
-        public object Convert(object value)
+        public object ConvertSourceToDestination(object value)
         {
-            if (ConvertionFunction != null)
+            if (ConvertSourceToDestinationFunction != null)
             {
-                return ConvertionFunction(value);
+                return ConvertSourceToDestinationFunction(value);
+            }
+
+            return value;
+        }
+
+        public bool HasDestinationToSourceConverter => ConvertDestinationToSourceFunction != null;
+
+        private Func<object, Type, object> ConvertDestinationToSourceFunction { get; set; }
+
+        public object ConvertDestinationToSource(object value, Type type)
+        {
+            if (ConvertDestinationToSourceFunction != null)
+            {
+                return ConvertDestinationToSourceFunction(value, type);
             }
 
             return value;

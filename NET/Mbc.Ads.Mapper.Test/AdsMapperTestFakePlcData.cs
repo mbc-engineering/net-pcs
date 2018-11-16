@@ -352,20 +352,20 @@ namespace Mbc.Ads.Mapper.Test
             AdsStream adsStream = new AdsStream();
             var adsWriter = new AdsBinaryWriter(adsStream);
 
-            adsWriter.Write(true);                // offset 0
-            adsWriter.Write(byte.MaxValue);       // offset 1
-            adsWriter.Write(sbyte.MaxValue);     // offset 2
-            adsWriter.Write((sbyte)0);                  // offset 3 auffüllen mit 1 Byte
-            adsWriter.Write(ushort.MaxValue);   // offset 4
-            adsWriter.Write(short.MaxValue);     // offset 6
-            adsWriter.Write(uint.MaxValue);       // offset 8
+            adsWriter.Write(true);                 // offset 0
+            adsWriter.Write(byte.MaxValue);        // offset 1
+            adsWriter.Write(sbyte.MaxValue);       // offset 2
+            adsWriter.Write((sbyte)0);             // offset 3 auffüllen mit 1 Byte
+            adsWriter.Write(ushort.MaxValue);      // offset 4
+            adsWriter.Write(short.MaxValue);       // offset 6
+            adsWriter.Write(uint.MaxValue);        // offset 8
             adsWriter.Write(int.MaxValue);         // offset 12
-            adsWriter.Write(float.MaxValue);     // offset 16
-            adsWriter.Write(0f);                  // offset 20 auffüllen mit 4 Byte
-            adsWriter.Write(default(double));   // offset 24
-            adsWriter.Write(double.MaxValue);   // offset 32
-            adsWriter.Write(double.MaxValue);   // offset 40
-            adsWriter.Write(double.MaxValue);   // offset 48
+            adsWriter.Write(float.MaxValue);       // offset 16
+            adsWriter.Write(0f);                   // offset 20 auffüllen mit 4 Byte
+            adsWriter.Write(default(double));      // offset 24
+            adsWriter.Write(double.MaxValue);      // offset 32
+            adsWriter.Write(double.MaxValue);      // offset 40
+            adsWriter.Write(200d);                 // offset 48
             adsWriter.WritePlcType(new TimeSpan(19, 33, 44));               // offset 56 (TIME mit 4 Byte)
             adsWriter.WritePlcType(new DateTime(2018, 08, 30));             // offset 60 (Date mit 4 Byte)
             adsWriter.WritePlcType(new DateTime(2018, 08, 30, 19, 33, 44)); // offset 64 (Date_AND_TIME mit 4 Byte)

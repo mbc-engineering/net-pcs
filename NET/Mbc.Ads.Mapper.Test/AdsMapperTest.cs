@@ -24,7 +24,7 @@ namespace Mbc.Ads.Mapper.Test
             AdsMapperConfiguration<DestinationDataObject> config = new AdsMapperConfiguration<DestinationDataObject>(
                 cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix('f', 'n', 'b', 'a', 'e'))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
-                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertUsing(value => Math.Min(100.0, (double)value))));
+                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertFromSourceUsing(value => ((double)value)/2)));
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
@@ -63,7 +63,7 @@ namespace Mbc.Ads.Mapper.Test
                   .ForMember(dest => dest.DoubleValue2, opt => opt.Require())
                   .ForSourceMember("symbolName", opt => opt.Require())
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
-                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertUsing(value => Math.Min(100.0, (double)value))));
+                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertFromSourceUsing(value => Math.Min(100.0, (double)value))));
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
@@ -82,7 +82,7 @@ namespace Mbc.Ads.Mapper.Test
                   .ForMember(dest => dest.DoubleValue1, opt => opt.Ignore())
                   .ForSourceMember("symbolName", opt => opt.Ignore())
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
-                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertUsing(value => Math.Min(100.0, (double)value))));
+                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertFromSourceUsing(value => Math.Min(100.0, (double)value))));
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
@@ -133,7 +133,7 @@ namespace Mbc.Ads.Mapper.Test
             AdsMapperConfiguration<DestinationDataObject> config = new AdsMapperConfiguration<DestinationDataObject>(
                 cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix('f', 'n', 'b', 'a', 'e', 't', 'd'))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
-                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertUsing(value => Math.Min(100.0, (double)value))));
+                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertToSourceUsing<double>((value, type) => value * 2)));
             var dataObject = new DestinationDataObject
             {
                 BoolValue1 = true,
@@ -147,7 +147,7 @@ namespace Mbc.Ads.Mapper.Test
                 DoubleValue1 = default,
                 DoubleValue2 = double.MaxValue,
                 DoubleValue3 = double.MaxValue,
-                DoubleValue4MappedName = 0,
+                DoubleValue4MappedName = 100,
                 PlcTimeValue1 = new TimeSpan(19, 33, 44),
                 PlcDateValue1 = new DateTime(2018, 08, 30),
                 PlcDateTimeValue1 = new DateTime(2018, 08, 30, 19, 33, 44),
@@ -155,7 +155,6 @@ namespace Mbc.Ads.Mapper.Test
                 EnumStateValue = State.Running,
             };
             byte[] expectedData = _fakePlcData.AdsStream.ToArray();
-            Array.Clear(expectedData, 48, 8); // DoubleValue4 -> Convert fehlt
             Array.Clear(expectedData, 82, 8); // nested MotorObject
 
             // Act
@@ -166,7 +165,6 @@ namespace Mbc.Ads.Mapper.Test
             stream.Should().NotBeNull();
             stream.ToArray().Should().BeEquivalentTo(expectedData);
         }
-
 
         #region " Test Data "
 
