@@ -4,24 +4,23 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
+using System.Reflection;
 
 namespace Mbc.Ads.Mapper
 {
     internal static class DataObjectAccessor
     {
-
-        internal static Func<TDataObject, object> CreateValueGetter<TDataObject>(IDestinationMemberConfiguration destinationMemberConfiguration, IDictionary<object, string> enumValues = null, int arrayIndex = -1)
+        internal static Func<TDataObject, object> CreateValueGetter<TDataObject>(MemberInfo memberInfo, int arrayIndex = -1)
         {
             return (dataObject) =>
             {
                 if (arrayIndex < 0)
                 {
-                    return destinationMemberConfiguration.Member.GetValue(dataObject);
+                    return memberInfo.GetValue(dataObject);
                 }
                 else
                 {
-                    Array array = (Array)destinationMemberConfiguration.Member.GetValue(dataObject);
+                    Array array = (Array)memberInfo.GetValue(dataObject);
                     if (array.Rank == 1)
                     {
                         return array.GetValue(arrayIndex);
@@ -43,17 +42,17 @@ namespace Mbc.Ads.Mapper
         /// <summary>
         /// Returns a function which sets a primitive value to an object.
         /// </summary>
-        internal static Action<TDataObject, object> CreateValueSetter<TDataObject>(IDestinationMemberConfiguration destinationMemberConfiguration, IDictionary<object, string> enumValues = null, int arrayIndex = -1)
+        internal static Action<TDataObject, object> CreateValueSetter<TDataObject>(MemberInfo memberInfo, int arrayIndex = -1)
         {
             return (dataObject, value) =>
             {
                 if (arrayIndex < 0)
                 {
-                    destinationMemberConfiguration.Member.SetValue(dataObject, value);
+                    memberInfo.SetValue(dataObject, value);
                 }
                 else
                 {
-                    Array array = (Array)destinationMemberConfiguration.Member.GetValue(dataObject);
+                    Array array = (Array)memberInfo.GetValue(dataObject);
                     if (array.Rank == 1)
                     {
                         array.SetValue(value, arrayIndex);
