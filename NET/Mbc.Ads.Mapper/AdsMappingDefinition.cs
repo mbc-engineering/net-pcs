@@ -115,32 +115,20 @@ namespace Mbc.Ads.Mapper
         {
             try
             {
-                // TODO can be optimized with remaining code
-                var enumValues = SourceType.BaseType.EnumValues.ToDictionary(i => i.Primitive, i => i.Name);
+                var plcEnumName = SourceType.BaseType.EnumValues
+                    .Where(x => object.Equals(x.Primitive, sourceValue))
+                    .Select(x => x.Name)
+                    .FirstOrDefault();
 
-                long numericEnumValueToSet = Convert.ToInt64(sourceValue);
+                if (plcEnumName == null)
+                    throw new AdsMapperException($"Could not find primitive plc enum value '{sourceValue}' in enum type '{SourceType.FullName}'.");
 
-                var enumKey = enumValues.Keys.FirstOrDefault(x => Convert.ToInt64(x) == numericEnumValueToSet);
-
-                string plcEnumName;
-                if (enumKey != null)
-                {
-                    plcEnumName = enumValues[enumKey];
-                }
-                else
-                {
-                    // TODO Enum-Dict ist nicht sortiert, daher ist First() falsch
-                    // TODO Leeres EnumValue berücksichtigen
-                    // Achtung: Wenn Enum kein 0 Value definiert hat, und value = 0 ist, muss der 1. Enum verwendet werden als Default
-                    plcEnumName = enumValues.First().Value;
-                }
-
-                // TODO konfiguriererbares Mapping (Prefix e)
+                // TODO konfigurierbares Mapping #26
                 return Enum.Parse(DestinationMemberConfiguration.MemberElementType, plcEnumName.TrimStart('e'), true);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is AdsMapperException))
             {
-                throw new AdsMapperException($"Could not parse the Enumeration value of '{sourceValue}' to '{DestinationMemberConfiguration.MemberElementType}'", ex);
+                throw new AdsMapperException($"Could not map plc enum value '{sourceValue}' to .NET enum type '{DestinationMemberConfiguration.MemberElementType}'.");
             }
         }
 
@@ -150,29 +138,27 @@ namespace Mbc.Ads.Mapper
         /// <param name="sourceValue">the .NET enum value</param>
         /// <param name="sourceType">the .NET enum type</param>
         /// <param name="plcEnumValues">PLC enum values</param>
-        /// <returns>a plc enum value</returns>
+        /// <returns>A primitive plc enum value.</returns>
         private object ConvertEnumValueToPlc(object sourceValue)
         {
             try
             {
-                // TODO can be optimized with remaining code
-                var enumValues = SourceType.BaseType.EnumValues.ToDictionary(i => i.Primitive, i => i.Name);
-
                 var name = Enum.GetName(DestinationMemberConfiguration.MemberElementType, sourceValue);
-                var plcEnum = enumValues.Where(x => x.Value.TrimStart('e') == name).Select(x => x.Key).FirstOrDefault();
-                if (plcEnum != null)
-                {
-                    return plcEnum;
-                }
 
-                // TODO Enum-Dict ist nicht sortiert, daher ist First() falsch
-                // TODO Leeres EnumValue berücksichtigen
-                // Achtung: Wenn Enum kein 0 Value definiert hat, und value = 0 ist, muss der 1. Enum verwendet werden als Default
-                return enumValues.First().Key;
+                // TODO konfigurierbares Mapping #26
+                var plcPrimitiveValue = SourceType.BaseType.EnumValues
+                    .Where(x => x.Name.TrimStart('e') == name)
+                    .Select(x => x.Primitive)
+                    .FirstOrDefault();
+
+                if (plcPrimitiveValue != null)
+                    return plcPrimitiveValue;
+
+                throw new AdsMapperException($"Could not map .NET enum value '{name}' of type '{DestinationMemberConfiguration.MemberElementType}' to plc type '{SourceType.FullName}'.");
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is AdsMapperException))
             {
-                throw new AdsMapperException($"Could not map the enumeration value of '{sourceValue}' to plc.", ex);
+                throw new AdsMapperException($"Could not map the enumeration value of '{sourceValue}' to plc type '{SourceType.FullName}'.", ex);
             }
         }
 
