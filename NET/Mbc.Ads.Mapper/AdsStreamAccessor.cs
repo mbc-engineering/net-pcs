@@ -11,9 +11,9 @@ using TwinCAT.PlcOpen;
 namespace Mbc.Ads.Mapper
 {
     /// <summary>
-    /// Function for mapping primitve data types to/from ADS streams.
+    /// Functions for reading and writing to/from ADS streams.
     /// </summary>
-    internal static class PrimitiveDataTypeMapping
+    internal static class AdsStreamAccessor
     {
         /// <summary>
         /// Create a function for reading a primitive data type from an ADS reader.

@@ -107,10 +107,10 @@ namespace Mbc.Ads.Mapper
                 var definition = new AdsMappingDefinition<TDataObject>(adsDataType);
                 definition.DestinationMemberConfiguration = dest;
 
-                definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(primitiveManagedType, offset);
+                definition.StreamReadFunction = AdsStreamAccessor.CreatePrimitiveTypeReadFunction(primitiveManagedType, offset);
                 definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest.Member);
 
-                definition.StreamWriterFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeWriteFunction(primitiveManagedType, offset);
+                definition.StreamWriterFunction = AdsStreamAccessor.CreatePrimitiveTypeWriteFunction(primitiveManagedType, offset);
                 definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest.Member);
 
                 mapper.AddStreamMapping(definition);
@@ -133,10 +133,10 @@ namespace Mbc.Ads.Mapper
                 var definition = new AdsMappingDefinition<TDataObject>(adsDataType);
                 definition.DestinationMemberConfiguration = dest;
 
-                definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(adsDataType.BaseType.BaseType.ManagedType, offset);
+                definition.StreamReadFunction = AdsStreamAccessor.CreatePrimitiveTypeReadFunction(adsDataType.BaseType.BaseType.ManagedType, offset);
                 definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest.Member);
 
-                definition.StreamWriterFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeWriteFunction(adsDataType.BaseType.BaseType.ManagedType, offset);
+                definition.StreamWriterFunction = AdsStreamAccessor.CreatePrimitiveTypeWriteFunction(adsDataType.BaseType.BaseType.ManagedType, offset);
                 definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest.Member);
 
                 mapper.AddStreamMapping(definition);
@@ -159,10 +159,10 @@ namespace Mbc.Ads.Mapper
                     int actStreamOffset = offset + (idx * arrayValueType.Size);
                     var capturedIdx = idx;
 
-                    definition.StreamReadFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeReadFunction(arrayValueType.ManagedType, actStreamOffset);
+                    definition.StreamReadFunction = AdsStreamAccessor.CreatePrimitiveTypeReadFunction(arrayValueType.ManagedType, actStreamOffset);
                     definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest.Member, arrayIndex: capturedIdx);
 
-                    definition.StreamWriterFunction = PrimitiveDataTypeMapping.CreatePrimitiveTypeWriteFunction(arrayValueType.ManagedType, actStreamOffset);
+                    definition.StreamWriterFunction = AdsStreamAccessor.CreatePrimitiveTypeWriteFunction(arrayValueType.ManagedType, actStreamOffset);
                     definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest.Member, arrayIndex: capturedIdx);
 
 
