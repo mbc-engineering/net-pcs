@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using TwinCAT.Ads;
 using TwinCAT.Ads.SumCommand;
-using TwinCAT.TypeSystem;
 
 namespace Mbc.Pcs.Net.Command
 {
@@ -93,58 +91,6 @@ namespace Mbc.Pcs.Net.Command
             {
                 var handleReleaser = new SumReleaseHandles(adsConnection, handles);
                 handleReleaser.ReleaseHandles();
-            }
-        }
-
-        /// <summary>
-        /// Reads all symbols in the same hierarchy as the function block they are flaged with the Attribute 
-        /// named in <para>attributeName</para>.
-        /// </summary>
-        /// <param name="attributeName">The attribute flag to filter (Case Insensitive)</param>
-        private static IReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)> ReadFbSymbols(IAdsConnection adsConnection, string adsCommandFbPath, string attributeName)
-        {
-            ITcAdsSymbol commandSymbol = adsConnection.ReadSymbolInfo(adsCommandFbPath);
-            if (commandSymbol == null)
-            {
-                // command Symbol not found
-                throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_CommandNotFound, adsCommandFbPath));
-            }
-
-            var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
-
-            var fbSymbolNames = ((ITcAdsSymbol5)commandSymbol)
-                .DataType.SubItems
-                .Where(item =>
-                    validTypeCategories.Contains(item.BaseType.Category)
-                    && item.Attributes.Any(a => string.Equals(a.Name, attributeName, StringComparison.OrdinalIgnoreCase)))
-                .ToDictionary(
-                    item => item.SubItemName,
-                    item => (variablePath: adsCommandFbPath + "." + item.SubItemName, type: GetManagedTypeForSubItem(item), byteSize: item.ByteSize));
-
-            return new ReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)>(fbSymbolNames);
-        }
-
-        private static Type GetManagedTypeForSubItem(ITcAdsSubItem subitem)
-        {
-            if (subitem.BaseType.ManagedType != null)
-                return subitem.BaseType.ManagedType;
-
-            switch (subitem.BaseType.DataTypeId)
-            {
-                case AdsDatatypeId.ADST_INT8:
-                    return typeof(sbyte);
-                case AdsDatatypeId.ADST_INT16:
-                    return typeof(short);
-                case AdsDatatypeId.ADST_INT32:
-                    return typeof(int);
-                case AdsDatatypeId.ADST_UINT8:
-                    return typeof(byte);
-                case AdsDatatypeId.ADST_UINT16:
-                    return typeof(ushort);
-                case AdsDatatypeId.ADST_UINT32:
-                    return typeof(uint);
-                default:
-                    throw new InvalidOperationException(string.Format(CommandResources.ERR_UnknownAdsType, subitem.BaseType));
             }
         }
     }

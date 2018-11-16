@@ -5,7 +5,6 @@
 
 using EnsureThat;
 using System;
-using System.Linq;
 using TwinCAT.Ads;
 using TwinCAT.TypeSystem;
 
