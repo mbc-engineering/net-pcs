@@ -16,7 +16,7 @@ namespace Mbc.Ads.Mapper
     {
         private readonly List<AdsSourceMemberConfigurationExpression> _sourceMemberConfigurations = new List<AdsSourceMemberConfigurationExpression>();
         private readonly AdsAllSourceMemberConfigurationExpression _allSourceMemberConfigurations = new AdsAllSourceMemberConfigurationExpression();
-        private readonly List<AdsDestinationMemberConfigurationExpression<TDestination>> _destinationMemberConfigurations = new List<AdsDestinationMemberConfigurationExpression<TDestination>>();
+        private readonly List<AdsDestinationMemberConfiguration<TDestination>> _destinationMemberConfigurations = new List<AdsDestinationMemberConfiguration<TDestination>>();
 
         public IAdsMappingExpression<TDestination> ForAllSourceMember(Action<IAdsAllSourceMemberConfigurationExpression> memberOptions)
         {
@@ -24,19 +24,19 @@ namespace Mbc.Ads.Mapper
             return this;
         }
 
-        public IAdsMappingExpression<TDestination> ForMember<TMember>(Expression<Func<TDestination, TMember>> destinationMember, Action<IAdsDestinationMemberConfigurationExpression<TDestination>> memberOptions)
+        public IAdsMappingExpression<TDestination> ForMember<TMember>(Expression<Func<TDestination, TMember>> destinationMember, Action<IAdsDestinationMemberConfigurationExpression<TDestination, TMember>> memberOptions)
         {
             MemberInfo destinationProperty = ReflectionHelper.FindProperty(destinationMember);
 
-            var expression = _destinationMemberConfigurations.FirstOrDefault(item => item.Member == destinationProperty);
+            var configuration = _destinationMemberConfigurations.FirstOrDefault(item => item.Member == destinationProperty);
 
             // create new if not exist
-            if (expression == null)
+            if (configuration == null)
             {
-                expression = AddNewDestinationMemberConfigurationExpression(destinationProperty);
+                configuration = AddNewDestinationMemberConfigurationExpression(destinationProperty);
             }
 
-            memberOptions(expression);
+            memberOptions(new AdsDestinationMemberConfigurationExpression<TDestination, TMember>(configuration));
 
             return this;
         }
@@ -99,9 +99,9 @@ namespace Mbc.Ads.Mapper
             return Option.None<IDestinationMemberConfiguration>();
         }
 
-        private AdsDestinationMemberConfigurationExpression<TDestination> AddNewDestinationMemberConfigurationExpression(MemberInfo destinationProperty)
+        private AdsDestinationMemberConfiguration<TDestination> AddNewDestinationMemberConfigurationExpression(MemberInfo destinationProperty)
         {
-            AdsDestinationMemberConfigurationExpression<TDestination> expression = new AdsDestinationMemberConfigurationExpression<TDestination>(destinationProperty);
+            AdsDestinationMemberConfiguration<TDestination> expression = new AdsDestinationMemberConfiguration<TDestination>(destinationProperty);
             _destinationMemberConfigurations.Add(expression);
             return expression;
         }

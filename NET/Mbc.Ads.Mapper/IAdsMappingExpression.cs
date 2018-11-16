@@ -28,7 +28,7 @@ namespace Mbc.Ads.Mapper
         /// <param name="memberOptions">a action which configures the given member</param>
         /// <returns>Itself</returns>
         /// <typeparam name="TMember">the type of the member</typeparam>
-        IAdsMappingExpression<TDestination> ForMember<TMember>(Expression<Func<TDestination, TMember>> destinationMember, Action<IAdsDestinationMemberConfigurationExpression<TDestination>> memberOptions);
+        IAdsMappingExpression<TDestination> ForMember<TMember>(Expression<Func<TDestination, TMember>> destinationMember, Action<IAdsDestinationMemberConfigurationExpression<TDestination, TMember>> memberOptions);
 
         /// <summary>
         /// Customize configuration for an individual source member

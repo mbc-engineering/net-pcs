@@ -82,11 +82,67 @@ namespace Mbc.Ads.Mapper.Test
             data.Foo.Should().Be("this is foo");
         }
 
+        [Fact]
+        public void GetValueOnField()
+        {
+            // Arrange
+            MemberInfo memberInfo = typeof(MockObject).GetMember(nameof(MockObject.Bar)).First();
+            var data = new MockObject { Bar = "bar" };
+
+            // Act
+            var value = memberInfo.GetValue(data);
+
+            // Assert
+            value.Should().Be("bar");
+        }
+
+        [Fact]
+        public void GetValueOnProperty()
+        {
+            // Arrange
+            MemberInfo memberInfo = typeof(MockObject).GetMember(nameof(MockObject.Foo)).First();
+            var data = new MockObject { Foo = "foo" };
+
+            // Act
+            var value = memberInfo.GetValue(data);
+
+            // Assert
+            value.Should().Be("foo");
+        }
+
+        [Fact]
+        public void GetElementTypeOnPrimitive()
+        {
+            // Arrange
+            MemberInfo memberInfo = typeof(MockObject).GetMember(nameof(MockObject.Foo)).First();
+
+            // Act
+            var type = memberInfo.GetElementType();
+
+            // Assert
+            type.Should().BeSameAs(typeof(string));
+        }
+
+        [Fact]
+        public void GetElementTypeOnArray()
+        {
+            // Arrange
+            MemberInfo memberInfo = typeof(MockObject).GetMember(nameof(MockObject.Baz)).First();
+
+            // Act
+            var type = memberInfo.GetElementType();
+
+            // Assert
+            type.Should().BeSameAs(typeof(string));
+        }
+
         internal class MockObject
         {
             public string Foo { get; set; }
 
             public string Bar;
+
+            public string[] Baz { get; set; }
         }
     }
 }

@@ -86,5 +86,16 @@ namespace Mbc.Ads.Mapper
                     throw new ArgumentException("Must be a gettable member (property or field).", nameof(memberInfo));
             }
         }
+
+        internal static Type GetElementType(this MemberInfo memberInfo)
+        {
+            var type = memberInfo.GetSettableDataType();
+            if (type.IsArray)
+            {
+                type = type.GetElementType();
+            }
+
+            return type;
+        }
     }
 }

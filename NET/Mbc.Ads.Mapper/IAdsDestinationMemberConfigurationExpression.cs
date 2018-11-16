@@ -10,8 +10,9 @@ namespace Mbc.Ads.Mapper
     /// <summary>
     /// Destination Member configuration options
     /// </summary>
-    /// <typeparam name="TDestination">The Destination type for this member</typeparam>
-    public interface IAdsDestinationMemberConfigurationExpression<TDestination>
+    /// <typeparam name="TDestination">The destination type for this member.</typeparam>
+    /// <typeparam name="TMember">The type of the member to configure.</typeparam>
+    public interface IAdsDestinationMemberConfigurationExpression<TDestination, TMember>
     {
         /// <summary>
         /// Ignore this Destination member for configuration validation and skip during mapping
@@ -33,13 +34,12 @@ namespace Mbc.Ads.Mapper
         /// Custom conversion from source value to destination value.
         /// </summary>
         /// <param name="conversionFunction">The conversion function.</param>
-        void ConvertFromSourceUsing<TMember>(Func<object, TMember> conversionFunction);
+        void ConvertFromSourceUsing(Func<object, TMember> conversionFunction);
 
         /// <summary>
         /// Custom conversion from destination value to source value.
         /// </summary>
         /// <param name="conversionFunction">The conversion function.</param>
-        void ConvertToSourceUsing<TMember>(Func<TMember, Type, object> conversionFunction);
-
+        void ConvertToSourceUsing(Func<TMember, Type, object> conversionFunction);
     }
 }

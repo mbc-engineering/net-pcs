@@ -133,7 +133,7 @@ namespace Mbc.Ads.Mapper.Test
             AdsMapperConfiguration<DestinationDataObject> config = new AdsMapperConfiguration<DestinationDataObject>(
                 cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix('f', 'n', 'b', 'a', 'e', 't', 'd'))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
-                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertToSourceUsing<double>((value, type) => value * 2)));
+                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertToSourceUsing((value, type) => value * 2)));
             var dataObject = new DestinationDataObject
             {
                 BoolValue1 = true,
