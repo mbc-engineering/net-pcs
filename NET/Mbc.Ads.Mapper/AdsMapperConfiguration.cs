@@ -48,6 +48,24 @@ namespace Mbc.Ads.Mapper
             return mapper;
         }
 
+        public AdsMapper<TDataObject> CreateAdsMapper(ITcAdsDataType dataType)
+        {
+            if (dataType.Category != DataTypeCategory.Struct)
+            {
+                throw new NotSupportedException("Can create only Ads Mappings for Structs");
+            }
+
+            Ensure.Bool.IsTrue(dataType.HasSubItemInfo);
+
+            var mapper = new AdsMapper<TDataObject>(dataType.ByteSize);
+            foreach (var subItem in dataType.SubItems)
+            {
+                AddSymbolsMappingRecursive(subItem, subItem.Offset, subItem.SubItemName, mapper);
+            }
+
+            return mapper;
+        }
+
         private void AddSymbolsMappingRecursive(ITcAdsDataType item, int offset, string name, AdsMapper<TDataObject> mapper)
         {
             // Check for the right item type
