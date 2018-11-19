@@ -1,4 +1,9 @@
-﻿using EnsureThat;
+﻿//-----------------------------------------------------------------------------
+// Copyright (c) 2018 by mbc engineering GmbH, CH-6015 Luzern
+// Licensed under the Apache License, Version 2.0
+//-----------------------------------------------------------------------------
+
+using EnsureThat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,9 +32,11 @@ namespace Mbc.Ads.Utils.SumCommand
             var writeData = streams.Select(x => x.ToArray()).ToList();
             Ensure.That(writeData.Count, nameof(streams), (opt) => opt.WithMessage("Size must match handles.")).Is(_handles.Length);
 
-            sumEntities = (IList<SumDataEntity>)_handles
-                .Zip(writeData, (h, d) => new HandleSumStreamEntity(h, d.Length))
-                .ToList();
+            sumEntities = new List<SumDataEntity>();
+            foreach (var entity in _handles.Zip(writeData, (h, d) => new HandleSumStreamEntity(h, d.Length)))
+            {
+                sumEntities.Add(entity);
+            }
 
             return TryWriteRaw(writeData, out returnCodes);
         }
@@ -49,7 +56,7 @@ namespace Mbc.Ads.Utils.SumCommand
             if (mode == SumAccessMode.ValueByHandle)
             {
                 HandleSumStreamEntity sumStreamEntity = (HandleSumStreamEntity)entity;
-                return MarshalSumWriteHeader((uint)AdsReservedIndexGroups.SymbolValueByHandle, 0, sumStreamEntity.WriteLength, writer);
+                return MarshalSumWriteHeader((uint)AdsReservedIndexGroups.SymbolValueByHandle, sumStreamEntity.Handle, sumStreamEntity.WriteLength, writer);
             }
             throw new NotSupportedException($"Mode {mode} not supported.");
         }

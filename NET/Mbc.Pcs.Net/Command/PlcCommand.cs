@@ -31,21 +31,15 @@ namespace Mbc.Pcs.Net.Command
 
         private readonly IAdsConnection _adsConnection;
         private readonly string _adsCommandFbPath;
-        private readonly CommandResource _commandResource = new CommandResource();
+        private readonly CommandResource _commandResource;
         private readonly CommandArgumentHandler _commandArgumentHandler;
 
-        public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath)
+        public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath, CommandResource commandResource = null, CommandArgumentHandler commandArgumentHandler = null)
         {
-            // needs not be connected yet
             _adsConnection = adsConnection;
             _adsCommandFbPath = adsCommandFbPath;
-            _commandArgumentHandler = new PrimitiveCommandArgumentHandler();
-        }
-
-        public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath, CommandResource commandResource)
-            : this(adsConnection, adsCommandFbPath)
-        {
-            _commandResource = commandResource;
+            _commandResource = commandResource ?? new CommandResource();
+            _commandArgumentHandler = commandArgumentHandler ?? new PrimitiveCommandArgumentHandler();
         }
 
         /// <summary>

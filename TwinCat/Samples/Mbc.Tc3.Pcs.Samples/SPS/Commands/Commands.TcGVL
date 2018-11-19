@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
   <GVL Name="Commands" Id="{6236b5d6-4821-0594-19ad-760d9d192eb5}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL
@@ -8,6 +8,7 @@ VAR_GLOBAL
 	fbCustomStateCommand1	: CustomStateCommand;
 	fbAddCommand1			: AddCommand 								:= (Val1 := 3, Val2 := 2);
 	fbDelayedAddCommand1	: DelayedAddCommand(tDelayTime := T#4S) 	:= (Val1 := 10, Val2 := 4);
+	fbStructCommand			: FB_CommandWithStruct;
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

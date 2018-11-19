@@ -1,4 +1,9 @@
-﻿using System;
+﻿//-----------------------------------------------------------------------------
+// Copyright (c) 2018 by mbc engineering GmbH, CH-6015 Luzern
+// Licensed under the Apache License, Version 2.0
+//-----------------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -22,7 +27,7 @@ namespace Mbc.Pcs.Net.Command
         /// named in <para>attributeName</para>.
         /// </summary>
         /// <param name="attributeName">The attribute flag to filter (Case Insensitive)</param>
-        protected static IReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)> ReadFbSymbols(IAdsConnection adsConnection, string adsCommandFbPath, string attributeName)
+        protected static IDictionary<string, ITcAdsSubItem> ReadFbSymbols(IAdsConnection adsConnection, string adsCommandFbPath, string attributeName)
         {
             ITcAdsSymbol commandSymbol = adsConnection.ReadSymbolInfo(adsCommandFbPath);
             if (commandSymbol == null)
@@ -33,25 +38,12 @@ namespace Mbc.Pcs.Net.Command
 
             var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
 
-            var fbSymbolNames = ((ITcAdsSymbol5)commandSymbol)
+            return ((ITcAdsSymbol5)commandSymbol)
                 .DataType.SubItems
-                .Where(item =>
-                    validTypeCategories.Contains(item.BaseType.Category)
-                    && item.Attributes.Any(a => string.Equals(a.Name, attributeName, StringComparison.OrdinalIgnoreCase)))
+                .Where(item => item.Attributes.Any(a => string.Equals(a.Name, attributeName, StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(
                     item => item.SubItemName,
-                    item => (variablePath: adsCommandFbPath + "." + item.SubItemName, type: GetManagedTypeForSubItem(item), byteSize: item.ByteSize));
-
-            return new ReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)>(fbSymbolNames);
+                    item => item);
         }
-
-        private static Type GetManagedTypeForSubItem(ITcAdsSubItem subitem)
-        {
-            if (subitem.BaseType.ManagedType != null)
-                return subitem.BaseType.ManagedType;
-
-            return subitem.BaseType.BaseType.ManagedType;
-        }
-
     }
 }

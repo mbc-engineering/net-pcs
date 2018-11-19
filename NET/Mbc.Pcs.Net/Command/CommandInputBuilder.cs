@@ -10,7 +10,6 @@ namespace Mbc.Pcs.Net.Command
 {
     public class CommandInputBuilder
     {
-
         public static ICommandInput FromDictionary(IDictionary<string, object> value)
         {
             return new DictionaryCommandInputAdapter(new ReadOnlyDictionary<string, object>(value));

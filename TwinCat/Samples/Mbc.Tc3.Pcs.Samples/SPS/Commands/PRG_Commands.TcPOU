@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
   <POU Name="PRG_Commands" Id="{411fcb37-780f-06ea-2006-e35ff122d5e1}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM PRG_Commands
 VAR
@@ -16,12 +16,15 @@ fbTofStartCommand1(
 	
 Commands.fbCustomStateCommand1();	
 Commands.fbAddCommand1();
-Commands.fbDelayedAddCommand1();]]></ST>
+Commands.fbDelayedAddCommand1();
+Commands.fbStructCommand();
+]]></ST>
     </Implementation>
     <LineIds Name="PRG_Commands">
       <LineId Id="34" Count="0" />
       <LineId Id="22" Count="7" />
       <LineId Id="17" Count="0" />
+      <LineId Id="39" Count="1" />
     </LineIds>
   </POU>
 </TcPlcObject>
