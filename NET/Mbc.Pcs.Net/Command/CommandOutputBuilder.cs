@@ -42,9 +42,9 @@ namespace Mbc.Pcs.Net.Command
                     {
                         return (T)Convert.ChangeType(value, typeof(T));
                     }
-                    catch (InvalidCastException)
+                    catch (InvalidCastException e)
                     {
-                        throw new InvalidCastException($"Symbol {name} is not from the required type symbol to {typeof(T)}");
+                        throw new InvalidCastException($"Symbol {name} is not from the required type symbol to {typeof(T)}", e);
                     }                    
                 }
             }

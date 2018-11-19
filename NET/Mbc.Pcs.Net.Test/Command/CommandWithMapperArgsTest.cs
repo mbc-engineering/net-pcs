@@ -7,6 +7,7 @@ using FluentAssertions;
 using Mbc.Ads.Mapper;
 using Mbc.Pcs.Net.Command;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TwinCAT.Ads;
 using Xbehave;
@@ -38,6 +39,7 @@ namespace Mbc.Pcs.Net.Test.Command
             PlcCommand command = null;
             CommandArgs inputData = null;
             CommandArgs outputData = null;
+            double outputDataFloat = double.NaN;
 
             "Given a ADS mapper configuration"
                 .x(() => mapperConfig = new AdsMapperConfiguration<CommandArgs>(cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "e"))));
@@ -61,14 +63,20 @@ namespace Mbc.Pcs.Net.Test.Command
                     var input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>
                     {
                         ["stInputArgs"] = mapperInput.MapDataObject(inputData),
+                        ["nNumber"] = 420,
+                        ["eEnum"] = EnumType.Value2,
                     });
 
-                    var outputDict = new Dictionary<string, object> { ["stOutputArgs"] = null };
-                    var output = CommandOutputBuilder.FromDictionary(outputDict);
+                    var output = CommandOutputBuilder.FromDictionary(new Dictionary<string, object>
+                    {
+                        ["stOutputArgs"] = null,
+                        ["fFloat"] = AdsStreamCommandArgumentHandler.ReadAsPrimitiveMarker,
+                    });
 
                     command.Execute(input: input, output: output);
 
-                    outputData = mapperOutput.MapStream((AdsStream)outputDict["stOutputArgs"]);
+                    outputData = mapperOutput.MapStream(output.GetOutputData<AdsStream>("stOutputArgs"));
+                    outputDataFloat = output.GetOutputData<double>("fFloat");
                 });
 
             "Then the output must match the input."
@@ -77,6 +85,7 @@ namespace Mbc.Pcs.Net.Test.Command
                     outputData.Number.Should().Be(42);
                     outputData.Float.Should().Be(0.42f);
                     outputData.Enum.Should().Be(EnumType.Value1);
+                    outputDataFloat.Should().Be(0.42f);
                 });
         }
 

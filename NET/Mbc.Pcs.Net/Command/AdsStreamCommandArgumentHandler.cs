@@ -9,16 +9,19 @@ using System.Collections.Generic;
 using System.Linq;
 using TwinCAT.Ads;
 using TwinCAT.Ads.SumCommand;
+using TwinCAT.TypeSystem;
 
 namespace Mbc.Pcs.Net.Command
 {
     /// <summary>
     /// A  implementation of <see cref="CommandArgumentHandler"/> which
-    /// writes and reads <see cref="AdsStream"/> for arguments.
+    /// writes and reads <see cref="AdsStream"/> for arguments. This implementation
+    /// also allows primimtive type mapping for reading and writing.
     /// </summary>
-
     public class AdsStreamCommandArgumentHandler : CommandArgumentHandler
     {
+        public static readonly object ReadAsPrimitiveMarker = new object();
+
         public override void ReadOutputData(IAdsConnection adsConnection, string adsCommandFbPath, ICommandOutput output)
         {
             // ToList => deterministische Reihenfolge notwendig
@@ -43,7 +46,6 @@ namespace Mbc.Pcs.Net.Command
                 symbolSizes.Add(item.ByteSize);
             }
 
-
             IList<AdsStream> readData;
             var handleCreator = new SumCreateHandles(adsConnection, symbols);
             var handles = handleCreator.CreateHandles();
@@ -61,14 +63,23 @@ namespace Mbc.Pcs.Net.Command
             // Daten auf Output-Objekt übertragen
             for (var i = 0; i < outputNames.Count; i++)
             {
-                output.SetOutputData(outputNames[i], readData[i]);
+                var name = outputNames[i];
+                var item = items[name];
+                if (output.GetOutputData<object>(name) == ReadAsPrimitiveMarker)
+                {
+                    PrimitiveTypeConverter.Default.Unmarshal(item.BaseType, readData[i].ToArray(), 0, out object value);
+                    output.SetOutputData(name, value);
+                }
+                else
+                {
+                    output.SetOutputData(name, readData[i]);
+                }
             }
         }
 
         public override void WriteInputData(IAdsConnection adsConnection, string adsCommandFbPath, ICommandInput input)
         {
             IDictionary<string, object> inputData = input.GetInputData();
-            Ensure.That(inputData.Values.All(x => x is AdsStream), nameof(input), (opt) => opt.WithMessage("Must contain only AdsStream instances."));
 
             // read symbols with attribute flags for input data
             IDictionary<string, ITcAdsSubItem> items = ReadFbSymbols(adsConnection, adsCommandFbPath, PlcAttributeNames.PlcCommandInput);
@@ -86,7 +97,18 @@ namespace Mbc.Pcs.Net.Command
             {
                 var item = items[name];
                 symbols.Add(adsCommandFbPath + "." + item.SubItemName);
-                streams.Add((AdsStream)inputData[name]);
+
+                if (inputData[name] is AdsStream adsStream)
+                {
+                    streams.Add((AdsStream)inputData[name]);
+                }
+                else
+                {
+                    Ensure.Bool.IsTrue(PrimitiveTypeConverter.CanMarshal(item.DataTypeId), nameof(input), (opt) => opt.WithMessage($"Input '{name}' of data type '{item.DataTypeId}' cannot be marshalled."));
+
+                    PrimitiveTypeConverter.Marshal(item.DataTypeId, inputData[name], out byte[] data);
+                    streams.Add(new AdsStream(data));
+                }
             }
 
             var handleCreator = new SumCreateHandles(adsConnection, symbols);

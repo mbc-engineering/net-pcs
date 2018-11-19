@@ -5,8 +5,15 @@
 VAR
 	{attribute 'PlcCommandInput'}
 	stInputArgs		: ST_CommandArgs;
+	{attribute 'PlcCommandInput'}
+	nNumber			: INT;
+	{attribute 'PlcCommandInput'}
+	eEnum			: E_EnumType;
+	
 	{attribute 'PlcCommandOutput'}
 	stOutputArgs	: ST_CommandArgs;
+	{attribute 'PlcCommandOutput'}
+	fFloat			: REAL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -20,6 +27,7 @@ METHOD PROTECTED Init
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[stOutputArgs := stInputArgs;
+fFloat := stInputArgs.fFloat;
 Finish(E_CommandResultCode.Done);
 ]]></ST>
       </Implementation>
@@ -30,6 +38,7 @@ Finish(E_CommandResultCode.Done);
     </LineIds>
     <LineIds Name="FB_CommandWithStruct.Init">
       <LineId Id="8" Count="0" />
+      <LineId Id="12" Count="0" />
       <LineId Id="6" Count="1" />
     </LineIds>
   </POU>

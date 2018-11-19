@@ -43,7 +43,7 @@
     <Compile Include="DUTs\E_EnumType.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ST_InputArgs.TcDUT">
+    <Compile Include="DUTs\ST_CommandArgs.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PlcTask.TcTTO">
