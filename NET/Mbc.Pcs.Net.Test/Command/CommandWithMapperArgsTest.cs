@@ -30,7 +30,7 @@ namespace Mbc.Pcs.Net.Test.Command
             _connection.Dispose();
         }
 
-        [Scenario()]
+        [Scenario(Skip = "Nur mit SPS möglich")]
         public void ExecuteCommandWithStructArgument()
         {
             AdsMapperConfiguration<CommandArgs> mapperConfig = null;
