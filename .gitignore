@@ -273,3 +273,4 @@ __pycache__/
 
 # Cake Build Tools
 /NET/tools
+/TwinCat/Samples/Mbc.Tc3.Pcs.Samples/*.tclrs

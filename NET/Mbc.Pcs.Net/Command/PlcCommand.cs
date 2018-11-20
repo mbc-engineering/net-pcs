@@ -4,16 +4,11 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using TwinCAT.Ads;
-using TwinCAT.Ads.SumCommand;
-using System.Collections.ObjectModel;
 using System.Threading;
-using TwinCAT.TypeSystem;
 using System.Threading.Tasks;
+using TwinCAT.Ads;
 
 namespace Mbc.Pcs.Net.Command
 {
@@ -31,33 +26,29 @@ namespace Mbc.Pcs.Net.Command
 
         private readonly IAdsConnection _adsConnection;
         private readonly string _adsCommandFbPath;
-        private readonly CommandResource _commandResource = new CommandResource();
+        private readonly CommandResource _commandResource;
+        private readonly CommandArgumentHandler _commandArgumentHandler;
 
-        public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath)
+        public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath, CommandResource commandResource = null, CommandArgumentHandler commandArgumentHandler = null)
         {
-            // needs not be connected yet
             _adsConnection = adsConnection;
             _adsCommandFbPath = adsCommandFbPath;
-        }
-
-        public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath, CommandResource commandResource)
-            : this(adsConnection, adsCommandFbPath)
-        {
-            _commandResource = commandResource;
+            _commandResource = commandResource ?? new CommandResource();
+            _commandArgumentHandler = commandArgumentHandler ?? new PrimitiveCommandArgumentHandler();
         }
 
         /// <summary>
         /// Maximale time to wait for command completion.
         /// </summary>
         public TimeSpan Timeout { get; set; } = DefaultTimeout;
-        
+
         /// <summary>
-        /// The PLC Variable 
+        /// The PLC Variable
         /// </summary>
         public string AdsCommandFbPath => _adsCommandFbPath;
 
         /// <summary>
-        /// Defines the beavior how to react to parallel exection of this command. 
+        /// Defines the beavior how to react to parallel exection of this command.
         /// Default is locking the second caller and wait for the end of the first command.
         /// </summary>
         public ExecutionBehavior ExecutionBehavior { get; set; }
@@ -93,11 +84,10 @@ namespace Mbc.Pcs.Net.Command
         /// Executes a PLC command.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> which allows to
-        /// cancel the running command. The cancel request is sent to the PLC and the 
+        /// cancel the running command. The cancel request is sent to the PLC and the
         /// execution will still wait for the PLC to end to command.</param>
         /// <exception cref="InvalidOperationException">The ADS-Client given at construction
         /// time is not connected.</exception>
-        /// <example
         protected DateTime Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
         {
             using (PlcCommandLock.AcquireLock(_adsCommandFbPath, _adsConnection.Address, ExecutionBehavior))
@@ -153,12 +143,15 @@ namespace Mbc.Pcs.Net.Command
                     try
                     {
                         ResetExecuteFlag();
+                        throw;
                     }
                     catch (Exception resetEx)
                     {
                         ex.Data.Add("ResetExecuteFlagException", resetEx);
+#pragma warning disable CA2200 // Rethrow to preserve stack details.
+                        throw ex;
+#pragma warning restore CA2200 // Rethrow to preserve stack details.
                     }
-                    throw ex;
                 }
                 finally
                 {
@@ -169,85 +162,12 @@ namespace Mbc.Pcs.Net.Command
 
         private void ReadOutputData(ICommandOutput output)
         {
-            // read symbols with attribute flags for output data
-            var fbSymbols = ReadFbSymbols(PlcAttributeNames.PlcCommandOutput);
-
-            // ToList => deterministische Reihenfolge notwendig
-            var outputNames = output.GetOutputNames().ToList();
-
-            var missingOutputVariables = outputNames.Where(x => !fbSymbols.ContainsKey(x)).ToArray();
-            if (missingOutputVariables.Length > 0)
-            {
-                throw new PlcCommandException(_adsCommandFbPath,
-                    string.Format(CommandResources.ERR_OutputVariablesMissing, string.Join(",", missingOutputVariables)));
-            }
-
-            var symbols = new List<string>();
-            var types = new List<Type>();
-            foreach (var name in outputNames)
-            {
-                var symbolInfo = fbSymbols[name];
-                symbols.Add(symbolInfo.variablePath);
-                types.Add(symbolInfo.type);
-            }
-
-            var handleCreator = new SumCreateHandles(_adsConnection, symbols);
-            var handles = handleCreator.CreateHandles();
-            try
-            {
-                var sumReader = new SumHandleRead(_adsConnection, handles, types.ToArray());
-                var values = sumReader.Read();
-
-                for (int i = 0; i < values.Length; i++)
-                {
-                    output.SetOutputData(outputNames[i], values[i]);
-                }
-            }
-            finally
-            {
-                var handleReleaser = new SumReleaseHandles(_adsConnection, handles);
-                handleReleaser.ReleaseHandles();
-            }
-
+            _commandArgumentHandler.ReadOutputData(_adsConnection, _adsCommandFbPath, output);
         }
 
         private void WriteInputData(ICommandInput input)
         {
-            // read symbols with attribute flags for input data
-            var fbSymbols = ReadFbSymbols(PlcAttributeNames.PlcCommandInput);
-            
-            var inputData = input.GetInputData();
-
-            var missingInputVariables = inputData.Keys.Where(x => !fbSymbols.ContainsKey(x)).ToArray();
-            if (missingInputVariables.Length > 0)
-            {
-                throw new PlcCommandException(_adsCommandFbPath,
-                    string.Format(CommandResources.ERR_InputVariablesMissing, string.Join(",", missingInputVariables)));
-            }
-
-            var symbols = new List<string>();
-            var types = new List<Type>();
-            var values = new List<object>();
-            foreach (var name in inputData.Keys)
-            {
-                var symbolInfo = fbSymbols[name];
-                symbols.Add(symbolInfo.variablePath);
-                types.Add(symbolInfo.type);
-                values.Add(Convert.ChangeType(inputData[name], symbolInfo.type));
-            }
-
-            var handleCreator = new SumCreateHandles(_adsConnection, symbols);
-            var handles = handleCreator.CreateHandles();
-            try
-            {
-                var sumWriter = new SumHandleWrite(_adsConnection, handles, types.ToArray());
-                sumWriter.Write(values.ToArray());
-            }
-            finally
-            {
-                var handleReleaser = new SumReleaseHandles(_adsConnection, handles);
-                handleReleaser.ReleaseHandles();
-            }
+            _commandArgumentHandler.WriteInputData(_adsConnection, _adsCommandFbPath, input);
         }
 
         private DateTime WaitForExecution(DataExchange<CommandChangeData> dataExchange)
@@ -287,56 +207,6 @@ namespace Mbc.Pcs.Net.Command
             }
         }
 
-        /// <summary>
-        /// Reads all symbols in the same hierarchy as the function block they are flaged with the Attribute named in <para>attributeName</para>
-        /// </summary>
-        /// <param name="attributeName">The attribute flag to filter (Case Insensitive)</param>
-        /// <returns></returns>
-        private IReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)> ReadFbSymbols(string attributeName)
-        {
-            ITcAdsSymbol commandSymbol = _adsConnection.ReadSymbolInfo(_adsCommandFbPath);
-            if(commandSymbol == null)
-            {
-                // command Symbol not found
-                throw new PlcCommandException(_adsCommandFbPath, string.Format(CommandResources.ERR_CommandNotFound, _adsCommandFbPath));
-            }
-
-            var fbSymbolNames = ((ITcAdsSymbol5)commandSymbol)
-                .DataType.SubItems
-                .Where(item => 
-                    new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String }.Contains(item.BaseType.Category)
-                    && item.Attributes.Any(a => string.Equals(a.Name, attributeName, StringComparison.OrdinalIgnoreCase)))
-                .ToDictionary(
-                    item => item.SubItemName, 
-                    item => (variablePath: _adsCommandFbPath + "." + item.SubItemName, type: GetManagedTypeForSubItem(item), byteSize: item.ByteSize));
-
-            return new ReadOnlyDictionary<string, (string variablePath, Type type, int byteSize)>(fbSymbolNames);
-        }
-
-        private Type GetManagedTypeForSubItem(ITcAdsSubItem subitem)
-        {
-            if (subitem.BaseType.ManagedType != null)
-                return subitem.BaseType.ManagedType;
-
-            switch (subitem.BaseType.DataTypeId)
-            {
-                case AdsDatatypeId.ADST_INT8:
-                    return typeof(sbyte);
-                case AdsDatatypeId.ADST_INT16:
-                    return typeof(short);
-                case AdsDatatypeId.ADST_INT32:
-                    return typeof(int);
-                case AdsDatatypeId.ADST_UINT8:
-                    return typeof(byte);
-                case AdsDatatypeId.ADST_UINT16:
-                    return typeof(ushort);
-                case AdsDatatypeId.ADST_UINT32:
-                    return typeof(uint);
-                default:
-                    throw new InvalidOperationException(string.Format(CommandResources.ERR_UnknownAdsType, subitem.BaseType));
-            }
-        }
-
         private void CheckResultCode(ushort resultCode)
         {
             string errorMsg = string.Empty;
@@ -366,7 +236,7 @@ namespace Mbc.Pcs.Net.Command
 
             var timeStamp = DateTime.FromFileTime(e.TimeStamp);
 
-            userDataTuple.Item2.Set(new CommandChangeData(timeStamp, (CommandHandshakeStruct) e.Value));
+            userDataTuple.Item2.Set(new CommandChangeData(timeStamp, (CommandHandshakeStruct)e.Value));
         }
 
         private void SetExecuteFlag()
@@ -374,7 +244,7 @@ namespace Mbc.Pcs.Net.Command
             try
             {
                 WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", true);
-            }            
+            }
             catch (Exception ex)
             {
                 // Need because of fake connection
@@ -388,6 +258,7 @@ namespace Mbc.Pcs.Net.Command
                 {
                     throw new PlcCommandException(_adsCommandFbPath, string.Format(CommandResources.ERR_CommandNotFound, _adsCommandFbPath), adsEx);
                 }
+
                 throw;
             }
         }
@@ -410,7 +281,7 @@ namespace Mbc.Pcs.Net.Command
                 _adsConnection.DeleteVariableHandle(varHandle);
             }
         }
-        
+
         [StructLayout(LayoutKind.Sequential, Pack = 0)]
         internal struct CommandHandshakeStruct
         {
@@ -424,9 +295,9 @@ namespace Mbc.Pcs.Net.Command
 
             public bool IsCommandFinished => !Execute && !Busy;
 
-            public bool IsCommandCancelled => !Execute && Busy || ResultCode == (ushort)CommandResultCode.Cancelled;
+            public bool IsCommandCancelled => (!Execute && Busy) || ResultCode == (ushort)CommandResultCode.Cancelled;
 
-            public override string ToString() 
+            public override string ToString()
                 => $"Execute={Execute} Busy={Busy} ResultCode={ResultCode} Progress={Progress} SubTask={SubTask}";
         }
 

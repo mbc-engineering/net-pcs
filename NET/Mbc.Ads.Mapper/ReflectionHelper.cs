@@ -45,5 +45,57 @@ namespace Mbc.Ads.Mapper
                 }
             }
         }
+
+        internal static Type GetSettableDataType(this MemberInfo memberInfo)
+        {
+            switch (memberInfo.MemberType)
+            {
+                case MemberTypes.Property:
+                    return ((PropertyInfo)memberInfo).PropertyType;
+                case MemberTypes.Field:
+                    return ((FieldInfo)memberInfo).FieldType;
+                default:
+                    throw new ArgumentException("Must be a settable member (property or field).", nameof(memberInfo));
+            }
+        }
+
+        internal static void SetValue(this MemberInfo memberInfo, object obj, object value)
+        {
+            switch (memberInfo.MemberType)
+            {
+                case MemberTypes.Property:
+                    ((PropertyInfo)memberInfo).SetValue(obj, value);
+                    break;
+                case MemberTypes.Field:
+                    ((FieldInfo)memberInfo).SetValue(obj, value);
+                    break;
+                default:
+                    throw new ArgumentException("Must be a settable member (property or field).", nameof(memberInfo));
+            }
+        }
+
+        internal static object GetValue(this MemberInfo memberInfo, object obj)
+        {
+            switch (memberInfo.MemberType)
+            {
+                case MemberTypes.Property:
+                    return ((PropertyInfo)memberInfo).GetValue(obj);
+                case MemberTypes.Field:
+                    return ((FieldInfo)memberInfo).GetValue(obj);
+                default:
+                    throw new ArgumentException("Must be a gettable member (property or field).", nameof(memberInfo));
+            }
+        }
+
+        internal static Type GetElementType(this MemberInfo memberInfo)
+        {
+            var type = memberInfo.GetSettableDataType();
+            if (type.IsArray)
+            {
+                type = type.GetElementType();
+            }
+
+            return type;
+        }
     }
 }

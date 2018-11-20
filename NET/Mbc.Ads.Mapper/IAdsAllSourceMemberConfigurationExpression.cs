@@ -25,5 +25,11 @@ namespace Mbc.Ads.Mapper
         /// </summary>
         /// <param name="prefixChars">An array of Unicode characters to remove, or null. </param>
         void RemovePrefix(params char[] prefixChars);
+
+        /// <summary>
+        /// Removes the strings defined in <paramref name="prefix"/> from the PLC symbol name.
+        /// </summary>
+        /// <param name="prefix">An array of strings to remove, or null. </param>
+        void RemovePrefix(params string[] prefix);
     }
 }

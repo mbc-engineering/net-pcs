@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
+  <DUT Name="ST_CommandArgs" Id="{b6a1b8d9-c7d8-010f-286c-4a44b8b28780}">
+    <Declaration><![CDATA[(*
+Struktur für Input-Argumente zum testen
+*)
+TYPE ST_CommandArgs :
+STRUCT
+	nNumber		: DINT;
+	fFloat		: REAL;
+	eEnum		: E_EnumType;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

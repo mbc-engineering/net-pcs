@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
+  <DUT Name="E_EnumType" Id="{c65bc5ff-538a-0224-1419-6d833508d15e}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_EnumType :
+(
+	eValue0 := 0,
+	eValue1 := 1,
+	eValue2 := 3
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -21,7 +21,7 @@ namespace Mbc.Ads.Mapper
         /// </summary>
         public bool IsRequired { get; internal set; }
 
-        internal List<char> SymbolNamePrefixChars { get; private set; } = new List<char>();
+        internal List<string> SymbolNamePrefix { get; private set; } = new List<string>();
 
         public void Ignore()
         {
@@ -35,7 +35,12 @@ namespace Mbc.Ads.Mapper
 
         public void RemovePrefix(params char[] prefixChars)
         {
-            SymbolNamePrefixChars = prefixChars.ToList();
+            SymbolNamePrefix = prefixChars.Select(x => x.ToString()).ToList();
+        }
+
+        public void RemovePrefix(params string[] prefix)
+        {
+            SymbolNamePrefix = prefix.Where(x => x.Trim().Length > 0).ToList();
         }
     }
 }

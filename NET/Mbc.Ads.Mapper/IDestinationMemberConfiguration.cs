@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using System;
 using System.Reflection;
 
 namespace Mbc.Ads.Mapper
@@ -18,20 +19,29 @@ namespace Mbc.Ads.Mapper
         MemberInfo Member { get; }
 
         /// <summary>
+        /// Gets the element type of the destination type.
+        /// </summary>
+        Type MemberElementType { get; }
+
+        /// <summary>
         /// Gets a value indicating if this member is required for mapping.
         /// </summary>
         bool IsRequired { get; }
 
         /// <summary>
-        /// Gets a value indiciatng if a custom convertion is configured.
+        /// Gets a value indicating if a custom source to destination
+        /// value converter exists.
         /// </summary>
-        bool HasConvertion { get; }
+        bool HasSourceToDestinationConverter { get; }
+
+        object ConvertSourceToDestination(object value);
 
         /// <summary>
-        /// Converts a source value to the destination value
+        /// Gets a value indicating if a custom destination to source
+        /// value converter exists.
         /// </summary>
-        /// <param name="value">the source value</param>
-        /// <returns>the converted destination value</returns>
-        object Convert(object value);
+        bool HasDestinationToSourceConverter { get; }
+
+        object ConvertDestinationToSource(object value, Type type);
     }
 }

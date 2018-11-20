@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
+  <POU Name="FB_CommandWithStruct" Id="{21088bbb-8d5b-0fc1-300f-5438a5c6f591}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_CommandWithStruct EXTENDS CommandBase
+VAR
+	{attribute 'PlcCommandInput'}
+	stInputArgs		: ST_CommandArgs;
+	{attribute 'PlcCommandInput'}
+	nNumber			: INT;
+	{attribute 'PlcCommandInput'}
+	eEnum			: E_EnumType;
+	
+	{attribute 'PlcCommandOutput'}
+	stOutputArgs	: ST_CommandArgs;
+	{attribute 'PlcCommandOutput'}
+	fFloat			: REAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SUPER^();
+]]></ST>
+    </Implementation>
+    <Method Name="Init" Id="{3f7dc758-bb49-04b9-3246-0edbe2c710b8}">
+      <Declaration><![CDATA[// Will be called when ``stHandshake.bExecute`` changes to ``true`` one cycle and in the same cycle.
+METHOD PROTECTED Init
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[stOutputArgs := stInputArgs;
+fFloat := stInputArgs.fFloat;
+Finish(E_CommandResultCode.Done);
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_CommandWithStruct">
+      <LineId Id="9" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_CommandWithStruct.Init">
+      <LineId Id="8" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="6" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
