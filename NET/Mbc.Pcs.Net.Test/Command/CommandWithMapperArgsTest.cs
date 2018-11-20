@@ -7,7 +7,6 @@ using FluentAssertions;
 using Mbc.Ads.Mapper;
 using Mbc.Pcs.Net.Command;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using TwinCAT.Ads;
 using Xbehave;

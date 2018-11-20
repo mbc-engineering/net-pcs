@@ -23,7 +23,7 @@ namespace Mbc.Ads.Mapper
 
         public string MapFromSourceSymbolName { get; set; } = string.Empty;
 
-        public bool HasMapFrom => MapFromSourceSymbolName.Length > 0;
+        public bool HasMapFrom => string.IsNullOrWhiteSpace(MapFromSourceSymbolName);
 
         public Func<object, object> ConvertSourceToDestinationFunction { get; set; }
 
