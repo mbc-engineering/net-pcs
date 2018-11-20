@@ -58,10 +58,12 @@ namespace Mbc.Ads.Utils.SumCommand
                 HandleSumStreamEntity sumStreamEntity = (HandleSumStreamEntity)entity;
                 return MarshalSumWriteHeader((uint)AdsReservedIndexGroups.SymbolValueByHandle, sumStreamEntity.Handle, sumStreamEntity.WriteLength, writer);
             }
+
             throw new NotSupportedException($"Mode {mode} not supported.");
         }
     }
 
+#pragma warning disable SA1402 // File may only contain a single type
     internal class HandleSumStreamEntity : SumDataEntity
     {
         public HandleSumStreamEntity(uint handle, int writeLength)
@@ -72,4 +74,5 @@ namespace Mbc.Ads.Utils.SumCommand
 
         public uint Handle { get; }
     }
+#pragma warning restore SA1402 // File may only contain a single type
 }

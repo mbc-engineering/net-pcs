@@ -80,6 +80,7 @@ namespace Mbc.Ads.Mapper
                 {
                     return value;
                 }
+
                 return new TIME(Convert.ToInt64(value)).Time;
             }
             else if (SourceElementType == typeof(DATE))
@@ -88,6 +89,7 @@ namespace Mbc.Ads.Mapper
                 {
                     return value;
                 }
+
                 return new DATE(Convert.ToInt64(value)).Date;
             }
             else if (SourceElementType == typeof(DT))
@@ -96,6 +98,7 @@ namespace Mbc.Ads.Mapper
                 {
                     return value;
                 }
+
                 return new DT(Convert.ToInt64(value)).Date;
             }
             else
@@ -108,8 +111,6 @@ namespace Mbc.Ads.Mapper
         /// Converts a PLC enum value to a .NET enum value.
         /// </summary>
         /// <param name="sourceValue">the PLC enumeration value.</param>
-        /// <param name="targetType">the .NET target type.</param>
-        /// <param name="plcEnumValues">the PLC enumeration values.</param>
         /// <returns>A .NET enumeration value</returns>
         private object ConvertEnumValueFromPlc(object sourceValue)
         {
@@ -136,8 +137,6 @@ namespace Mbc.Ads.Mapper
         /// Converts a .NET enum value to a PLC enum value.
         /// </summary>
         /// <param name="sourceValue">the .NET enum value</param>
-        /// <param name="sourceType">the .NET enum type</param>
-        /// <param name="plcEnumValues">PLC enum values</param>
         /// <returns>A primitive plc enum value.</returns>
         private object ConvertEnumValueToPlc(object sourceValue)
         {
@@ -161,6 +160,5 @@ namespace Mbc.Ads.Mapper
                 throw new AdsMapperException($"Could not map the enumeration value of '{sourceValue}' to plc type '{SourceType.FullName}'.", ex);
             }
         }
-
     }
 }

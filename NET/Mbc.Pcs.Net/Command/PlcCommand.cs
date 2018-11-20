@@ -4,16 +4,11 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using TwinCAT.Ads;
-using TwinCAT.Ads.SumCommand;
-using System.Collections.ObjectModel;
 using System.Threading;
-using TwinCAT.TypeSystem;
 using System.Threading.Tasks;
+using TwinCAT.Ads;
 
 namespace Mbc.Pcs.Net.Command
 {
@@ -46,14 +41,14 @@ namespace Mbc.Pcs.Net.Command
         /// Maximale time to wait for command completion.
         /// </summary>
         public TimeSpan Timeout { get; set; } = DefaultTimeout;
-        
+
         /// <summary>
-        /// The PLC Variable 
+        /// The PLC Variable
         /// </summary>
         public string AdsCommandFbPath => _adsCommandFbPath;
 
         /// <summary>
-        /// Defines the beavior how to react to parallel exection of this command. 
+        /// Defines the beavior how to react to parallel exection of this command.
         /// Default is locking the second caller and wait for the end of the first command.
         /// </summary>
         public ExecutionBehavior ExecutionBehavior { get; set; }
@@ -89,11 +84,10 @@ namespace Mbc.Pcs.Net.Command
         /// Executes a PLC command.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> which allows to
-        /// cancel the running command. The cancel request is sent to the PLC and the 
+        /// cancel the running command. The cancel request is sent to the PLC and the
         /// execution will still wait for the PLC to end to command.</param>
         /// <exception cref="InvalidOperationException">The ADS-Client given at construction
         /// time is not connected.</exception>
-        /// <example
         protected DateTime Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
         {
             using (PlcCommandLock.AcquireLock(_adsCommandFbPath, _adsConnection.Address, ExecutionBehavior))
@@ -149,12 +143,15 @@ namespace Mbc.Pcs.Net.Command
                     try
                     {
                         ResetExecuteFlag();
+                        throw;
                     }
                     catch (Exception resetEx)
                     {
                         ex.Data.Add("ResetExecuteFlagException", resetEx);
+#pragma warning disable CA2200 // Rethrow to preserve stack details.
+                        throw ex;
+#pragma warning restore CA2200 // Rethrow to preserve stack details.
                     }
-                    throw ex;
                 }
                 finally
                 {
@@ -239,7 +236,7 @@ namespace Mbc.Pcs.Net.Command
 
             var timeStamp = DateTime.FromFileTime(e.TimeStamp);
 
-            userDataTuple.Item2.Set(new CommandChangeData(timeStamp, (CommandHandshakeStruct) e.Value));
+            userDataTuple.Item2.Set(new CommandChangeData(timeStamp, (CommandHandshakeStruct)e.Value));
         }
 
         private void SetExecuteFlag()
@@ -247,7 +244,7 @@ namespace Mbc.Pcs.Net.Command
             try
             {
                 WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", true);
-            }            
+            }
             catch (Exception ex)
             {
                 // Need because of fake connection
@@ -261,6 +258,7 @@ namespace Mbc.Pcs.Net.Command
                 {
                     throw new PlcCommandException(_adsCommandFbPath, string.Format(CommandResources.ERR_CommandNotFound, _adsCommandFbPath), adsEx);
                 }
+
                 throw;
             }
         }
@@ -283,7 +281,7 @@ namespace Mbc.Pcs.Net.Command
                 _adsConnection.DeleteVariableHandle(varHandle);
             }
         }
-        
+
         [StructLayout(LayoutKind.Sequential, Pack = 0)]
         internal struct CommandHandshakeStruct
         {
@@ -297,9 +295,9 @@ namespace Mbc.Pcs.Net.Command
 
             public bool IsCommandFinished => !Execute && !Busy;
 
-            public bool IsCommandCancelled => !Execute && Busy || ResultCode == (ushort)CommandResultCode.Cancelled;
+            public bool IsCommandCancelled => (!Execute && Busy) || ResultCode == (ushort)CommandResultCode.Cancelled;
 
-            public override string ToString() 
+            public override string ToString()
                 => $"Execute={Execute} Busy={Busy} ResultCode={ResultCode} Progress={Progress} SubTask={SubTask}";
         }
 

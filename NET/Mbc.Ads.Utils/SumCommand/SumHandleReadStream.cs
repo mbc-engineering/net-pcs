@@ -36,7 +36,6 @@ namespace Mbc.Ads.Utils.SumCommand
                 sumEntities.Add(entity);
             }
 
-
             var adsErrorCode = TryReadRaw(out IList<byte[]> readData, out returnCodes);
             if (adsErrorCode == AdsErrorCode.NoError)
             {
@@ -68,8 +67,8 @@ namespace Mbc.Ads.Utils.SumCommand
                 HandleSumStreamEntity sumStreamEntity = (HandleSumStreamEntity)entity;
                 return MarshalSumReadHeader((uint)AdsReservedIndexGroups.SymbolValueByHandle, sumStreamEntity.Handle, sumStreamEntity.ReadLength, writer);
             }
-            throw new NotSupportedException($"Mode {mode} not supported.");
 
+            throw new NotSupportedException($"Mode {mode} not supported.");
         }
 
         internal class HandleSumStreamEntity : SumDataEntity

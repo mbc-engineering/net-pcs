@@ -1,13 +1,11 @@
 ﻿using FluentAssertions;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Mbc.Ads.Mapper.Test
 {
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
     public class DataObjectAccessorTest
     {
         [Fact]
@@ -74,7 +72,7 @@ namespace Mbc.Ads.Mapper.Test
         public void GetOneDimArrayProperty()
         {
             // Arrange
-            var data = new MockDataObject { Array1 = new [] { 0, 42, 0 } };
+            var data = new MockDataObject { Array1 = new[] { 0, 42, 0 } };
             var member = typeof(MockDataObject).GetMember(nameof(MockDataObject.Array1)).First();
             var getter = DataObjectAccessor.CreateValueGetter<MockDataObject>(member, 1);
 
@@ -99,9 +97,9 @@ namespace Mbc.Ads.Mapper.Test
             // Assert
             value.Should().Be(42);
         }
-
     }
 
+#pragma warning disable SA1402 // File may only contain a single type
     internal class MockDataObject
     {
         public int Primitive { get; set; }
@@ -110,4 +108,6 @@ namespace Mbc.Ads.Mapper.Test
 
         public int[,] Array2 { get; set; } = new int[2, 2];
     }
+#pragma warning restore SA1402 // File may only contain a single type
+#pragma warning restore CA1814 // Prefer jagged arrays over multidimensional
 }

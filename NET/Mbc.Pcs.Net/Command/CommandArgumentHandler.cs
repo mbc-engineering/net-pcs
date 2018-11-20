@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using TwinCAT.Ads;
 using TwinCAT.TypeSystem;
@@ -21,12 +20,10 @@ namespace Mbc.Pcs.Net.Command
 
         public abstract void ReadOutputData(IAdsConnection adsConnection, string adsCommandFbPath, ICommandOutput output);
 
-
         /// <summary>
-        /// Reads all symbols in the same hierarchy as the function block they are flaged with the Attribute 
+        /// Reads all symbols in the same hierarchy as the function block they are flaged with the Attribute
         /// named in <para>attributeName</para>.
         /// </summary>
-        /// <param name="attributeName">The attribute flag to filter (Case Insensitive)</param>
         protected static IDictionary<string, ITcAdsSubItem> ReadFbSymbols(IAdsConnection adsConnection, string adsCommandFbPath, string attributeName)
         {
             ITcAdsSymbol commandSymbol = adsConnection.ReadSymbolInfo(adsCommandFbPath);

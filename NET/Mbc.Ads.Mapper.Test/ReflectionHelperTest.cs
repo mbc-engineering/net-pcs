@@ -1,10 +1,14 @@
-﻿using FluentAssertions;
+﻿//-----------------------------------------------------------------------------
+// Copyright (c) 2018 by mbc engineering GmbH, CH-6015 Luzern
+// Licensed under the Apache License, Version 2.0
+//-----------------------------------------------------------------------------
+
+using FluentAssertions;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xunit;
-
 
 namespace Mbc.Ads.Mapper.Test
 {

@@ -88,7 +88,8 @@ namespace Mbc.Pcs.Net.Test.Command
                 });
         }
 
-
+#pragma warning disable CA1034 // Nested types should not be visible
+#pragma warning disable CA1720 // Identifier contains type name
         /// <summary>
         /// Testclass for arguments.
         /// </summary>
@@ -101,7 +102,11 @@ namespace Mbc.Pcs.Net.Test.Command
 
         public enum EnumType
         {
-            Value0, Value1, Value2,
+            Value0,
+            Value1,
+            Value2,
         }
+#pragma warning restore CA1720 // Identifier contains type name
+#pragma warning restore CA1034 // Nested types should not be visible
     }
 }

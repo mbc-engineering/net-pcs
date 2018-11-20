@@ -35,7 +35,7 @@ namespace Mbc.Ads.Mapper
                 return prefix == null ? SymbolName : SymbolName.Substring(prefix.Length);
             }
         }
-            
+
         public void Override(AdsAllSourceMemberConfigurationExpression allSourceMemberConfigurations)
         {
             // Or

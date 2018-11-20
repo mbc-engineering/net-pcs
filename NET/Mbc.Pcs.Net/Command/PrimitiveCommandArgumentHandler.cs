@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,8 +36,7 @@ namespace Mbc.Pcs.Net.Command
             var missingOutputVariables = outputNames.Where(x => !items.ContainsKey(x)).ToArray();
             if (missingOutputVariables.Length > 0)
             {
-                throw new PlcCommandException(adsCommandFbPath,
-                    string.Format(CommandResources.ERR_OutputVariablesMissing, string.Join(",", missingOutputVariables)));
+                throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_OutputVariablesMissing, string.Join(",", missingOutputVariables)));
             }
 
             var symbols = new List<string>();
@@ -86,8 +84,7 @@ namespace Mbc.Pcs.Net.Command
             var missingInputVariables = inputData.Keys.Where(x => !items.ContainsKey(x)).ToArray();
             if (missingInputVariables.Length > 0)
             {
-                throw new PlcCommandException(adsCommandFbPath,
-                    string.Format(CommandResources.ERR_InputVariablesMissing, string.Join(",", missingInputVariables)));
+                throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_InputVariablesMissing, string.Join(",", missingInputVariables)));
             }
 
             var symbols = new List<string>();

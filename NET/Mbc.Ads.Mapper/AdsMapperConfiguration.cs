@@ -182,7 +182,6 @@ namespace Mbc.Ads.Mapper
                     definition.StreamWriterFunction = AdsStreamAccessor.CreatePrimitiveTypeWriteFunction(arrayValueType.ManagedType, actStreamOffset);
                     definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest.Member, arrayIndex: capturedIdx);
 
-
                     mapper.AddStreamMapping(definition);
                 }
             });

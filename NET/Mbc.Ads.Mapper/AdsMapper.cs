@@ -12,8 +12,8 @@ namespace Mbc.Ads.Mapper
     public class AdsMapper<TDataObject>
         where TDataObject : new()
     {
-        private List<AdsMappingDefinition<TDataObject>> _streamMappingDefinition = new List<AdsMappingDefinition<TDataObject>>();
         private readonly int _size;
+        private readonly List<AdsMappingDefinition<TDataObject>> _streamMappingDefinition = new List<AdsMappingDefinition<TDataObject>>();
 
         internal AdsMapper(int size)
         {
@@ -48,6 +48,7 @@ namespace Mbc.Ads.Mapper
                     throw new AdsMapperException($"Error mapping from source '{def.DestinationMemberConfiguration.Member.Name}'.", e);
                 }
             }
+
             writer.Flush();
 
             return adsStream;
