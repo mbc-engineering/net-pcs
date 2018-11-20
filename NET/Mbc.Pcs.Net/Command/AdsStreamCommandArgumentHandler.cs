@@ -64,6 +64,7 @@ namespace Mbc.Pcs.Net.Command
             {
                 var name = outputNames[i];
                 var item = items[name];
+                // TODO Marker nur 2. Wahl, siehe MR !11 und Issue #28
                 if (output.GetOutputData<object>(name) == ReadAsPrimitiveMarker)
                 {
                     PrimitiveTypeConverter.Default.Unmarshal(item.BaseType, readData[i].ToArray(), 0, out object value);
