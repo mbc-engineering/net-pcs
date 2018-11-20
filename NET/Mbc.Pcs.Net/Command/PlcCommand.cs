@@ -143,7 +143,6 @@ namespace Mbc.Pcs.Net.Command
                     try
                     {
                         ResetExecuteFlag();
-                        throw;
                     }
                     catch (Exception resetEx)
                     {
@@ -152,6 +151,8 @@ namespace Mbc.Pcs.Net.Command
                         throw ex;
 #pragma warning restore CA2200 // Rethrow to preserve stack details.
                     }
+
+                    throw;
                 }
                 finally
                 {

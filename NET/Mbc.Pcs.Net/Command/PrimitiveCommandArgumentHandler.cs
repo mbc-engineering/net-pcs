@@ -26,7 +26,7 @@ namespace Mbc.Pcs.Net.Command
             var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
             foreach (var item in items.Values)
             {
-                if (!validTypeCategories.Contains(item.Category))
+                if (!validTypeCategories.Contains(item.BaseType.Category))
                     throw new PlcCommandException(string.Format("Output variable {0} has invalid category {1}.", item.SubItemName, item.Category));
             }
 
@@ -75,7 +75,7 @@ namespace Mbc.Pcs.Net.Command
             var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
             foreach (var item in items.Values)
             {
-                if (!validTypeCategories.Contains(item.Category))
+                if (!validTypeCategories.Contains(item.BaseType.Category))
                     throw new PlcCommandException(string.Format("Input variable {0} has invalid data type category {1}.", item.SubItemName, item.Category));
             }
 
