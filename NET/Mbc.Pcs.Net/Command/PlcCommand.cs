@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using NLog;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -17,6 +18,7 @@ namespace Mbc.Pcs.Net.Command
     /// </summary>
     public class PlcCommand : IPlcCommand
     {
+        public static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
 
         /// <summary>
@@ -96,7 +98,9 @@ namespace Mbc.Pcs.Net.Command
                     throw new InvalidOperationException(CommandResources.ERR_NotConnected);
 
                 if (input != null)
+                {
                     WriteInputData(input);
+                }
 
                 _adsConnection.AdsNotificationEx += OnAdsNotification;
                 try
@@ -109,6 +113,7 @@ namespace Mbc.Pcs.Net.Command
                     {
                         var handshakeExchange = new DataExchange<CommandChangeData>();
 
+                        Logger.Trace("Before adding device notification of command '{command}'.", _adsCommandFbPath);
                         var cmdHandle = _adsConnection.AddDeviceNotificationEx(
                             $"{_adsCommandFbPath}.stHandshake",
                             AdsTransMode.OnChange,
@@ -116,8 +121,11 @@ namespace Mbc.Pcs.Net.Command
                             0,
                             Tuple.Create(this, handshakeExchange),
                             typeof(CommandHandshakeStruct));
+                        Logger.Trace("After adding device notification of command '{command}'.", _adsCommandFbPath);
+
                         try
                         {
+                            Logger.Trace("Start waiting for execution on command '{command}'.", _adsCommandFbPath);
                             executionTimestamp = WaitForExecution(handshakeExchange);
                         }
                         catch (PlcCommandErrorException ex) when (ex.ResultCode == 3 && cancellationToken.IsCancellationRequested)
@@ -128,12 +136,15 @@ namespace Mbc.Pcs.Net.Command
                         }
                         finally
                         {
+                            Logger.Trace("End waiting for execution on command '{command}.", _adsCommandFbPath);
                             _adsConnection.DeleteDeviceNotification(cmdHandle);
                         }
                     }
 
                     if (output != null)
+                    {
                         ReadOutputData(output);
+                    }
 
                     return executionTimestamp;
                 }
@@ -163,12 +174,16 @@ namespace Mbc.Pcs.Net.Command
 
         private void ReadOutputData(ICommandOutput output)
         {
+            Logger.Trace("Start writing oupt data of command '{command}'.", _adsCommandFbPath);
             _commandArgumentHandler.ReadOutputData(_adsConnection, _adsCommandFbPath, output);
+            Logger.Trace("End writing oupt data of command '{command}'.", _adsCommandFbPath);
         }
 
         private void WriteInputData(ICommandInput input)
         {
+            Logger.Trace("Start writing input data of command '{command}'.", _adsCommandFbPath);
             _commandArgumentHandler.WriteInputData(_adsConnection, _adsCommandFbPath, input);
+            Logger.Trace("End writing input data of command '{command}'.", _adsCommandFbPath);
         }
 
         private DateTime WaitForExecution(DataExchange<CommandChangeData> dataExchange)
@@ -182,8 +197,12 @@ namespace Mbc.Pcs.Net.Command
                 try
                 {
                     var remainingTimeout = Timeout - timeoutStopWatch.Elapsed;
+                    Logger.Trace("Waiting for event with Timeout={timeout}s on command '{command}'.", remainingTimeout.Seconds, _adsCommandFbPath);
+
                     var commandChangeData = dataExchange.GetOrWait(remainingTimeout);
                     var handshakeData = commandChangeData.CommandHandshake;
+
+                    Logger.Trace("New command event Execute={executeFlag}, Busy={busyFlag} ResultCode={resultCode} at {timestamp} on command '{command}'.", handshakeData.Execute, handshakeData.Busy, handshakeData.ResultCode, commandChangeData.Timestamp, _adsCommandFbPath);
 
                     lastProgress = handshakeData.Progress;
                     lastSubTask = handshakeData.SubTask;
@@ -244,7 +263,9 @@ namespace Mbc.Pcs.Net.Command
         {
             try
             {
+                Logger.Trace("Before setting execute-Flag on command '{command}'.", _adsCommandFbPath);
                 WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", true);
+                Logger.Trace("After setting execute-Flag on command '{command}'.", _adsCommandFbPath);
             }
             catch (Exception ex)
             {
@@ -266,7 +287,9 @@ namespace Mbc.Pcs.Net.Command
 
         private void ResetExecuteFlag()
         {
+            Logger.Trace("Before resetting execute-Flag on command '{command}'.", _adsCommandFbPath);
             WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", false);
+            Logger.Trace("After resetting execute-Flag on command '{command}'.", _adsCommandFbPath);
         }
 
         protected void WriteVariable(string symbolName, object value)
