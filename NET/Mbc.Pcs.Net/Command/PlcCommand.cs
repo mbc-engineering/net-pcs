@@ -197,12 +197,12 @@ namespace Mbc.Pcs.Net.Command
                 try
                 {
                     var remainingTimeout = Timeout - timeoutStopWatch.Elapsed;
-                    Logger.Trace("Waiting for event with Timeout={timeout}s on command '{command}'.", remainingTimeout.Seconds, _adsCommandFbPath);
+                    Logger.Trace("Waiting for event with Timeout={timeout} on command '{command}'.", remainingTimeout, _adsCommandFbPath);
 
                     var commandChangeData = dataExchange.GetOrWait(remainingTimeout);
                     var handshakeData = commandChangeData.CommandHandshake;
 
-                    Logger.Trace("New command event Execute={executeFlag}, Busy={busyFlag} ResultCode={resultCode} at {timestamp} on command '{command}'.", handshakeData.Execute, handshakeData.Busy, handshakeData.ResultCode, commandChangeData.Timestamp, _adsCommandFbPath);
+                    Logger.Trace("New command event Execute={executeFlag}, Busy={busyFlag} ResultCode={resultCode} at {timestamp} on command '{command}'.", handshakeData.Execute, handshakeData.Busy, handshakeData.ResultCode, commandChangeData.Timestamp.ToString("o"), _adsCommandFbPath);
 
                     lastProgress = handshakeData.Progress;
                     lastSubTask = handshakeData.SubTask;
