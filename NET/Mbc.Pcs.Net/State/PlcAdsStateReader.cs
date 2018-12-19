@@ -87,7 +87,7 @@ namespace Mbc.Pcs.Net.State
             _adsSymbolInfo = AdsSymbolReader.Read(connection, _config.VariablePath);
         }
 
-        private void OnAdsNotification(object sender, AdsNotificationEventArgs e)
+        protected virtual void OnAdsNotification(object sender, AdsNotificationEventArgs e)
         {
             if (e.UserData != this)
                 return;
@@ -97,12 +97,17 @@ namespace Mbc.Pcs.Net.State
                 TStatus status = _adsMapper.MapStream(e.DataStream);
                 CurrentSample = (DateTime.FromFileTime(e.TimeStamp), status);
 
-                StateChanged?.Invoke(this, new PlcStateChangedEventArgs<TStatus>(status, DateTime.FromFileTime(e.TimeStamp)));
+                OnStateChanged(status, DateTime.FromFileTime(e.TimeStamp));
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error in notification event handler.");
             }
+        }
+
+        protected virtual void OnStateChanged(TStatus status, DateTime dateTime)
+        {
+            StateChanged?.Invoke(this, new PlcStateChangedEventArgs<TStatus>(status, dateTime));
         }
     }
 }
