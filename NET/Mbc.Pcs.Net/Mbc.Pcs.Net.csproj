@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
-    <!-- common nuget configuration see common.props-->
-    <PlatformTarget>x86</PlatformTarget>
-    
+    <!-- common nuget configuration see common.props-->    
     <VersionPrefix>1.4.3</VersionPrefix>
     <VersionSuffix></VersionSuffix>
 

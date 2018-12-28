@@ -50,8 +50,8 @@ Task("Test")
     .Does(() =>
 {
     var allTestAssemblies = GetFiles($"./**/bin/{configuration}/**/*.test.dll");
-    var x64TestAssemblies = allTestAssemblies.Where(t => !t.GetFilename().ToString().Contains("Mbc.Pcs.Net"));
-    
+    var x64TestAssemblies = allTestAssemblies.Where(t => !t.GetFilename().ToString().Contains("Mbc.Pcs.Net.Alarm"));
+
     var xunitSettings = new XUnit2Settings {
         UseX86 = false,
         Parallelism = ParallelismOption.Assemblies,
