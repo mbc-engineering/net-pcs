@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- for correctly loading in VS15 set targetFramework bevore import common.props -->
+    <TargetFramework>net471</TargetFramework>    
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)Build\common.props" />
+  <PropertyGroup>
+    <!-- common nuget configuration see common.props-->
+    <PlatformTarget>x86</PlatformTarget>
+    <VersionPrefix>1.4.3</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+    <Product>Mbc.Pcs.Net.Alarm</Product>
+  </PropertyGroup>
+  <ItemGroup>    
+    <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
+    <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
+    <PackageReference Include="NLog" Version="4.5.10" />
+  </ItemGroup>
+</Project>

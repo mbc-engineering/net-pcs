@@ -6,7 +6,7 @@ using TCEVENTLOGGERLib;
 using TcEventLogProxyLib;
 using Xunit;
 
-namespace Mbc.Pcs.Net.Test.Alarm.Test
+namespace Mbc.Pcs.Net.Alarm.Test
 {
     public class PlcAlarmServiceTest : IDisposable
     {
