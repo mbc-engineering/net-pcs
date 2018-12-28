@@ -11,9 +11,9 @@
 
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.0" />
     <PackageReference Include="Ensure.That" Version="8.0.0" />
     <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
-    <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads" Version="4.2.166" />
     <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
     <PackageReference Include="NLog" Version="4.5.10" />
     <PackageReference Include="Optional" Version="4.0.0" />

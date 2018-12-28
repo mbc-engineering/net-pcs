@@ -19,7 +19,7 @@ namespace Mbc.Ads.Mapper
         /// Create a function for reading a primitive data type from an ADS reader.
         /// </summary>
         /// <param name="managedType">The .NET type to read</param>
-        /// <param name="streamOffset">The offset of the subitem in bytes</param>
+        /// <param name="streamByteOffset">The offset of the subitem in bytes</param>
         /// <returns>A function to read a primitive value from the given ADS reader (not <c>null</c>).</returns>
         public static Func<AdsBinaryReader, object> CreatePrimitiveTypeReadFunction(Type managedType, int streamByteOffset)
         {
@@ -159,17 +159,17 @@ namespace Mbc.Ads.Mapper
 
             if (managedType == typeof(TIME))
             {
-                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((uint)new TIME((TimeSpan)value).Value);
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcType(new TIME((TimeSpan)value).Value);
             }
 
             if (managedType == typeof(DATE))
             {
-                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((uint)new DATE((DateTime)value).Value);
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcType(new DATE((DateTime)value).Value);
             }
 
             if (managedType == typeof(DT))
             {
-                return (adsWriter, value) => Position(adsWriter, streamByteOffset).Write((uint)new DT((DateTime)value).Value);
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcType(new DT((DateTime)value).Value);
             }
 
             throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");

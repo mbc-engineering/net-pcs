@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TwinCAT.Ads;
 using TwinCAT.Ads.SumCommand;
@@ -57,7 +58,7 @@ namespace Mbc.Ads.Utils.SumCommand
             return streams;
         }
 
-        protected override int OnWriteSumEntityData(SumDataEntity entity, AdsBinaryWriter writer)
+        protected override int OnWriteSumEntityData(SumDataEntity entity, BinaryWriter writer)
         {
             /* Muss überschrieben werden, da die Basisimplementierung eine interne Klasse
              * von SumDataEntity erwartet.*/

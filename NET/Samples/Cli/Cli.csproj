@@ -54,9 +54,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads">
-      <Version>4.2.166</Version>
-    </PackageReference>
     <PackageReference Include="ObjectDumper">
       <Version>1.0.0.12</Version>
     </PackageReference>

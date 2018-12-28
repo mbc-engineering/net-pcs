@@ -62,8 +62,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Mbc.Pcs.Net.TwinCat.Ads">
-      <Version>4.2.166</Version>
+    <PackageReference Include="Beckhoff.TwinCAT.Ads">
+      <Version>4.3.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
