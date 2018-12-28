@@ -8,15 +8,11 @@ using System.Collections.ObjectModel;
 
 namespace Mbc.Pcs.Net.Command
 {
-    public class CommandInputBuilder
+    public static class CommandInputBuilder
     {
         public static ICommandInput FromDictionary(IDictionary<string, object> value)
         {
             return new DictionaryCommandInputAdapter(new ReadOnlyDictionary<string, object>(value));
-        }
-
-        public CommandInputBuilder()
-        {
         }
 
         private class DictionaryCommandInputAdapter : ICommandInput

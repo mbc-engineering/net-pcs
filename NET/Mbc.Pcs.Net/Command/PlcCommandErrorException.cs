@@ -30,6 +30,7 @@ namespace Mbc.Pcs.Net.Command
                 {
                     message += Environment.NewLine + $"Result Code: {ResultCode}";
                 }
+
                 return message;
             }
         }

@@ -8,15 +8,17 @@ using System;
 namespace Mbc.Pcs.Net.Command
 {
     /// <summary>
-    /// Base class for command results without data.
+    /// Base class for command results with generic data.
     /// </summary>
-    public class CommandResult
+    /// <typeparam name="TData">the type of the command result data</typeparam>
+    public class CommandResult<TData> : CommandResult
     {
-        public CommandResult(DateTime plcTcExecutionTime)
+        public CommandResult(DateTime plcTcExecutionTime, TData data)
+            : base(plcTcExecutionTime)
         {
-            PlcTcExecutionTime = plcTcExecutionTime;
+            Data = data;
         }
 
-        public DateTime PlcTcExecutionTime { get; }
+        public TData Data { get; }
     }
 }

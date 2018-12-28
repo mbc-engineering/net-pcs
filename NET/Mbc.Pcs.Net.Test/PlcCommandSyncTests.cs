@@ -10,16 +10,16 @@ namespace Mbc.Pcs.Net.Test.Systemtest
 {
     /// <summary>
     /// If a real PLC is used for system tests, the following is importend!
-    /// This system test requires the the test project "Mbc.Tc3.Pcs.Samples". 
+    /// This system test requires the the test project "Mbc.Tc3.Pcs.Samples".
     /// This TwinCat 3 PLC Project must be activated and loaded into the local Runtime.
     /// All thest should be executed in serial order => [assembly: CollectionBehavior(DisableTestParallelization = true)]
     /// </summary>
     public class PlcCommandSyncTests : MbcPlcCommandTestBase
     {
         [Fact]
-        public void Execute_WithoutArguments()
+        public void ExecuteWithoutArguments()
         {
-            // Arrange            
+            // Arrange
             var fakeConnection = new AdsCommandConnectionFake()
             {
                 ResponseTimestamp = new DateTime(2000, 1, 2, 3, 4, 5),
@@ -40,9 +40,9 @@ namespace Mbc.Pcs.Net.Test.Systemtest
         }
 
         [Fact(Skip = "true")]
-        public void Execute_WithArguments()
+        public void ExecuteWithArguments()
         {
-            // Arrange            
+            // Arrange
             var fakeConnection = new AdsCommandConnectionFake();
             var input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>
             {
@@ -51,10 +51,9 @@ namespace Mbc.Pcs.Net.Test.Systemtest
             });
             var output = CommandOutputBuilder.FromDictionary(new Dictionary<string, object>
             {
-                { "Result", null }
+                { "Result", null },
             });
             var subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbAddCommand1");
-
 
             // Act
             var ex = Record.Exception(() => subject.Execute(input, output));
@@ -65,7 +64,7 @@ namespace Mbc.Pcs.Net.Test.Systemtest
 
         [Fact(DisplayName = "SystemTestOnly", Skip = "true")]
         [Trait("Category", "SystemTest")]
-        public async Task Execute_fbDelayedAddCommand1_Async()
+        public async Task ExecutefbDelayedAddCommand1Async()
         {
             // Arrange
             var fakeConnection = new AdsCommandConnectionFake();
@@ -76,7 +75,7 @@ namespace Mbc.Pcs.Net.Test.Systemtest
             });
             ICommandOutput output = CommandOutputBuilder.FromDictionary(new Dictionary<string, object>
             {
-                { "Result", null }
+                { "Result", null },
             });
             var subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1xxx");
 

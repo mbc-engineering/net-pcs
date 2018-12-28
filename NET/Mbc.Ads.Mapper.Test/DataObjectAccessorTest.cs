@@ -87,7 +87,14 @@ namespace Mbc.Ads.Mapper.Test
         public void GetTwoDimArrayProperty()
         {
             // Arrange
-            var data = new MockDataObject { Array2 = new[,] { { 0, 0, 0 }, { 0, 42, 0 } } };
+            var data = new MockDataObject
+            {
+                Array2 = new[,]
+                {
+                    { 0, 0, 0 },
+                    { 0, 42, 0 },
+                },
+            };
             var member = typeof(MockDataObject).GetMember(nameof(MockDataObject.Array2)).First();
             var getter = DataObjectAccessor.CreateValueGetter<MockDataObject>(member, 4);
 

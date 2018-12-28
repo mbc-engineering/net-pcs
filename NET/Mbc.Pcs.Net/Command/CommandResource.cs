@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Mbc.Pcs.Net.Command
 {
     /// <summary>
-    /// Helps to manage Translation resources for a specific command. 
+    /// Helps to manage Translation resources for a specific command.
     /// It also uses the build in CommandResources.resx as fallback values.
     /// </summary>
     public class CommandResource
@@ -27,8 +27,8 @@ namespace Mbc.Pcs.Net.Command
         /// <summary>
         /// Adds a Knowing Result Code Plain Text result
         /// </summary>
-        /// <param name="code">the Status Code Value</param>
-        /// <param name="plainText">The Readable Text for the status</param>
+        /// <param name="resultCode">the Status Code Value</param>
+        /// <param name="redableText">The Readable Text for the status</param>
         public void AddCustomResultCodeText(ushort resultCode, string redableText)
         {
             _customResultCodeTranslations.Add(resultCode, redableText);
@@ -52,12 +52,12 @@ namespace Mbc.Pcs.Net.Command
                     plainText = CommandResources.ResourceManager.GetString($"ERR_ResultCode_{resultCode}");
                 }
                 catch
-                {                
+                {
                 }
 
                 // set fallback
                 if (string.IsNullOrWhiteSpace(plainText))
-                {                    
+                {
                     plainText = string.Format(CommandResources.ERR_ResultCode, resultCode);
                 }
             }

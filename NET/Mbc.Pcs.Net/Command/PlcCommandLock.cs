@@ -25,7 +25,7 @@ namespace Mbc.Pcs.Net.Command
             {
                 while (!_lockCommand.Add(uniqueCommandLock))
                 {
-                    if(behavior == ExecutionBehavior.ThrowException)
+                    if (behavior == ExecutionBehavior.ThrowException)
                     {
                         throw new PlcCommandLockException(adsCommandFbPath, behavior, CommandResources.ERR_ExecutionBehaviorCommandLocked);
                     }

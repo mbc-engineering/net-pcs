@@ -11,6 +11,6 @@ namespace Mbc.Pcs.Net.Command
         Running = 1,
         Done = 2,
         Cancelled = 3,
-        StartUserDefined = 100
+        StartUserDefined = 100,
     }
 }

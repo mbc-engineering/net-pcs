@@ -8,16 +8,11 @@ using System.Collections.Generic;
 
 namespace Mbc.Pcs.Net.Command
 {
-    public class CommandOutputBuilder
+    public static class CommandOutputBuilder
     {
-
         public static ICommandOutput FromDictionary(IDictionary<string, object> value)
         {
             return new DictionaryCommandOutputAdapter(value);
-        }
-
-        public CommandOutputBuilder()
-        {
         }
 
         private class DictionaryCommandOutputAdapter : ICommandOutput
@@ -45,7 +40,7 @@ namespace Mbc.Pcs.Net.Command
                     catch (InvalidCastException e)
                     {
                         throw new InvalidCastException($"Symbol {name} is not from the required type symbol to {typeof(T)}", e);
-                    }                    
+                    }
                 }
             }
 

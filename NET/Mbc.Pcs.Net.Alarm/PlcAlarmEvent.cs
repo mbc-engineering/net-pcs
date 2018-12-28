@@ -90,6 +90,16 @@ namespace Mbc.Pcs.Net.Alarm
         {
             return Id == other.Id && SrcId == other.SrcId;
         }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as PlcAlarmEvent);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     public enum AlarmEventClass

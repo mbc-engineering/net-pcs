@@ -12,10 +12,10 @@ namespace Mbc.Pcs.Net.Test
         {
             // Arrange
             var subject = new CommandResource(new Dictionary<ushort, string>()
-                {
-                    [101] = "custom text 101",
-                    [102] = "custom text 102"
-                });            
+            {
+                [101] = "custom text 101",
+                [102] = "custom text 102",
+            });
 
             // Act
             subject.AddCustomResultCodeText(103, "custom text 103");
@@ -27,7 +27,7 @@ namespace Mbc.Pcs.Net.Test
         }
 
         [Fact]
-        public void AddNoCustomResultCodeText_CheckFallbacks()
+        public void AddNoCustomResultCodeTextCheckFallbacks()
         {
             // Arrange
             var subject = new CommandResource();

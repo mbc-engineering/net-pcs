@@ -90,9 +90,11 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                     lock (_userDataLock)
                     {
                         // Dedect Cancel Request from PlcCommand over CancellationToken
-                        if (parm.Arguments[1] is bool cancelValue1 && cancelValue1 == false && _userData != null
-                            || _variableHandles.TryGetValue((int)parm.Arguments[0], out string variable) && variable.EndsWith(".stHandshake.bExecute")
-                            && parm.Arguments[1] is bool cancelValue && cancelValue == false && _userData != null)
+                        if ((parm.Arguments[1] is bool cancelValue1 && cancelValue1 == false && _userData != null)
+                            || (_variableHandles.TryGetValue((int)parm.Arguments[0], out string variable)
+                                && variable.EndsWith(".stHandshake.bExecute")
+                                && parm.Arguments[1] is bool cancelValue
+                                && cancelValue == false && _userData != null))
                         {
                             // Raise Cancel Data Exchange from SPS
                             _handshakeStruct.Progress = 50;
@@ -119,8 +121,10 @@ namespace Mbc.Pcs.Net.Test.Util.Command
 
                         if (option != PlcCommandFakeOption.NoResponse)
                         {
-                            _handshakeStruct = new CommandHandshakeStruct();
-                            _handshakeStruct.SubTask = ResponseSubTask;
+                            _handshakeStruct = new CommandHandshakeStruct
+                            {
+                                SubTask = ResponseSubTask,
+                            };
 
                             if (option == PlcCommandFakeOption.ResponseDelayedCancel)
                             {
@@ -153,7 +157,7 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         }
 
         /// <summary>
-        /// The value of the ResultCode. Works only with PlcCommandFakeOption.ResponseImmediatelyFinished. 
+        /// The value of the ResultCode. Works only with PlcCommandFakeOption.ResponseImmediatelyFinished.
         /// Default is Done, but can be used for simulation of user specifc codes
         /// </summary>
         public ushort ResponseStatusCode { get; set; } = (ushort)CommandResultCode.Done;
@@ -173,7 +177,6 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         /// <summary>
         /// When a real system test will be executed, all fakes are ignored and a real PLC Connection will be established
         /// </summary>
-        /// <param name="adsClient"></param>
         public static void SetSystemTestConnection(IAdsConnection adsConnection)
         {
             _systemTestAdsConnection = adsConnection;

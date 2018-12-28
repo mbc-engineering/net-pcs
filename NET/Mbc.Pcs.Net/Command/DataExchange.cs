@@ -11,6 +11,7 @@ namespace Mbc.Pcs.Net.Command
     /// <summary>
     /// Helper class to transfer data from one thread to another.
     /// </summary>
+    /// <typeparam name="T">the type of the Data</typeparam>
     internal class DataExchange<T>
     {
         private bool _signaled;
@@ -30,9 +31,11 @@ namespace Mbc.Pcs.Net.Command
         {
             lock (this)
             {
-                if (!_signaled)
-                    if(!Monitor.Wait(this, timeout))
-                        throw new TimeoutException();
+                if (!_signaled && !Monitor.Wait(this, timeout))
+                {
+                    throw new TimeoutException();
+                }
+
                 _signaled = false;
                 return _data;
             }

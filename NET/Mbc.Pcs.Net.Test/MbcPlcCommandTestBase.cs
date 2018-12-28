@@ -14,11 +14,11 @@ namespace Mbc.Pcs.Net.Test
             bool realPlc = false;
             if (realPlc)
             {
-                TcAdsClient _adsClient = new TcAdsClient();
-                _adsClient.Connect(_plcAmsNetId, _plcAmsPort);
+                TcAdsClient adsClient = new TcAdsClient();
+                adsClient.Connect(_plcAmsNetId, _plcAmsPort);
 
-                AdsCommandConnectionFake.SetSystemTestConnection(_adsClient);
-            }            
+                AdsCommandConnectionFake.SetSystemTestConnection(adsClient);
+            }
         }
     }
 }

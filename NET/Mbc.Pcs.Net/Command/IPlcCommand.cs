@@ -17,12 +17,12 @@ namespace Mbc.Pcs.Net.Command
         TimeSpan Timeout { get; set; }
 
         /// <summary>
-        /// The PLC Variable 
+        /// The PLC Variable
         /// </summary>
         string AdsCommandFbPath { get; }
 
         /// <summary>
-        /// Defines the beavior how to react to parallel exection of this command. 
+        /// Defines the beavior how to react to parallel exection of this command.
         /// Default is locking the second caller and wait for the end of the first command.
         /// </summary>
         ExecutionBehavior ExecutionBehavior { get; set; }

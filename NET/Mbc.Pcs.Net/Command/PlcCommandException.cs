@@ -13,7 +13,6 @@ namespace Mbc.Pcs.Net.Command
     /// </summary>
     public class PlcCommandException : Exception
     {
-        
         public PlcCommandException(string commandVariable)
         {
             CommandVariable = commandVariable;
@@ -43,14 +42,15 @@ namespace Mbc.Pcs.Net.Command
         {
             get
             {
-                var message = base.Message;
+                var message = Message;
+
                 if (!string.IsNullOrEmpty(CommandVariable))
                 {
                     message += Environment.NewLine + $"Command: {CommandVariable}";
                 }
+
                 return message;
             }
         }
-
     }
 }
