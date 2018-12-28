@@ -33,7 +33,7 @@
     <IncludeSource>true</IncludeSource>
 
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>    
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Description>
 Copyright mbc engineering GmbH
 
