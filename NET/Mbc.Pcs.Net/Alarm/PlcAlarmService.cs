@@ -15,6 +15,9 @@ using TcEventLogProxyLib;
 
 namespace Mbc.Pcs.Net.Alarm
 {
+    /// <summary>
+    /// Manages alarms from TcEventLogger V1, see https://infosys.beckhoff.com/index.php?content=../content/1031/tceventlogger/html/introduction.htm&id=4955746947972620140
+    /// </summary>
     public class PlcAlarmService : IPlcAlarmService, IServiceStartable, IDisposable
     {
         private const int LcidGerman = 1031;
@@ -30,6 +33,12 @@ namespace Mbc.Pcs.Net.Alarm
 
         public PlcAlarmService(string adsNetId, int testPlaceNo)
         {
+            // TcEventLogger V1 Works only in a 32Bit Process, because the native dll are x86 compiled
+            if (Environment.Is64BitProcess)
+            {
+                throw new PlatformNotSupportedException("PlcAlarmService uses TcEventLogger V1, that only supports x86");
+            }
+
             _adsNetId = adsNetId;
             _testPlaceNo = testPlaceNo;
         }

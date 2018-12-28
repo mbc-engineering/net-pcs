@@ -2,6 +2,7 @@
   <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->
+    <PlatformTarget>x86</PlatformTarget>
     <Product>Mbc.Pcs.Net.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>

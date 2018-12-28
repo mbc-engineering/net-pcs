@@ -3,7 +3,6 @@
   <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->
-    <TargetFramework>net471</TargetFramework>
     
     <Product>Mbc.Utils.Test</Product>
 

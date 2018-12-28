@@ -1,8 +1,9 @@
 ﻿using FluentAssertions;
+using Mbc.Pcs.Net.Alarm;
 using System;
 using Xunit;
 
-namespace Mbc.Pcs.Net.Alarm.Test
+namespace Mbc.Pcs.Net.Test.Alarm.Test
 {
     public class PlcAlarmEventSorterTest
     {

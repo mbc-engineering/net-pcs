@@ -1,4 +1,6 @@
 #tool "nuget:?package=xunit.runner.console"
+using System.Linq;
+using System.String;
 // Importand: Execute Set-ExecutionPolicy RemoteSigned and Set-ExecutionPolicy RemoteSigned -Scope Process as Administrator in x86 and x64 powershell!
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -6,7 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
-var testreportfolder = Argument("testreportfolder", "testresult");
+var testreportfolder = Argument("testreportfolder", "testresult").TrimEnd('/');
 var nuspecPath = Argument("nuspec", "");
 var nugetOutputDirectory =  $"./{Argument("nugetoutputfolder", "nuget")}";
 
@@ -47,9 +49,11 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    var testAssemblies = GetFiles($"./**/bin/{configuration}/**/*.test.dll");
+    var allTestAssemblies = GetFiles($"./**/bin/{configuration}/**/*.test.dll");
+    var x64TestAssemblies = allTestAssemblies.Where(t => !t.GetFilename().ToString().Contains("Mbc.Pcs.Net"));
+    
     var xunitSettings = new XUnit2Settings {
-        UseX86 = true,
+        UseX86 = false,
         Parallelism = ParallelismOption.Assemblies,
         HtmlReport = true,
         JUnitReport = true,
@@ -57,7 +61,13 @@ Task("Test")
         OutputDirectory = $"./{testreportfolder}",        
     };     
     
-    XUnit2(testAssemblies, xunitSettings); 
+    // Run Tests in x64 Process
+    XUnit2(x64TestAssemblies, xunitSettings); 
+
+    // Run Tests in x86 Process
+    xunitSettings.UseX86 = true;
+    xunitSettings.OutputDirectory += "x86";
+    XUnit2(allTestAssemblies, xunitSettings); 
 });
 
 Task("NugetPublish")

@@ -2,9 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
-    <!-- common nuget configuration see common.props-->
-    <TargetFramework>net471</TargetFramework>
-    
+    <!-- common nuget configuration see common.props-->    
     <VersionPrefix>0.2.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
 
