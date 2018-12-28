@@ -267,10 +267,11 @@ __pycache__/
 *.project.~u
 *.tpy
 **/_Boot/
+/TwinCat/Samples/Mbc.Tc3.Pcs.Samples/*.tclrs
 
 # others
 /tart .
 
 # Cake Build Tools
-/NET/tools
-/TwinCat/Samples/Mbc.Tc3.Pcs.Samples/*.tclrs
+/NET/tools/
+!/NET/tools/packages.config
