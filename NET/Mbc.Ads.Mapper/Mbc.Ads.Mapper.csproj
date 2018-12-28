@@ -3,7 +3,7 @@
   <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->    
-    <VersionPrefix>0.2.0</VersionPrefix>
+    <VersionPrefix>0.2.1</VersionPrefix>
     <VersionSuffix></VersionSuffix>
 
     <Product>Mbc.Ads.Mapper</Product>
