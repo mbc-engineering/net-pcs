@@ -93,7 +93,12 @@ namespace Mbc.Pcs.Net.Alarm
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as PlcAlarmEvent);
+            if (obj is PlcAlarmEvent plcAlarmEvent)
+            {
+                return Equals(plcAlarmEvent);
+            }
+
+            return base.Equals(obj);
         }
 
         public override int GetHashCode()
