@@ -50,7 +50,6 @@ Task("Test")
     .Does(() =>
 {
     var allTestAssemblies = GetFiles($"./**/bin/{configuration}/**/*.test.dll");
-    var x64TestAssemblies = allTestAssemblies.Where(t => !t.GetFilename().ToString().Contains("Mbc.Pcs.Net.Alarm"));
 
     var xunitSettings = new XUnit2Settings {
         UseX86 = false,
@@ -62,7 +61,7 @@ Task("Test")
     };     
     
     // Run Tests in x64 Process
-    XUnit2(x64TestAssemblies, xunitSettings); 
+    XUnit2(allTestAssemblies, xunitSettings); 
 
     // Run Tests in x86 Process
     xunitSettings.UseX86 = true;

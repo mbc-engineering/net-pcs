@@ -1,16 +1,13 @@
-﻿using FakeItEasy;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Mbc.Pcs.Net.Alarm.Service;
 using System;
-using TcEventLogProxyLib;
 using Xunit;
 
 namespace Mbc.Pcs.Net.Alarm.Test
 {
     public class PlcAlarmServiceTest : IDisposable
     {
-        private readonly TcEventLogAdsProxyClass _tcEventLog;
-        private readonly PlcAlarmServiceWrapper _testee;
+        private readonly PlcAlarmServiceTestWrapper _testee;
 
         /// <summary>
         /// All tests uses a faked TC Alarm <see cref="TcEventLogAdsProxyClass"/>
@@ -18,9 +15,7 @@ namespace Mbc.Pcs.Net.Alarm.Test
         /// </summary>
         public PlcAlarmServiceTest()
         {
-            _tcEventLog = A.Fake<TcEventLogAdsProxyClass>();
-
-            _testee = new PlcAlarmServiceWrapper("foo", 1);
+            _testee = new PlcAlarmServiceTestWrapper("foo", 1);
         }
 
         public void Dispose()
@@ -29,7 +24,7 @@ namespace Mbc.Pcs.Net.Alarm.Test
         }
 
         /// <summary>
-        /// Tests the filtering of the source id for a new received alarm event on <see cref="TcEventLogAdsProxyClass"/> from PLC
+        /// Tests the filtering of the source id for a new received alarm event from PLC
         /// A Source id is arranged as follow gxyy
         /// g => Group (1 = Prüfplatzalarm; 3 = Prüfstandalarm; 5 Prüfgruppenalarm)
         /// x => x
@@ -75,11 +70,11 @@ namespace Mbc.Pcs.Net.Alarm.Test
         }
 
         /// <summary>
-        /// Used to Fake the Internal COM Class <see cref="TcEventLogAdsProxyClass"/>
+        /// Used to Handle with the <see cref="PlcAlarmService"/> class
         /// </summary>
-        private class PlcAlarmServiceWrapper : PlcAlarmService
+        private class PlcAlarmServiceTestWrapper : PlcAlarmService
         {
-            public PlcAlarmServiceWrapper(string adsNetId, int testPlaceNo)
+            public PlcAlarmServiceTestWrapper(string adsNetId, int testPlaceNo)
                 : base(adsNetId, testPlaceNo)
             {
             }
