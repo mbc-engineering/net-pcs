@@ -73,6 +73,9 @@ namespace Mbc.Pcs.Net.Alarm.Service
             startInfo.RedirectStandardOutput = true;
             startInfo.RedirectStandardInput = true;
             startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = true;
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+
             startInfo.Arguments = $"--adsnetid {_adsNetId}";
             startInfo.FileName = "Mbc.Pcs.Net.Alarm.Mediator.exe";
 
