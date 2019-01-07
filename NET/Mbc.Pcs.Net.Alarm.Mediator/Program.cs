@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
 using System;
+using TwinCAT.Ads;
 
 namespace Mbc.Pcs.Net.Alarm.Mediator
 {
@@ -25,12 +26,12 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
             commandLineApplication.OnExecute(() =>
                 {
                     // Missing parameter exit application
-                    if (adsNetId.HasValue())
+                    if (!adsNetId.HasValue() || !AmsNetId.TryParse(adsNetId.Value(), out AmsNetId netId))
                     {
                         return 2; // Closed with error
                     }
 
-                    using (var plcAlarm = new PlcAlarmProxy(adsNetId.Value()))
+                    using (var plcAlarm = new PlcAlarmProxy(netId.ToString()))
                     {
                         plcAlarm.AlarmChanged += OnAlarmChanged;
                         plcAlarm.Connect();

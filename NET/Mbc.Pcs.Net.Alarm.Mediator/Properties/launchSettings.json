@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Mbc.Pcs.Net.Alarm.Mediator": {
+      "commandName": "Project",
+      "commandLineArgs": "--adsnetid 10.0.75.1.1.1"
+    }
+  }
+}
