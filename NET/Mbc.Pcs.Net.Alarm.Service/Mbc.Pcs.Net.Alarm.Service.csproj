@@ -7,7 +7,7 @@
   
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->    
-    <VersionPrefix>1.0.2</VersionPrefix>
+    <VersionPrefix>1.0.4</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     
     <Product>Mbc.Pcs.Net.Alarm.Service</Product>
@@ -18,8 +18,8 @@
 
   <ItemGroup>    
     <!-- Include Mbc.Pcs.Net.Alarm.Mediator files into the package-->
-    <!-- Include Mbc.Pcs.Net.Alarm.Mediator files into the package-->
     <Content Include="$(OutDir)\Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="build" Visible="false" />
+    <Content Include="Mbc.Pcs.Net.Alarm.Service.targets" PackagePath="build" />
     <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
   </ItemGroup>
