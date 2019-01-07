@@ -32,22 +32,4 @@ namespace Mbc.Pcs.Net.Alarm
         /// </summary>
         List<PlcAlarmEvent> GetActiveAlarms();
     }
-
-    /// <summary>
-    /// Beschreibt die Änderung des <see cref="PlcAlarmEvent"/>.
-    /// </summary>
-    public enum PlcAlarmEventChangeType
-    {
-        New,
-        Confirm,
-        Reset,
-        Signal,
-        Clear,
-    }
-
-    public class PlcAlarmChangeEventArgs
-    {
-        public PlcAlarmEventChangeType ChangeType { get; set; }
-        public PlcAlarmEvent AlarmEvent { get; set; }
-    }
 }

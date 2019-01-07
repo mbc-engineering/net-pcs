@@ -1,8 +1,6 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
-using Mbc.Pcs.Net.Alarm;
 using System;
-using TCEVENTLOGGERLib;
 using TcEventLogProxyLib;
 using Xunit;
 
@@ -21,7 +19,7 @@ namespace Mbc.Pcs.Net.Alarm.Test
         {
             _tcEventLog = A.Fake<TcEventLogAdsProxyClass>();
 
-            _testee = new PlcAlarmServiceWrapper("foo", 1, _tcEventLog);
+            _testee = new PlcAlarmServiceWrapper("foo", 1);
         }
 
         public void Dispose()
@@ -49,14 +47,18 @@ namespace Mbc.Pcs.Net.Alarm.Test
         public void TcEventsShouldBeFilterOnTheSourceId(int srcId, bool shouldRaiseAlarmChanged)
         {
             // Arrange
-            var tcEvent = A.Fake<ITcEvent>();
-            A.CallTo(() => tcEvent.SrcId).Returns(srcId);
+            var eventArg = new PlcAlarmChangeEventArgs()
+            {
+                AlarmEvent = new PlcAlarmEvent()
+                {
+                    SrcId = srcId,
+                },
+            };
 
             using (var monitoredTestee = _testee.Monitor())
             {
                 // Act
-                _testee.Connect();   // For correct service state
-                _testee.RaiseTcEventLogOnNewEvent(tcEvent);
+                _testee.RaiseOnPlcAlarmServiceMediatorStdoutDataReceived(eventArg);
 
                 // Assert
                 if (shouldRaiseAlarmChanged)
@@ -76,22 +78,14 @@ namespace Mbc.Pcs.Net.Alarm.Test
         /// </summary>
         private class PlcAlarmServiceWrapper : PlcAlarmService
         {
-            private readonly TcEventLogAdsProxyClass _tcEventLog;
-
-            public PlcAlarmServiceWrapper(string adsNetId, int testPlaceNo, TcEventLogAdsProxyClass tcEventLog)
+            public PlcAlarmServiceWrapper(string adsNetId, int testPlaceNo)
                 : base(adsNetId, testPlaceNo)
             {
-                _tcEventLog = tcEventLog;
             }
 
-            protected override TcEventLogAdsProxyClass CreateTcEventLogAdsProxyClass()
+            public void RaiseOnPlcAlarmServiceMediatorStdoutDataReceived(PlcAlarmChangeEventArgs plcAlarmChangeEventArgs)
             {
-                return _tcEventLog;
-            }
-
-            public void RaiseTcEventLogOnNewEvent(ITcEvent tcEvent)
-            {
-                _tcEventLog.OnNewEvent += Raise.FreeForm.With(tcEvent);
+                OnEventChange(plcAlarmChangeEventArgs);
             }
         }
     }

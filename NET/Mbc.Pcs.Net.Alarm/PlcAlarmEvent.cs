@@ -15,12 +15,12 @@ namespace Mbc.Pcs.Net.Alarm
         /// <summary>
         /// Die ID eines Events (eindeutig innerhalb der <see cref="SrcId"/>.
         /// </summary>
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Die Quellen-ID eines Events.
         /// </summary>
-        public long SrcId { get; set; }
+        public int SrcId { get; set; }
 
         /// <summary>
         /// Die Klasse eines Events.

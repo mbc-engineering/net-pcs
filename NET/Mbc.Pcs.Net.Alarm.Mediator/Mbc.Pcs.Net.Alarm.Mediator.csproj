@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- for correctly loading in VS15 set targetFramework bevore import common.props -->
+    <TargetFramework>net471</TargetFramework>    
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)Build\common.props" />
+  
+  <PropertyGroup>
+    <!-- common nuget configuration see common.props-->
+       
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+
+    <Product>Mbc.Pcs.Net.Alarm.Mediator</Product>
+    <PlatformTarget>x86</PlatformTarget>
+    
+    <ApplicationIcon>tceventbar.ico</ApplicationIcon>
+    
+    <OutputType>Exe</OutputType>
+    
+    <StartupObject />
+  </PropertyGroup>
+  
+  <ItemGroup>    
+    <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
+    <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="NLog" Version="4.5.10" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Mbc.Pcs.Net.Alarm\Mbc.Pcs.Net.Alarm.csproj" />
+  </ItemGroup>
+</Project>

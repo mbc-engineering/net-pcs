@@ -21,6 +21,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\Mbc.Pcs.Net.Alarm.Mediator\Mbc.Pcs.Net.Alarm.Mediator.csproj" />
     <ProjectReference Include="..\Mbc.Pcs.Net.Alarm\Mbc.Pcs.Net.Alarm.csproj" />
   </ItemGroup>
 </Project>

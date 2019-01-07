@@ -6,18 +6,20 @@
   <Import Project="$(SolutionDir)Build\common.props" />
   
   <PropertyGroup>
-    <!-- common nuget configuration see common.props-->
-    <PlatformTarget>x86</PlatformTarget>
-    
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <!-- common nuget configuration see common.props-->    
+    <VersionPrefix>1.0.1</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     
     <Product>Mbc.Pcs.Net.Alarm</Product>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../Mbc.Pcs.Net.Alarm.Mediator/bin/Debug/net471/Mbc.Pcs.Net.Alarm.Mediator.exe" Pack="True" PackagePath="build\" />
+  </ItemGroup>
   
   <ItemGroup>    
-    <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
-    <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
+    <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />    
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="NLog" Version="4.5.10" />
   </ItemGroup>
 </Project>
