@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Mbc.Pcs.Net.Alarm
+namespace Mbc.Pcs.Net.Alarm.Service
 {
     public class PlcAlarmService : IPlcAlarmService, IServiceStartable, IDisposable
     {
@@ -125,11 +125,6 @@ namespace Mbc.Pcs.Net.Alarm
             // If correct type, fire eventArgs
             if (JsonConvert.TryDeserializeObject(e.Data, out PlcAlarmChangeEventArgs eventData))
             {
-                if (!FilterSourceId(eventData.AlarmEvent.SrcId))
-                {
-                    return;
-                }
-
                 OnEventChange(eventData);
             }
         }
@@ -141,6 +136,13 @@ namespace Mbc.Pcs.Net.Alarm
 
         protected void OnEventChange(PlcAlarmChangeEventArgs plcAlarmChangeEventArgs)
         {
+            if (plcAlarmChangeEventArgs == null
+                || plcAlarmChangeEventArgs.AlarmEvent == null
+                || !FilterSourceId(plcAlarmChangeEventArgs.AlarmEvent.SrcId))
+            {
+                return;
+            }
+
             try
             {
                 lock (_activeEvents)

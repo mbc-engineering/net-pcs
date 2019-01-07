@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Mbc.Pcs.Net.Alarm
+namespace Mbc.Pcs.Net.Alarm.Service
 {
     internal static class JsonConvert
     {

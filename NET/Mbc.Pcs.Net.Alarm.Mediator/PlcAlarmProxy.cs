@@ -3,11 +3,8 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using Mbc.Common.Interface;
 using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using TCEVENTLOGGERLib;

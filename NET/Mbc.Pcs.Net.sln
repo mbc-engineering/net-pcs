@@ -45,6 +45,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Alarm.Test", "M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Alarm.Mediator", "Mbc.Pcs.Net.Alarm.Mediator\Mbc.Pcs.Net.Alarm.Mediator.csproj", "{4464DAFD-EC70-4338-9DFE-7ECF75915244}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Alarm.Service", "Mbc.Pcs.Net.Alarm.Service\Mbc.Pcs.Net.Alarm.Service.csproj", "{941B0BDA-CB98-4AD3-AD8F-B5995F3AC5CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Pcs.Net.Alarm.Service.Test", "Mbc.Pcs.Net.Alarm.Service.Test\Mbc.Pcs.Net.Alarm.Service.Test.csproj", "{D5E5FF98-62C5-4231-B8B0-95F4A12FC033}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +103,14 @@ Global
 		{4464DAFD-EC70-4338-9DFE-7ECF75915244}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4464DAFD-EC70-4338-9DFE-7ECF75915244}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4464DAFD-EC70-4338-9DFE-7ECF75915244}.Release|Any CPU.Build.0 = Release|Any CPU
+		{941B0BDA-CB98-4AD3-AD8F-B5995F3AC5CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{941B0BDA-CB98-4AD3-AD8F-B5995F3AC5CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{941B0BDA-CB98-4AD3-AD8F-B5995F3AC5CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{941B0BDA-CB98-4AD3-AD8F-B5995F3AC5CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5E5FF98-62C5-4231-B8B0-95F4A12FC033}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5E5FF98-62C5-4231-B8B0-95F4A12FC033}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5E5FF98-62C5-4231-B8B0-95F4A12FC033}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5E5FF98-62C5-4231-B8B0-95F4A12FC033}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

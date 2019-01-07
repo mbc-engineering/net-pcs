@@ -6,29 +6,32 @@
   <Import Project="$(SolutionDir)Build\common.props" />
   
   <PropertyGroup>
-    <!-- common nuget configuration see common.props-->
-       
-    <OutputType>Exe</OutputType>
-    <ApplicationIcon>tceventbar.ico</ApplicationIcon>
-    
+    <!-- common nuget configuration see common.props-->    
     <VersionPrefix>1.0.2</VersionPrefix>
     <VersionSuffix></VersionSuffix>
+    
+    <Product>Mbc.Pcs.Net.Alarm.Service</Product>
 
-    <Product>Mbc.Pcs.Net.Alarm.Mediator</Product>
-    <PlatformTarget>x86</PlatformTarget>
-
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>    
-    <StartupObject />
+    <!-- Disable Architecture mismatch of Mbc.Pcs.Net.Alarm.Mediator Project-->
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>    
   </PropertyGroup>
-  
+
   <ItemGroup>    
+    <!-- Include Mbc.Pcs.Net.Alarm.Mediator files into the package-->
+    <!-- Include Mbc.Pcs.Net.Alarm.Mediator files into the package-->
+    <Content Include="$(OutDir)\Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="build" Visible="false" />
     <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>    
+    <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />    
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="NLog" Version="4.5.10" />
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\Mbc.Pcs.Net.Alarm.Mediator\Mbc.Pcs.Net.Alarm.Mediator.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\Mbc.Pcs.Net.Alarm\Mbc.Pcs.Net.Alarm.csproj" />
   </ItemGroup>
 </Project>

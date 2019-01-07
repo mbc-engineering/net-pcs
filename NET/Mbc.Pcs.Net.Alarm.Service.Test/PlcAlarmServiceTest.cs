@@ -1,5 +1,6 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
+using Mbc.Pcs.Net.Alarm.Service;
 using System;
 using TcEventLogProxyLib;
 using Xunit;
