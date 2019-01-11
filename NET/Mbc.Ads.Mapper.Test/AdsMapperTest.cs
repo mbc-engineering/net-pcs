@@ -5,6 +5,7 @@
 
 using FluentAssertions;
 using System;
+using System.Diagnostics;
 using TwinCAT.Ads;
 using Xunit;
 using Xunit.Abstractions;
@@ -57,6 +58,30 @@ namespace Mbc.Ads.Mapper.Test
             mappedResult.IntArrayValue[2].Should().Be(102);
 
             mappedResult.EnumStateValue.Should().Be(State.Running);
+        }
+
+        [Fact]
+        public void AdsMappingConfigurationPerformance()
+        {
+            // Arrange
+            AdsMapperConfiguration<DestinationDataObject> config = new AdsMapperConfiguration<DestinationDataObject>(
+                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix('f', 'n', 'b', 'a', 'e'))
+                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
+                  .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertFromSourceUsing(value => ((double)value) / 2)));
+            AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
+
+            // Act
+            var stopwatch = Stopwatch.StartNew();
+            for (int i = 0; i < 50000; i++)
+            {
+                _fakePlcData.AdsStream.Position = 0;
+                mapper.MapStream(_fakePlcData.AdsStream);
+            }
+
+            stopwatch.Stop();
+
+            // Assert
+            _testOutput.WriteLine("50'000 Mappings = {0}", stopwatch.Elapsed);
         }
 
         [Fact(Skip = "Currently not implemented")]

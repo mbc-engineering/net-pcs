@@ -3,7 +3,7 @@
   <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->    
-    <VersionPrefix>0.2.1</VersionPrefix>
+    <VersionPrefix>0.2.2</VersionPrefix>
     <VersionSuffix></VersionSuffix>
 
     <Product>Mbc.Ads.Mapper</Product>
@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.0" />
     <PackageReference Include="Ensure.That" Version="8.0.0" />
+    <PackageReference Include="Mbc.Common" Version="0.2.2" />
     <PackageReference Include="NLog" Version="4.5.10" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
