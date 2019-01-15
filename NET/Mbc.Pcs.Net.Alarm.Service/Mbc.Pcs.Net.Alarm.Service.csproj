@@ -13,7 +13,8 @@
     <Product>Mbc.Pcs.Net.Alarm.Service</Product>
 
     <!-- Disable Architecture mismatch of Mbc.Pcs.Net.Alarm.Mediator Project-->
-    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>    
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <Version>1.1.2</Version>    
   </PropertyGroup>
 
   <ItemGroup>    

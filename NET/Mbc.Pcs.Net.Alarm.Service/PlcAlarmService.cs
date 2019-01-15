@@ -18,11 +18,13 @@ namespace Mbc.Pcs.Net.Alarm.Service
 
         private readonly List<PlcAlarmEvent> _activeEvents = new List<PlcAlarmEvent>();
         private readonly string _adsNetId;
+        private readonly int _languageId;
         private Process _plcAlarmServiceMediator;
 
-        public PlcAlarmService(string adsNetId)
+        public PlcAlarmService(string adsNetId, int languageId)
         {
             _adsNetId = adsNetId;
+            _languageId = languageId;
         }
 
         public bool IsConnected => _plcAlarmServiceMediator != null && !_plcAlarmServiceMediator.HasExited;
@@ -76,7 +78,8 @@ namespace Mbc.Pcs.Net.Alarm.Service
             startInfo.CreateNoWindow = true;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
-            startInfo.Arguments = $"--adsnetid {_adsNetId}";
+            startInfo.Arguments = $"--adsnetid {_adsNetId} ";
+            startInfo.Arguments += $"--languageid {_languageId} ";
             startInfo.FileName = "Mbc.Pcs.Net.Alarm.Mediator.exe";
 
             _plcAlarmServiceMediator.StartInfo = startInfo;

@@ -27,7 +27,7 @@ namespace Mbc.Pcs.Net.Alarm.Test
         private class PlcAlarmServiceTestWrapper : PlcAlarmService
         {
             public PlcAlarmServiceTestWrapper(string adsNetId)
-                : base(adsNetId)
+                : base(adsNetId, 1033)
             {
             }
 
