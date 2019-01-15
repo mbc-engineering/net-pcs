@@ -18,13 +18,11 @@ namespace Mbc.Pcs.Net.Alarm.Service
 
         private readonly List<PlcAlarmEvent> _activeEvents = new List<PlcAlarmEvent>();
         private readonly string _adsNetId;
-        private readonly int _testPlaceNo;
         private Process _plcAlarmServiceMediator;
 
-        public PlcAlarmService(string adsNetId, int testPlaceNo)
+        public PlcAlarmService(string adsNetId)
         {
             _adsNetId = adsNetId;
-            _testPlaceNo = testPlaceNo;
         }
 
         public bool IsConnected => _plcAlarmServiceMediator != null && !_plcAlarmServiceMediator.HasExited;
@@ -49,6 +47,8 @@ namespace Mbc.Pcs.Net.Alarm.Service
                 AlarmChanged -= value;
             }
         }
+
+        public event EventHandler<DataEventArgs> Error;
 
         public void Start()
         {
@@ -95,7 +95,7 @@ namespace Mbc.Pcs.Net.Alarm.Service
             if (IsConnected)
             {
                 _plcAlarmServiceMediator.OutputDataReceived -= OnPlcAlarmServiceMediatorStdoutDataReceived;
-                _plcAlarmServiceMediator.Exited += OnPlcAlarmServiceMediatorExited;
+                _plcAlarmServiceMediator.Exited -= OnPlcAlarmServiceMediatorExited;
 
                 _plcAlarmServiceMediator.StandardInput.WriteLine("quit");
 
@@ -123,21 +123,25 @@ namespace Mbc.Pcs.Net.Alarm.Service
             }
         }
 
-        protected void OnPlcAlarmServiceMediatorStdoutDataReceived(object sender, DataReceivedEventArgs e)
+        protected virtual void OnPlcAlarmServiceMediatorStdoutDataReceived(object sender, DataReceivedEventArgs e)
         {
             // If correct type, fire eventArgs
             if (JsonConvert.TryDeserializeObject(e.Data, out PlcAlarmChangeEventArgs eventData))
             {
                 OnEventChange(eventData);
             }
+            else if (e.Data != null)
+            {
+                OnError(e.Data);
+            }
         }
 
-        private void OnPlcAlarmServiceMediatorExited(object sender, EventArgs e)
+        protected virtual void OnPlcAlarmServiceMediatorExited(object sender, EventArgs e)
         {
             _log.Error($"Unexpected close of Mbc.Pcs.Net.Alarm.Mediator.exe with code: '{(sender as Process)?.ExitCode ?? 0}'");
         }
 
-        protected void OnEventChange(PlcAlarmChangeEventArgs plcAlarmChangeEventArgs)
+        protected virtual void OnEventChange(PlcAlarmChangeEventArgs plcAlarmChangeEventArgs)
         {
             if (plcAlarmChangeEventArgs == null
                 || plcAlarmChangeEventArgs.AlarmEvent == null
@@ -178,20 +182,14 @@ namespace Mbc.Pcs.Net.Alarm.Service
             }
         }
 
-        private bool FilterSourceId(int srcId)
+        protected virtual void OnError(string data)
         {
-            var group = srcId - (srcId % 1000);
-            switch (group)
-            {
-                case 1000: // 1xyy => Prüfplatzalarm (yy=Prüfplatznummer 1-12)
-                    return (srcId % 100) == _testPlaceNo;
-                case 3000: // 3xyy => Prüfstandalarm (yy=Prüfstand 1-4)
-                    return (srcId % 100) == (((_testPlaceNo - 1) % 3) + 1);
-                case 5000: // 5xyy => Prüfgruppenalarm (yy=Prüfgruppe 1-2)
-                    return (srcId % 100) == (((_testPlaceNo - 1) % 6) + 1);
-                default:
-                    return false;
-            }
+            Error?.Invoke(this, new DataEventArgs(data));
+        }
+
+        protected virtual bool FilterSourceId(int srcId)
+        {
+            return true;
         }
     }
 }

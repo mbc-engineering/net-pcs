@@ -17,6 +17,8 @@ namespace Mbc.Pcs.Net.Alarm
 
         event EventHandler<PlcAlarmChangeEventArgs> AlarmChangedWithInitialization;
 
+        event EventHandler<DataEventArgs> Error;
+
         /// <summary>
         /// Liefert zurück, ob der Service mit der PLC
         /// verbunden ist.
