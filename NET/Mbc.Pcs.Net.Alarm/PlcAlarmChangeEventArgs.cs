@@ -8,6 +8,7 @@ namespace Mbc.Pcs.Net.Alarm
     public class PlcAlarmChangeEventArgs
     {
         public PlcAlarmEventChangeType ChangeType { get; set; }
+
         public PlcAlarmEvent AlarmEvent { get; set; }
     }
 }

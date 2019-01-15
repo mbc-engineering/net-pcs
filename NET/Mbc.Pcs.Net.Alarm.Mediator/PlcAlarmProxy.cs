@@ -17,17 +17,17 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
     /// </summary>
     internal class PlcAlarmProxy : IDisposable
     {
-        private const int LcidGerman = 1031;
-
         private static readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private readonly ManualResetEventSlim _activeEventsInitialized = new ManualResetEventSlim(false);
         private readonly object _alarmChangedLock = new object();
         private readonly string _adsNetId;
+        private readonly int _languageId;
+
         private TcEventLogAdsProxyClass _tcEventLog;
 
         public event EventHandler<PlcAlarmChangeEventArgs> AlarmChanged;
 
-        public PlcAlarmProxy(string adsNetId)
+        public PlcAlarmProxy(string adsNetId, int languageId)
         {
             // TcEventLogger V1 Works only in a 32Bit Process, because the native dll are x86 compiled
             if (Environment.Is64BitProcess)
@@ -35,6 +35,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
                 throw new PlatformNotSupportedException("PlcAlarmService uses TcEventLogger V1, that only supports x86");
             }
 
+            _languageId = languageId;
             _adsNetId = adsNetId;
         }
 
@@ -152,7 +153,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
                     Class = (AlarmEventClass)tcEvent.Class,
                     Priority = tcEvent.Priority,
                     Date = tcEvent.Date + TimeSpan.FromMilliseconds(tcEvent.Ms),
-                    Message = tcEvent.GetMsgString(LcidGerman),
+                    Message = tcEvent.GetMsgString(_languageId),
                     SourceName = ReadSource(tcEvent),
                     State = (AlarmEventStates)tcEvent.State,
                     Flags = (AlarmEventFlags)tcEvent.Flags,
@@ -160,7 +161,6 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
                     DateConfirmed = tcEvent.DateConfirmed + TimeSpan.FromMilliseconds(tcEvent.MsConfirmed),
                     DateReset = tcEvent.DateReset + TimeSpan.FromMilliseconds(tcEvent.MsReset),
                     UserData = tcEvent.UserData,
-                    Context = GetAlarmContextFromSrcId(tcEvent.SrcId),
                 };
 
                 lock (_alarmChangedLock)
@@ -174,27 +174,11 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
             }
         }
 
-        private AlarmEventContext GetAlarmContextFromSrcId(int srcId)
-        {
-            var group = srcId - (srcId % 1000);
-            switch (group)
-            {
-                case 1000: // 1xyy => Prüfplatzalarm (yy=Prüfplatznummer 1-12)
-                    return AlarmEventContext.TestPlace;
-                case 3000: // 3xyy => Prüfstandalarm (yy=Prüfstand 1-4)
-                    return AlarmEventContext.TestStand;
-                case 5000: // 5xyy => Prüfgruppenalarm (yy=Prüfgruppe 1-2)
-                    return AlarmEventContext.TestGroup;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(srcId), $"Source-ID {srcId} not in valid range.");
-            }
-        }
-
         private string ReadSource(ITcEvent tcEvent)
         {
             try
             {
-                return tcEvent.SourceName[LcidGerman];
+                return tcEvent.SourceName[_languageId];
             }
             catch (COMException)
             {

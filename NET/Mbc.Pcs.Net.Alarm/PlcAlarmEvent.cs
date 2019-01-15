@@ -81,11 +81,6 @@ namespace Mbc.Pcs.Net.Alarm
         /// </summary>
         public int UserData { get; set; }
 
-        /// <summary>
-        /// Liefert den Context des Alarms zurück.
-        /// </summary>
-        public AlarmEventContext Context { get; set; }
-
         public bool Equals(PlcAlarmEvent other)
         {
             return Id == other.Id && SrcId == other.SrcId;
@@ -182,12 +177,5 @@ namespace Mbc.Pcs.Net.Alarm
         /// Zeit an, dass das Event via ADS erzeugt wurde.
         /// </summary>
         Ads = 0x8000,
-    }
-
-    public enum AlarmEventContext
-    {
-        TestPlace,
-        TestStand,
-        TestGroup,
     }
 }

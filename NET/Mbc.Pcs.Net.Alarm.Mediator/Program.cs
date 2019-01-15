@@ -11,6 +11,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
         /// Startup arguments:
         /// '-?' -> display command arguments
         /// '-adsnetid' -> connection id for the alarm service
+        /// '-languageId' -> the language id to use for the alarm messages
         /// ---
         /// stdin Parameters when process is running:
         /// 'quit' -> disconnect the PlcAlarmProxy from plc
@@ -22,6 +23,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
 
             commandLineApplication.HelpOption("-? | -h | --help");
             var adsNetId = commandLineApplication.Option("-$|-ads |--adsnetid <adsnetid>", "Enter the ADS Net id of the TwinCat Alarm & Event Server.", CommandOptionType.SingleValue, false);
+            var langId = commandLineApplication.Option("-l |--languageid  <languageid>", "Enter the language-id to use for getting the alarm messages (default is english).", CommandOptionType.SingleValue, false);
 
             commandLineApplication.OnExecute(() =>
                 {
@@ -31,7 +33,8 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
                         return 2; // Closed with error
                     }
 
-                    using (var plcAlarm = new PlcAlarmProxy(netId.ToString()))
+                    var languageId = langId.HasValue() ? int.Parse(langId.Value()) : 1033; // Get target language code or take english as default.
+                    using (var plcAlarm = new PlcAlarmProxy(netId.ToString(), languageId))
                     {
                         plcAlarm.AlarmChanged += OnAlarmChanged;
                         plcAlarm.Connect();
