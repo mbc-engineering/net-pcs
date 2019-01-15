@@ -7,7 +7,7 @@
   
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->    
-    <VersionPrefix>1.0.6</VersionPrefix>
+    <VersionPrefix>1.0.7</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     
     <Product>Mbc.Pcs.Net.Alarm.Service</Product>
@@ -31,7 +31,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Mbc.Pcs.Net.Alarm.Mediator\Mbc.Pcs.Net.Alarm.Mediator.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\Mbc.Pcs.Net.Alarm.Mediator\Mbc.Pcs.Net.Alarm.Mediator.csproj" PrivateAssets="All" />
     <ProjectReference Include="..\Mbc.Pcs.Net.Alarm\Mbc.Pcs.Net.Alarm.csproj" />
   </ItemGroup>
 </Project>
