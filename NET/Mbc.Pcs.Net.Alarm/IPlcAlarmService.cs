@@ -14,10 +14,9 @@ namespace Mbc.Pcs.Net.Alarm
     public interface IPlcAlarmService
     {
         event EventHandler<PlcAlarmChangeEventArgs> AlarmChanged;
-
         event EventHandler<PlcAlarmChangeEventArgs> AlarmChangedWithInitialization;
-
         event EventHandler<DataEventArgs> Error;
+        event EventHandler<DataEventArgs> Exited;
 
         /// <summary>
         /// Liefert zurück, ob der Service mit der PLC

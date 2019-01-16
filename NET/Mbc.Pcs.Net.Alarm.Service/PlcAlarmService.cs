@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace Mbc.Pcs.Net.Alarm.Service
 {
@@ -51,6 +52,7 @@ namespace Mbc.Pcs.Net.Alarm.Service
         }
 
         public event EventHandler<DataEventArgs> Error;
+        public event EventHandler<DataEventArgs> Exited;
 
         public void Start()
         {
@@ -77,14 +79,16 @@ namespace Mbc.Pcs.Net.Alarm.Service
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = true;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.StandardOutputEncoding = Encoding.UTF8;
 
             startInfo.Arguments = $"--adsnetid {_adsNetId} ";
             startInfo.Arguments += $"--languageid {_languageId} ";
             startInfo.FileName = "Mbc.Pcs.Net.Alarm.Mediator.exe";
 
             _plcAlarmServiceMediator.StartInfo = startInfo;
-            _plcAlarmServiceMediator.OutputDataReceived += OnPlcAlarmServiceMediatorStdoutDataReceived;
+            _plcAlarmServiceMediator.EnableRaisingEvents = true;
             _plcAlarmServiceMediator.Exited += OnPlcAlarmServiceMediatorExited;
+            _plcAlarmServiceMediator.OutputDataReceived += OnPlcAlarmServiceMediatorStdoutDataReceived;
 
             _log.Info($"Starting process {startInfo.FileName} {startInfo.Arguments}");
             _plcAlarmServiceMediator.Start();
@@ -135,13 +139,19 @@ namespace Mbc.Pcs.Net.Alarm.Service
             }
             else if (e.Data != null)
             {
+                _log.Error($"Could not read incoming plc event-data.");
                 OnError(e.Data);
+            }
+            else if (e.Data == null)
+            {
+                _log.Error($"Message is empty, service has probably been stopped.");
             }
         }
 
         protected virtual void OnPlcAlarmServiceMediatorExited(object sender, EventArgs e)
         {
             _log.Error($"Unexpected close of Mbc.Pcs.Net.Alarm.Mediator.exe with code: '{(sender as Process)?.ExitCode ?? 0}'");
+            Exited?.Invoke(this, new DataEventArgs($"Exit code: '{(sender as Process)?.ExitCode ?? 0}'"));
         }
 
         protected virtual void OnEventChange(PlcAlarmChangeEventArgs plcAlarmChangeEventArgs)
@@ -181,7 +191,8 @@ namespace Mbc.Pcs.Net.Alarm.Service
             }
             catch (Exception e)
             {
-                _log.Warn(e, "Error handling PlcAlarmChangeEventArgs from 'Mbc.Pcs.Net.Alarm.Mediator.exe'.");
+                _log.Error(e, "Error handling PlcAlarmChangeEventArgs from 'Mbc.Pcs.Net.Alarm.Mediator.exe'.");
+                OnError(e.Message);
             }
         }
 

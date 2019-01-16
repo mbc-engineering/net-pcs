@@ -19,6 +19,9 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
         /// <param name="args">the start arguments</param>
         public static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.InputEncoding = System.Text.Encoding.UTF8;
+
             CommandLineApplication commandLineApplication = new CommandLineApplication(throwOnUnexpectedArg: false);
 
             commandLineApplication.HelpOption("-? | -h | --help");

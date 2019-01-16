@@ -7,14 +7,13 @@
   
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->    
-    <VersionPrefix>1.1.1</VersionPrefix>
-    <VersionSuffix></VersionSuffix>
+    <VersionPrefix>1.1.2</VersionPrefix>
+    <VersionSuffix>alpha5</VersionSuffix>
     
     <Product>Mbc.Pcs.Net.Alarm.Service</Product>
 
     <!-- Disable Architecture mismatch of Mbc.Pcs.Net.Alarm.Mediator Project-->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
-    <Version>1.1.2</Version>    
   </PropertyGroup>
 
   <ItemGroup>    
