@@ -11,7 +11,7 @@ namespace Mbc.Pcs.Net.Test.State
 {
     public class PlcStateHeartBeatGeneratorTest : IDisposable
     {
-        private readonly PlcStateHeartBeatGenerator _testee;
+        private readonly PlcStateHeartBeatGenerator<object> _testee;
         private readonly IPlcAdsConnectionService _adsConnection;
         private IPlcStateSampler<object> _plcStateSampler;
 
@@ -20,7 +20,7 @@ namespace Mbc.Pcs.Net.Test.State
             _adsConnection = A.Fake<IPlcAdsConnectionService>();
             _plcStateSampler = A.Fake<IPlcStateSampler<object>>();
 
-            _testee = new PlcStateHeartBeatGenerator(TimeSpan.FromSeconds(1), _adsConnection, _plcStateSampler);
+            _testee = new PlcStateHeartBeatGenerator<object>(TimeSpan.FromSeconds(1), _adsConnection, _plcStateSampler);
         }
 
         public void Dispose()
@@ -29,9 +29,11 @@ namespace Mbc.Pcs.Net.Test.State
         }
 
         [Fact]
-        public void CheckMinimalHeartBeatInterval()
+        public void CheckMinimalHeartBeatIntervalValue()
         {
             // Arrange
+            A.CallTo(() => _plcStateSampler.SampleRate)
+                .Returns(1U);
 
             // Act
             var ex = Record.Exception(() => _testee.HeartBeatInterval = TimeSpan.FromMilliseconds(0));
@@ -55,12 +57,12 @@ namespace Mbc.Pcs.Net.Test.State
 
                 // Assert
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator.HeartBeats))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartBeats))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatEventArgs>(args => args.BeatTime == DateTime.FromFileTime(10));
 
                 monitoredTestee
-                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator.HeartDied));
+                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<object>.HeartDied));
             }
         }
 
@@ -86,12 +88,12 @@ namespace Mbc.Pcs.Net.Test.State
                 // Assert
                 heartBeatCounter.Should().Be(3, "A initial heart beat and also 2 interval heart beats");
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator.HeartBeats))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartBeats))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatEventArgs>(args => args.BeatTime > DateTime.MinValue);
 
                 monitoredTestee
-                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator.HeartDied));
+                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<object>.HeartDied));
             }
         }
 
@@ -111,10 +113,10 @@ namespace Mbc.Pcs.Net.Test.State
 
                 // Assert
                 monitoredTestee
-                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator.HeartBeats));
+                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<object>.HeartBeats));
 
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator.HeartDied))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartDied))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.MinValue, args => args.DiedTime == args.LastHeartBeat.Add(_testee.TimeUntilDie));
             }
@@ -137,12 +139,12 @@ namespace Mbc.Pcs.Net.Test.State
 
                 // Assert
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator.HeartBeats))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartBeats))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatEventArgs>(args => args.BeatTime == DateTime.FromFileTime(10));
 
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator.HeartDied))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartDied))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.FromFileTime(10), args => args.DiedTime == args.LastHeartBeat.Add(_testee.TimeUntilDie));
             }
@@ -168,12 +170,12 @@ namespace Mbc.Pcs.Net.Test.State
 
                 // Assert
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator.HeartBeats))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartBeats))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatEventArgs>(args => args.BeatTime == DateTime.FromFileTime(10));
 
                 monitoredTestee
-                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator.HeartDied));
+                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<object>.HeartDied));
             }
         }
     }

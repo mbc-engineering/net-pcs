@@ -19,11 +19,12 @@ namespace Mbc.Pcs.Net.State
     /// otherwise the there are no heart beats.
     /// the event <see cref="HeartDied"/> fires after the first <see cref="HeartBeats"/> has fired
     /// </summary>
-    public class PlcStateHeartBeatGenerator : IHeartBeat, IDisposable
+    /// <typeparam name="TState">Object of state</typeparam>
+    public class PlcStateHeartBeatGenerator<TState> : IHeartBeat, IDisposable
     {
         public static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IPlcAdsConnectionService _adsConnection;
-        private readonly IPlcStateSampler<object> _plcStateSampler;
+        private readonly IPlcStateSampler<TState> _plcStateSampler;
         private bool _awakening;
         private Timer _lostHearBeatTimer;
         private DateTime _lastHeartBeat;
@@ -34,11 +35,11 @@ namespace Mbc.Pcs.Net.State
 
         public event EventHandler<HeartBeatDiedEventArgs> HeartDied;
 
-        public PlcStateHeartBeatGenerator(TimeSpan beatInterval, IPlcAdsConnectionService adsConnection, IPlcStateSampler<object> plcStateSampler)
+        public PlcStateHeartBeatGenerator(TimeSpan beatInterval, IPlcAdsConnectionService adsConnection, IPlcStateSampler<TState> plcStateSampler)
         {
-            HeartBeatInterval = beatInterval;
             _adsConnection = Ensure.Any.IsNotNull(adsConnection, nameof(adsConnection));
             _plcStateSampler = Ensure.Any.IsNotNull(plcStateSampler, nameof(plcStateSampler));
+            HeartBeatInterval = beatInterval;
 
             // set default timeout
             TimeUntilDie = TimeSpan.FromMilliseconds(HeartBeatInterval.TotalMilliseconds * 1.5);
@@ -51,9 +52,15 @@ namespace Mbc.Pcs.Net.State
             get => _heartBeatIntervall;
             set
             {
-                if (value <= TimeSpan.FromMilliseconds(10))
+                double minimalValue = 10.0;
+                if (_plcStateSampler.SampleRate > 0U)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(HeartBeatInterval), value, "The Value should be greater then 10ms");
+                    minimalValue = 1000 / _plcStateSampler.SampleRate;
+                }
+
+                if (value < TimeSpan.FromMilliseconds(minimalValue))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(HeartBeatInterval), value, $"The Value should be greater then the coresponding source SampleRate of {_plcStateSampler.SampleRate} Hz");
                 }
 
                 _heartBeatIntervall = value;
@@ -115,7 +122,7 @@ namespace Mbc.Pcs.Net.State
             }
         }
 
-        private void StateSamplerOnStateChanged(object sender, PlcStateChangedEventArgs<object> e)
+        private void StateSamplerOnStateChanged(object sender, PlcStateChangedEventArgs<TState> e)
         {
             if (_awakening)
             {
@@ -136,7 +143,7 @@ namespace Mbc.Pcs.Net.State
 
         private void LostHearBeatTimerOnElapsed(object state)
         {
-            if (state is PlcStateHeartBeatGenerator g)
+            if (state is PlcStateHeartBeatGenerator<TState> g)
             {
                 OnHeartDied(g.LastHeartBeat.Add(g.TimeUntilDie));
             }
