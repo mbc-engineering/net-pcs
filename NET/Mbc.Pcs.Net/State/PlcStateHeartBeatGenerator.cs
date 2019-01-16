@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using EnsureThat;
 using Mbc.Pcs.Net.Connection;
 using NLog;
 using System;
@@ -27,6 +28,7 @@ namespace Mbc.Pcs.Net.State
         private Timer _lostHearBeatTimer;
         private DateTime _lastHeartBeat;
         private TimeSpan _timeUntilDie;
+        private TimeSpan _heartBeatIntervall;
 
         public event EventHandler<HeartBeatEventArgs> HeartBeats;
 
@@ -34,17 +36,29 @@ namespace Mbc.Pcs.Net.State
 
         public PlcStateHeartBeatGenerator(TimeSpan beatInterval, IPlcAdsConnectionService adsConnection, IPlcStateSampler<object> plcStateSampler)
         {
-            HeartBeatIntervall = beatInterval;
-            _adsConnection = adsConnection;
-            _plcStateSampler = plcStateSampler;
+            HeartBeatInterval = beatInterval;
+            _adsConnection = Ensure.Any.IsNotNull(adsConnection, nameof(adsConnection));
+            _plcStateSampler = Ensure.Any.IsNotNull(plcStateSampler, nameof(plcStateSampler));
 
             // set default timeout
-            TimeUntilDie = TimeSpan.FromMilliseconds(HeartBeatIntervall.TotalMilliseconds * 1.5);
+            TimeUntilDie = TimeSpan.FromMilliseconds(HeartBeatInterval.TotalMilliseconds * 1.5);
 
             _adsConnection.ConnectionStateChanged += AdsConnectionOnConnectionStateChanged;
         }
 
-        public TimeSpan HeartBeatIntervall { get; set; }
+        public TimeSpan HeartBeatInterval
+        {
+            get => _heartBeatIntervall;
+            set
+            {
+                if (value <= TimeSpan.FromMilliseconds(10))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(HeartBeatInterval), value, "The Value should be greater then 10ms");
+                }
+
+                _heartBeatIntervall = value;
+            }
+        }
 
         public TimeSpan TimeUntilDie
         {
@@ -112,7 +126,7 @@ namespace Mbc.Pcs.Net.State
             }
 
             // invervall has pass
-            if (e.PlcTimeStamp >= StartTime.Add(HeartBeatIntervall))
+            if (e.PlcTimeStamp >= StartTime.Add(HeartBeatInterval))
             {
                 StartTime = e.PlcTimeStamp;
 

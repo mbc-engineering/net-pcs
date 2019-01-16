@@ -10,7 +10,7 @@ namespace Mbc.Pcs.Net
         /// <summary>
         /// The intervall time the heart will beat
         /// </summary>
-        TimeSpan HeartBeatIntervall { get; set; }
+        TimeSpan HeartBeatInterval { get; set; }
 
         /// <summary>
         /// The beat of the heart

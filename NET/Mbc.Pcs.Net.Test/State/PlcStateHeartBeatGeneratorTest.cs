@@ -29,6 +29,19 @@ namespace Mbc.Pcs.Net.Test.State
         }
 
         [Fact]
+        public void CheckMinimalHeartBeatInterval()
+        {
+            // Arrange
+
+            // Act
+            var ex = Record.Exception(() => _testee.HeartBeatInterval = TimeSpan.FromMilliseconds(0));
+
+            // Assert
+            ex.Should().NotBeNull();
+            ex.Should().BeOfType<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
         public void BeatEventShouldTriggerAfterConnection()
         {
             // Arrange
@@ -57,7 +70,7 @@ namespace Mbc.Pcs.Net.Test.State
             // Arrange
             int heartBeatCounter = 0;
             _testee.HeartBeats += (s, args) => heartBeatCounter++;
-            _testee.HeartBeatIntervall = TimeSpan.FromMilliseconds(100);
+            _testee.HeartBeatInterval = TimeSpan.FromMilliseconds(100);
             using (var monitoredTestee = _testee.Monitor())
             {
                 // Act
