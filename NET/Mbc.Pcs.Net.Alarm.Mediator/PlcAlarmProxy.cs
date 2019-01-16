@@ -26,6 +26,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
         private TcEventLogAdsProxyClass _tcEventLog;
 
         public event EventHandler<PlcAlarmChangeEventArgs> AlarmChanged;
+        public event EventHandler OnDisconnect;
 
         public PlcAlarmProxy(string adsNetId, int languageId)
         {
@@ -59,7 +60,8 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
                 tcEventLog.OnClearEvent += TcEventLogOnOnClearEvent;
                 tcEventLog.OnDisconnect += (reason) =>
                 {
-                    _log.Info("TwinCAT Event-Logger disconnected (reason = {reason}).", reason);
+                    _log.Warn("TwinCAT Event-Logger disconnected (reason = {reason}).", reason);
+                    OnDisconnect?.Invoke(this, null);
                 };
                 tcEventLog.Connect(_adsNetId);
                 _tcEventLog = tcEventLog;

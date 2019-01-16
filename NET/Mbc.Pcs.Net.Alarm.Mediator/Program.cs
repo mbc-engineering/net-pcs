@@ -7,6 +7,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
 {
     public static class Program
     {
+        private static PlcAlarmProxy _plcAlarmProxy;
         /// <summary>
         /// Startup arguments:
         /// '-?' -> display command arguments
@@ -27,7 +28,6 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
             commandLineApplication.HelpOption("-? | -h | --help");
             var adsNetId = commandLineApplication.Option("-$|-ads |--adsnetid <adsnetid>", "Enter the ADS Net id of the TwinCat Alarm & Event Server.", CommandOptionType.SingleValue, false);
             var langId = commandLineApplication.Option("-l |--languageid  <languageid>", "Enter the language-id to use for getting the alarm messages (default is english).", CommandOptionType.SingleValue, false);
-
             commandLineApplication.OnExecute(() =>
                 {
                     // Missing parameter exit application
@@ -40,6 +40,8 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
                     using (var plcAlarm = new PlcAlarmProxy(netId.ToString(), languageId))
                     {
                         plcAlarm.AlarmChanged += OnAlarmChanged;
+                        plcAlarm.OnDisconnect += OnDisconnect;
+                        _plcAlarmProxy = plcAlarm;
                         plcAlarm.Connect();
 
                         // wait for quit command
@@ -64,6 +66,12 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
 
             // Parse input arguments
             Environment.ExitCode = commandLineApplication.Execute(args);
+        }
+
+        private static void OnDisconnect(object sender, EventArgs e)
+        {
+            _plcAlarmProxy?.Disconnect(); // Release COM objects and clean-up.
+            Environment.Exit(1); // Exit application
         }
 
         private static void OnAlarmChanged(object sender, PlcAlarmChangeEventArgs e)

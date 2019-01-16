@@ -139,12 +139,13 @@ namespace Mbc.Pcs.Net.Alarm.Service
             }
             else if (e.Data != null)
             {
-                _log.Error($"Could not read incoming plc event-data.");
+                _log.Error($"Could not read incoming plc event-data. Data:" + e.Data);
                 OnError(e.Data);
             }
             else if (e.Data == null)
             {
                 _log.Error($"Message is empty, service has probably been stopped.");
+                Stop();
             }
         }
 
