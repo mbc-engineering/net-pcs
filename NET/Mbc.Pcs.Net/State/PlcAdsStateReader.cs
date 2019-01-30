@@ -13,7 +13,7 @@ using TwinCAT.Ads;
 
 namespace Mbc.Pcs.Net.State
 {
-    public class PlcAdsStateReader<TStatus> : IPlcStateSampler<TStatus>
+    public class PlcAdsStateReader<TStatus> : IPlcStateSampler<TStatus>, IDisposable
         where TStatus : new()
     {
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
@@ -45,6 +45,13 @@ namespace Mbc.Pcs.Net.State
         public bool SamplingActive { get; private set; }
 
         public TStatus CurrentSample { get; private set; } = new TStatus();
+
+        public DateTime CurrentTimeStamp { get; private set; } = DateTime.FromFileTime(0);
+
+        public void Dispose()
+        {
+            _notificationExecutor?.Dispose();
+        }
 
         public void StartSampling()
         {
@@ -124,6 +131,7 @@ namespace Mbc.Pcs.Net.State
                 var timestamp = DateTime.FromFileTime(e.TimeStamp);
 
                 CurrentSample = status;
+                CurrentTimeStamp = timestamp;
 
                 _notificationExecutor.ExecuteAsync(() => OnStateChanged(status, timestamp));
             }

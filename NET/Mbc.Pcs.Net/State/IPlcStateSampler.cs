@@ -22,8 +22,13 @@ namespace Mbc.Pcs.Net.State
         uint SampleRate { get; }
 
         /// <summary>
-        /// Gets the state and time of the last sample as an atomic tuple.
+        /// Gets the state of the last sample
         /// </summary>
         TState CurrentSample { get; }
+
+        /// <summary>
+        /// Gets the time of the last sample
+        /// </summary>
+        DateTime CurrentTimeStamp { get; }
     }
 }
