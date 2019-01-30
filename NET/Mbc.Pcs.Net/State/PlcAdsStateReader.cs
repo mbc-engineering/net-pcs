@@ -44,7 +44,7 @@ namespace Mbc.Pcs.Net.State
 
         public bool SamplingActive { get; private set; }
 
-        public (DateTime TimeStamp, TStatus State) CurrentSample { get; private set; } = (DateTime.FromFileTime(0), new TStatus());
+        public TStatus CurrentSample { get; private set; } = new TStatus();
 
         public void StartSampling()
         {
@@ -123,7 +123,7 @@ namespace Mbc.Pcs.Net.State
                 TStatus status = _adsMapper.MapStream(e.DataStream);
                 var timestamp = DateTime.FromFileTime(e.TimeStamp);
 
-                CurrentSample = (timestamp, status);
+                CurrentSample = status;
 
                 _notificationExecutor.ExecuteAsync(() => OnStateChanged(status, timestamp));
             }

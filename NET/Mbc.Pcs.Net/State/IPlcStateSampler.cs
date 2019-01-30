@@ -24,6 +24,6 @@ namespace Mbc.Pcs.Net.State
         /// <summary>
         /// Gets the state and time of the last sample as an atomic tuple.
         /// </summary>
-        (DateTime TimeStamp, TState State) CurrentSample { get; }
+        TState CurrentSample { get; }
     }
 }
