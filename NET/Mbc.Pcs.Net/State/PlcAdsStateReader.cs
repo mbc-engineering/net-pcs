@@ -9,6 +9,7 @@ using Mbc.AsyncUtils;
 using Mbc.Pcs.Net.Connection;
 using NLog;
 using System;
+using System.Collections.Generic;
 using TwinCAT.Ads;
 
 namespace Mbc.Pcs.Net.State
@@ -20,6 +21,8 @@ namespace Mbc.Pcs.Net.State
 
         private readonly IPlcAdsConnectionService _adsConnectionService;
         private readonly PlcAdsStateReaderConfig<TStatus> _config;
+        private readonly int _notificationBlockSize;
+        private readonly List<(DateTime TimeStamp, TStatus State)> _notificationBlockBuffer;
         private AsyncSerializedTaskExecutor _notificationExecutor;
         private IAdsSymbolInfo _adsSymbolInfo;
         private int _statusNotificationHandle;
@@ -29,15 +32,21 @@ namespace Mbc.Pcs.Net.State
 
         public event EventHandler<PlcStateChangedEventArgs<TStatus>> StateChanged;
 
+        public event EventHandler<PlcMultiStateChangedEventArgs<TStatus>> StatesChanged;
+
         public PlcAdsStateReader(IPlcAdsConnectionService adsConnectionService, PlcAdsStateReaderConfig<TStatus> config)
         {
             // Momentane Einschränkungen der Cycle-Time: Ganzzahlig darstellbar und max. 1000 Hz
             EnsureArg.IsInRange(config.CycleTime, TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(1000), nameof(config), opts => opts.WithMessage("Cycle time must be in range 1s to 1ms(1Hz-1000Hz)."));
             EnsureArg.Is(Math.IEEERemainder(1000, config.CycleTime.TotalMilliseconds), 0, nameof(config), opts => opts.WithMessage("Cycle time must be a divisible integer."));
+            EnsureArg.IsGte(config.MaxDelay, config.CycleTime, nameof(config), opts => opts.WithMessage("MaxDelay must be greater/equal to CycleTime"));
+            EnsureArg.Is(Math.IEEERemainder(config.MaxDelay.TotalMilliseconds, config.CycleTime.TotalMilliseconds), 0, nameof(config), opts => opts.WithMessage("MayDelay must be integer divisible with CycleTime"));
             Ensure.Any.IsNotNull(adsConnectionService, nameof(adsConnectionService));
 
             _adsConnectionService = adsConnectionService;
             _config = config;
+            _notificationBlockSize = (int)(config.MaxDelay.TotalMilliseconds / config.CycleTime.TotalMilliseconds);
+            _notificationBlockBuffer = new List<(DateTime TimeStamp, TStatus State)>(_notificationBlockSize);
         }
 
         public uint SampleRate => (uint)(1000 / _config.CycleTime.TotalMilliseconds);
@@ -66,6 +75,7 @@ namespace Mbc.Pcs.Net.State
                 _logger.Error(e, "Error in notification event handler.");
             };
 
+            _notificationBlockBuffer.Clear();
             _adsConnectionService.Connection.AdsNotification += OnAdsNotification;
             _adsConnectionService.Connection.AdsNotificationError += OnAdsNotificationError;
 
@@ -133,7 +143,16 @@ namespace Mbc.Pcs.Net.State
                 CurrentSample = status;
                 CurrentTimeStamp = timestamp;
 
+                _notificationBlockBuffer.Add((timestamp, status));
+
                 _notificationExecutor.ExecuteAsync(() => OnStateChanged(status, timestamp));
+
+                if (_notificationBlockBuffer.Count == _notificationBlockSize)
+                {
+                    var args = new PlcMultiStateChangedEventArgs<TStatus>(_notificationBlockBuffer);
+                    _notificationExecutor.ExecuteAsync(() => StatesChanged?.Invoke(this, args));
+                    _notificationBlockBuffer.Clear();
+                }
             }
             catch (Exception ex)
             {

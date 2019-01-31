@@ -3,6 +3,7 @@ using FluentAssertions;
 using Mbc.Pcs.Net.Connection;
 using Mbc.Pcs.Net.State;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Xunit;
@@ -53,7 +54,7 @@ namespace Mbc.Pcs.Net.Test.State
                 // #1 connection is needed
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(true, null));
                 // #2 new state
-                _plcStateSampler.StateChanged += Raise.With(new PlcStateChangedEventArgs<object>(null, DateTime.FromFileTime(10)));
+                _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<object>(new List<(DateTime timestamp, object state)> { { (DateTime.FromFileTime(10), null) } }));
 
                 // Assert
                 monitoredTestee
@@ -82,7 +83,7 @@ namespace Mbc.Pcs.Net.Test.State
                 var sw = Stopwatch.StartNew();
                 while (sw.Elapsed <= TimeSpan.FromMilliseconds(250))
                 {
-                    _plcStateSampler.StateChanged += Raise.With(new PlcStateChangedEventArgs<object>(null, DateTime.MinValue.Add(sw.Elapsed)));
+                    _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<object>(new List<(DateTime timestamp, object state)> { { (DateTime.MinValue.Add(sw.Elapsed), null) } }));
                 }
 
                 // Assert
@@ -132,7 +133,7 @@ namespace Mbc.Pcs.Net.Test.State
                 // #1 connection is needed
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(true, null));
                 // #2 one state raise then nomore
-                _plcStateSampler.StateChanged += Raise.With(new PlcStateChangedEventArgs<object>(null, DateTime.FromFileTime(10)));
+                _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<object>(new List<(DateTime timestamp, object state)> { { (DateTime.FromFileTime(10), null) } }));
 
                 // wait for timeout
                 await Task.Delay(_testee.TimeUntilDie);
@@ -161,7 +162,7 @@ namespace Mbc.Pcs.Net.Test.State
                 // #1 connection is needed
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(true, null));
                 // #2 new data recived
-                _plcStateSampler.StateChanged += Raise.With(new PlcStateChangedEventArgs<object>(null, DateTime.FromFileTime(10)));
+                _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<object>(new List<(DateTime timestamp, object state)> { { (DateTime.FromFileTime(10), null) } }));
                 // #3 connection lost
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(false, null));
 

@@ -122,7 +122,7 @@ namespace Mbc.Pcs.Net.State
             }
         }
 
-        private void StateSamplerOnStateChanged(object sender, PlcStateChangedEventArgs<TState> e)
+        private void StateSamplerOnStateChanged(object sender, PlcMultiStateChangedEventArgs<TState> e)
         {
             if (_awakening)
             {
@@ -154,16 +154,16 @@ namespace Mbc.Pcs.Net.State
             _awakening = true;
             _lostHearBeatTimer = new Timer(LostHearBeatTimerOnElapsed, this, TimeUntilDie, Timeout.InfiniteTimeSpan);
 
-            _plcStateSampler.StateChanged += StateSamplerOnStateChanged;
+            _plcStateSampler.StatesChanged += StateSamplerOnStateChanged;
         }
 
         private void StopStateObservation()
         {
             _awakening = false;
-            _lostHearBeatTimer.Dispose();
+            _lostHearBeatTimer?.Dispose();
             _lostHearBeatTimer = null;
 
-            _plcStateSampler.StateChanged -= StateSamplerOnStateChanged;
+            _plcStateSampler.StatesChanged -= StateSamplerOnStateChanged;
         }
     }
 }

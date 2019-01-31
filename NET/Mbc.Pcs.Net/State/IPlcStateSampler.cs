@@ -13,7 +13,14 @@ namespace Mbc.Pcs.Net.State
     /// <typeparam name="TState">the type of the sampled PLC data</typeparam>
     public interface IPlcStateSampler<TState>
     {
+        [Obsolete("Use StatesChanged instead")]
         event EventHandler<PlcStateChangedEventArgs<TState>> StateChanged;
+
+        /// <summary>
+        /// Event für eine Block an Statusänderungen. Die Blockgrösse ist eine
+        /// Eigenschaft der Implementierung dieser Schnittstelle.
+        /// </summary>
+        event EventHandler<PlcMultiStateChangedEventArgs<TState>> StatesChanged;
 
         /// <summary>
         /// Gets the sample rate of the <see cref="StateChanged"/> event
