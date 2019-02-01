@@ -12,6 +12,7 @@ namespace Mbc.Pcs.Net.State
     /// </summary>
     /// <typeparam name="TState">the type of the sampled PLC data</typeparam>
     public interface IPlcStateSampler<TState>
+        where TState : IPlcState
     {
         [Obsolete("Use StatesChanged instead")]
         event EventHandler<PlcStateChangedEventArgs<TState>> StateChanged;
@@ -32,10 +33,5 @@ namespace Mbc.Pcs.Net.State
         /// Gets the state of the last sample
         /// </summary>
         TState CurrentSample { get; }
-
-        /// <summary>
-        /// Gets the time of the last sample
-        /// </summary>
-        DateTime CurrentTimeStamp { get; }
     }
 }

@@ -8,11 +8,11 @@ using System;
 namespace Mbc.Pcs.Net.State
 {
     public class PlcStateChangedEventArgs<TState>
+        where TState : IPlcState
     {
-        public PlcStateChangedEventArgs(TState status, DateTime plcTimeStamp)
+        public PlcStateChangedEventArgs(TState status)
         {
             Status = status;
-            PlcTimeStamp = plcTimeStamp;
         }
 
         /// <summary>
@@ -23,6 +23,7 @@ namespace Mbc.Pcs.Net.State
         /// <summary>
         /// PLC Time Stamp zu welchem Zeitpunkt die erhaltenen Status daten generiert wurden
         /// </summary>
-        public DateTime PlcTimeStamp { get;  }
+        [Obsolete("Use Status.Timestamp")]
+        public DateTime PlcTimeStamp => Status.PlcTimeStamp;
     }
 }

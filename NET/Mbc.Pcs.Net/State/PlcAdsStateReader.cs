@@ -15,14 +15,14 @@ using TwinCAT.Ads;
 namespace Mbc.Pcs.Net.State
 {
     public class PlcAdsStateReader<TStatus> : IPlcStateSampler<TStatus>, IDisposable
-        where TStatus : new()
+        where TStatus : IPlcState, new()
     {
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IPlcAdsConnectionService _adsConnectionService;
         private readonly PlcAdsStateReaderConfig<TStatus> _config;
         private readonly int _notificationBlockSize;
-        private readonly List<(DateTime TimeStamp, TStatus State)> _notificationBlockBuffer;
+        private readonly List<TStatus> _notificationBlockBuffer;
         private AsyncSerializedTaskExecutor _notificationExecutor;
         private IAdsSymbolInfo _adsSymbolInfo;
         private int _statusNotificationHandle;
@@ -46,7 +46,7 @@ namespace Mbc.Pcs.Net.State
             _adsConnectionService = adsConnectionService;
             _config = config;
             _notificationBlockSize = (int)(config.MaxDelay.TotalMilliseconds / config.CycleTime.TotalMilliseconds);
-            _notificationBlockBuffer = new List<(DateTime TimeStamp, TStatus State)>(_notificationBlockSize);
+            _notificationBlockBuffer = new List<TStatus>(_notificationBlockSize);
         }
 
         public uint SampleRate => (uint)(1000 / _config.CycleTime.TotalMilliseconds);
@@ -54,8 +54,6 @@ namespace Mbc.Pcs.Net.State
         public bool SamplingActive { get; private set; }
 
         public TStatus CurrentSample { get; private set; } = new TStatus();
-
-        public DateTime CurrentTimeStamp { get; private set; } = DateTime.FromFileTime(0);
 
         public void Dispose()
         {
@@ -139,11 +137,11 @@ namespace Mbc.Pcs.Net.State
             {
                 TStatus status = _adsMapper.MapStream(e.DataStream);
                 var timestamp = DateTime.FromFileTime(e.TimeStamp);
+                status.PlcTimeStamp = timestamp;
 
                 CurrentSample = status;
-                CurrentTimeStamp = timestamp;
 
-                _notificationBlockBuffer.Add((timestamp, status));
+                _notificationBlockBuffer.Add(status);
 
                 _notificationExecutor.ExecuteAsync(() => OnStateChanged(status, timestamp));
 
@@ -162,7 +160,7 @@ namespace Mbc.Pcs.Net.State
 
         protected virtual void OnStateChanged(TStatus status, DateTime dateTime)
         {
-            StateChanged?.Invoke(this, new PlcStateChangedEventArgs<TStatus>(status, dateTime));
+            StateChanged?.Invoke(this, new PlcStateChangedEventArgs<TStatus>(status));
         }
 
         private void LogNotificationQueueOverflow()

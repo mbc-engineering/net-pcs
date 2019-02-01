@@ -12,16 +12,16 @@ namespace Mbc.Pcs.Net.Test.State
 {
     public class PlcStateHeartBeatGeneratorTest : IDisposable
     {
-        private readonly PlcStateHeartBeatGenerator<object> _testee;
+        private readonly PlcStateHeartBeatGenerator<PlcStateDummy> _testee;
         private readonly IPlcAdsConnectionService _adsConnection;
-        private IPlcStateSampler<object> _plcStateSampler;
+        private IPlcStateSampler<PlcStateDummy> _plcStateSampler;
 
         public PlcStateHeartBeatGeneratorTest()
         {
             _adsConnection = A.Fake<IPlcAdsConnectionService>();
-            _plcStateSampler = A.Fake<IPlcStateSampler<object>>();
+            _plcStateSampler = A.Fake<IPlcStateSampler<PlcStateDummy>>();
 
-            _testee = new PlcStateHeartBeatGenerator<object>(TimeSpan.FromSeconds(1), _adsConnection, _plcStateSampler);
+            _testee = new PlcStateHeartBeatGenerator<PlcStateDummy>(TimeSpan.FromSeconds(1), _adsConnection, _plcStateSampler);
         }
 
         public void Dispose()
@@ -54,16 +54,16 @@ namespace Mbc.Pcs.Net.Test.State
                 // #1 connection is needed
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(true, null));
                 // #2 new state
-                _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<object>(new List<(DateTime timestamp, object state)> { { (DateTime.FromFileTime(10), null) } }));
+                _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<PlcStateDummy>(new List<PlcStateDummy> { { new PlcStateDummy { PlcTimeStamp = DateTime.FromFileTime(10) } } }));
 
                 // Assert
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartBeats))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartBeats))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatEventArgs>(args => args.BeatTime == DateTime.FromFileTime(10));
 
                 monitoredTestee
-                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<object>.HeartDied));
+                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied));
             }
         }
 
@@ -83,18 +83,18 @@ namespace Mbc.Pcs.Net.Test.State
                 var sw = Stopwatch.StartNew();
                 while (sw.Elapsed <= TimeSpan.FromMilliseconds(250))
                 {
-                    _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<object>(new List<(DateTime timestamp, object state)> { { (DateTime.MinValue.Add(sw.Elapsed), null) } }));
+                    _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<PlcStateDummy>(new List<PlcStateDummy> { { new PlcStateDummy { PlcTimeStamp = DateTime.MinValue.Add(sw.Elapsed) } } }));
                 }
 
                 // Assert
                 heartBeatCounter.Should().Be(3, "A initial heart beat and also 2 interval heart beats");
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartBeats))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartBeats))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatEventArgs>(args => args.BeatTime > DateTime.MinValue);
 
                 monitoredTestee
-                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<object>.HeartDied));
+                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied));
             }
         }
 
@@ -114,10 +114,10 @@ namespace Mbc.Pcs.Net.Test.State
 
                 // Assert
                 monitoredTestee
-                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<object>.HeartBeats));
+                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartBeats));
 
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartDied))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.MinValue, args => args.DiedTime == args.LastHeartBeat.Add(_testee.TimeUntilDie));
             }
@@ -133,19 +133,19 @@ namespace Mbc.Pcs.Net.Test.State
                 // #1 connection is needed
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(true, null));
                 // #2 one state raise then nomore
-                _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<object>(new List<(DateTime timestamp, object state)> { { (DateTime.FromFileTime(10), null) } }));
+                _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<PlcStateDummy>(new List<PlcStateDummy> { { new PlcStateDummy { PlcTimeStamp = DateTime.FromFileTime(10) } } }));
 
                 // wait for timeout
                 await Task.Delay(_testee.TimeUntilDie);
 
                 // Assert
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartBeats))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartBeats))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatEventArgs>(args => args.BeatTime == DateTime.FromFileTime(10));
 
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartDied))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.FromFileTime(10), args => args.DiedTime == args.LastHeartBeat.Add(_testee.TimeUntilDie));
             }
@@ -162,7 +162,7 @@ namespace Mbc.Pcs.Net.Test.State
                 // #1 connection is needed
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(true, null));
                 // #2 new data recived
-                _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<object>(new List<(DateTime timestamp, object state)> { { (DateTime.FromFileTime(10), null) } }));
+                _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<PlcStateDummy>(new List<PlcStateDummy> { { new PlcStateDummy { PlcTimeStamp = DateTime.FromFileTime(10) } } }));
                 // #3 connection lost
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(false, null));
 
@@ -171,13 +171,18 @@ namespace Mbc.Pcs.Net.Test.State
 
                 // Assert
                 monitoredTestee
-                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<object>.HeartBeats))
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartBeats))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatEventArgs>(args => args.BeatTime == DateTime.FromFileTime(10));
 
                 monitoredTestee
-                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<object>.HeartDied));
+                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied));
             }
+        }
+
+        public class PlcStateDummy : IPlcState
+        {
+            public DateTime PlcTimeStamp { get; set; }
         }
     }
 }

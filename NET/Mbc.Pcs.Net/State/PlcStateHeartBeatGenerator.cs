@@ -21,6 +21,7 @@ namespace Mbc.Pcs.Net.State
     /// </summary>
     /// <typeparam name="TState">Object of state</typeparam>
     public class PlcStateHeartBeatGenerator<TState> : IHeartBeat, IDisposable
+        where TState : IPlcState
     {
         public static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IPlcAdsConnectionService _adsConnection;
@@ -126,18 +127,18 @@ namespace Mbc.Pcs.Net.State
         {
             if (_awakening)
             {
-                StartTime = e.PlcTimeStamp;
+                StartTime = e.State.PlcTimeStamp;
                 // awaken
-                OnHeartBeats(e.PlcTimeStamp);
+                OnHeartBeats(e.State.PlcTimeStamp);
                 _awakening = false;
             }
 
             // invervall has pass
-            if (e.PlcTimeStamp >= StartTime.Add(HeartBeatInterval))
+            if (e.State.PlcTimeStamp >= StartTime.Add(HeartBeatInterval))
             {
-                StartTime = e.PlcTimeStamp;
+                StartTime = e.State.PlcTimeStamp;
 
-                OnHeartBeats(e.PlcTimeStamp);
+                OnHeartBeats(e.State.PlcTimeStamp);
             }
         }
 
