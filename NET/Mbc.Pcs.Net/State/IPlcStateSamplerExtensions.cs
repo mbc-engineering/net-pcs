@@ -1,11 +1,10 @@
 ﻿using Mbc.AsyncUtils;
-using Mbc.Pcs.Net.State;
 using Nito.AsyncEx;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FischerAg.PlcService.Comp
+namespace Mbc.Pcs.Net.State
 {
     public static class IPlcStateSamplerExtensions
     {
