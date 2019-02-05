@@ -143,12 +143,11 @@ namespace Mbc.Pcs.Net.State
 
                 _notificationBlockBuffer.Add(status);
 
-                _notificationExecutor.ExecuteAsync(() => OnStateChanged(status, timestamp));
+                _notificationExecutor.ExecuteAsync(() => OnStateChanged(status));
 
                 if (_notificationBlockBuffer.Count == _notificationBlockSize)
                 {
-                    var args = new PlcMultiStateChangedEventArgs<TStatus>(_notificationBlockBuffer);
-                    _notificationExecutor.ExecuteAsync(() => StatesChanged?.Invoke(this, args));
+                    _notificationExecutor.ExecuteAsync(() => OnStatesChanged(_notificationBlockBuffer));
                     _notificationBlockBuffer.Clear();
                 }
             }
@@ -158,9 +157,15 @@ namespace Mbc.Pcs.Net.State
             }
         }
 
-        protected virtual void OnStateChanged(TStatus status, DateTime dateTime)
+        protected virtual void OnStateChanged(TStatus status)
         {
             StateChanged?.Invoke(this, new PlcStateChangedEventArgs<TStatus>(status));
+        }
+
+        protected virtual void OnStatesChanged(List<TStatus> statusBlockBuffer)
+        {
+            var args = new PlcMultiStateChangedEventArgs<TStatus>(statusBlockBuffer);
+            StatesChanged?.Invoke(this, args);
         }
 
         private void LogNotificationQueueOverflow()
