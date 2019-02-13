@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using Mbc.Common;
 using Mbc.Common.Reflection;
 using System;
 using System.Collections.Generic;
@@ -59,6 +60,11 @@ namespace Mbc.Pcs.Net.DataRecorder
                 return WriteDispatchFloat;
             }
 
+            if (type == typeof(byte))
+            {
+                return WriteDispatchByte;
+            }
+
             if (type == typeof(ushort))
             {
                 return WriteDispatchUShort;
@@ -67,6 +73,11 @@ namespace Mbc.Pcs.Net.DataRecorder
             if (type == typeof(int))
             {
                 return WriteDispatchInt;
+            }
+
+            if (type == typeof(uint))
+            {
+                return WriteDispatchUInt;
             }
 
             if (type.IsEnum)
@@ -92,6 +103,11 @@ namespace Mbc.Pcs.Net.DataRecorder
             writer.Write((float)value);
         }
 
+        private static void WriteDispatchByte(object value, BinaryWriter writer)
+        {
+            writer.Write((byte)value);
+        }
+
         private static void WriteDispatchUShort(object value, BinaryWriter writer)
         {
             writer.Write((ushort)value);
@@ -102,10 +118,21 @@ namespace Mbc.Pcs.Net.DataRecorder
             writer.Write((int)value);
         }
 
+        private static void WriteDispatchUInt(object value, BinaryWriter writer)
+        {
+            writer.Write((uint)value);
+        }
+
         private static void WriteDispatchArray(Action<object, BinaryWriter> elementDispatcher, object value, BinaryWriter writer)
         {
             Array array = (Array)value;
-            writer.Write(array.Length);
+
+            // für multi-dimensionale Arrays werden alle Dimensionen ausgeschrieben
+            foreach (int dimension in Enumerable.Range(0, array.Rank))
+            {
+                writer.Write(array.GetLength(dimension));
+            }
+
             foreach (object element in array)
             {
                 elementDispatcher(element, writer);
@@ -135,6 +162,11 @@ namespace Mbc.Pcs.Net.DataRecorder
                 return ReadDispatchFloat;
             }
 
+            if (type == typeof(byte))
+            {
+                return ReadDispatchByte;
+            }
+
             if (type == typeof(ushort))
             {
                 return ReadDispatchUShort;
@@ -143,6 +175,11 @@ namespace Mbc.Pcs.Net.DataRecorder
             if (type == typeof(int))
             {
                 return ReadDispatchInt;
+            }
+
+            if (type == typeof(uint))
+            {
+                return ReadDispatchUInt;
             }
 
             if (type.IsEnum)
@@ -169,6 +206,11 @@ namespace Mbc.Pcs.Net.DataRecorder
             return reader.ReadBoolean();
         }
 
+        private static object ReadDispatchByte(BinaryReader reader)
+        {
+            return reader.ReadByte();
+        }
+
         private static object ReadDispatchUShort(BinaryReader reader)
         {
             return reader.ReadUInt16();
@@ -179,6 +221,11 @@ namespace Mbc.Pcs.Net.DataRecorder
             return reader.ReadInt32();
         }
 
+        private static object ReadDispatchUInt(BinaryReader reader)
+        {
+            return reader.ReadUInt32();
+        }
+
         private static object ReadDispatchEnum(Func<BinaryReader, object> primitivReadDispatch, Type type, BinaryReader reader)
         {
             var primitiveValue = primitivReadDispatch(reader);
@@ -187,12 +234,30 @@ namespace Mbc.Pcs.Net.DataRecorder
 
         private static object ReadDispatchArray(Func<BinaryReader, object> elementReadDispatch, Type type, BinaryReader reader)
         {
-            var length = reader.ReadInt32();
-            var array = Array.CreateInstance(type.GetElementType(), length);
-            for (int i = 0; i < length; i++)
+            // für multi-dimensionale Arrays werden alle Dimensionen eingelesen
+            var dimension = Enumerable.Range(0, type.GetArrayRank())
+                .Select(x => reader.ReadInt32())
+                .ToArray();
+
+            var array = Array.CreateInstance(type.GetElementType(), dimension);
+
+
+            void SetArrayValue(int[] index)
             {
-                array.SetValue(elementReadDispatch(reader), i);
+                if (index.Length == dimension.Length)
+                {
+                    array.SetValue(elementReadDispatch(reader), index);
+                }
+                else
+                {
+                    for (int i = 0; i < dimension[index.Length]; i++)
+                    {
+                        SetArrayValue(index.Concat(Enumerables.Yield(i)).ToArray());
+                    }
+                }
             }
+
+            SetArrayValue(new int[0]);
 
             return array;
         }
