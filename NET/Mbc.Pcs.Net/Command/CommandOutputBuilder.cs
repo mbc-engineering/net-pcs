@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using TwinCAT.PlcOpen;
 
 namespace Mbc.Pcs.Net.Command
 {
@@ -31,6 +32,24 @@ namespace Mbc.Pcs.Net.Command
                 {
                     return tValue;
                 }
+                else if (typeof(T) == typeof(TimeSpan))
+                {
+                    if (value is TIME plcTime)
+                    {
+                        return (T)(object)plcTime.Time;
+                    }
+
+                    throw new InvalidCastException($"Symbol {name} requires TIME-plc type for TimeSpan.");
+                }
+                else if (typeof(T) == typeof(DateTime))
+                {
+                    if (value is DATE plcDate)
+                    {
+                        return (T)(object)plcDate.Date;
+                    }
+
+                    throw new InvalidCastException($"Symbol {name} requires DATE-plc type for DateTime.");
+                }
                 else
                 {
                     try
@@ -39,7 +58,7 @@ namespace Mbc.Pcs.Net.Command
                     }
                     catch (InvalidCastException e)
                     {
-                        throw new InvalidCastException($"Symbol {name} is not from the required type symbol to {typeof(T)}", e);
+                        throw new InvalidCastException($"Symbol {name} is not from the required type symbol to {typeof(T)}. Actual type = {value?.GetType()}", e);
                     }
                 }
             }
