@@ -136,6 +136,7 @@ Task("NugetPush")
 
 
 Task("Default")
-  .IsDependentOn("Build");
+    .IsDependentOn("Build")
+    .IsDependentOn("Test");
 
 RunTarget(target);
