@@ -2,7 +2,7 @@
   <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->    
-    <VersionPrefix>1.11.4</VersionPrefix>
+    <VersionPrefix>1.11.5</VersionPrefix>
     <VersionSuffix></VersionSuffix>
 
     <Product>Mbc.Pcs.Net</Product>
