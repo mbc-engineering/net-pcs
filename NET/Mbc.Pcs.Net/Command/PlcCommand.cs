@@ -111,16 +111,44 @@ namespace Mbc.Pcs.Net.Command
 
                     using (var cancellationRegistration = cancellationToken.Register(ResetExecuteFlag))
                     {
-                        var handshakeExchange = new DataExchange<CommandChangeData>();
+                        DataExchange<CommandChangeData> handshakeExchange;
+                        int cmdHandle;
 
-                        Logger.Trace("Before adding device notification of command '{command}'.", _adsCommandFbPath);
-                        var cmdHandle = _adsConnection.AddDeviceNotificationEx(
-                            $"{_adsCommandFbPath}.stHandshake",
-                            AdsTransMode.OnChange,
-                            50, // 50 statt 0 als Workaround für ein hängiges ADS-Problem mit Initial-Events
-                            0,
-                            Tuple.Create(this, handshakeExchange),
-                            typeof(CommandHandshakeStruct));
+                        /*
+                         * Workaround für ADS-Problem, bei dem nach dem Registrieren einer DeviceNotification
+                         * kein Initial-Event gesendet wird. Der Workaround prüft ob ein Initialevent spätestens
+                         * 1s nach der Registrierung eintrifft. Wenn nicht, wir deregistriert und erneut versucht
+                         * zu registrieren.
+                         */
+                        int registerRepeatCount = 0;
+                        while (true)
+                        {
+                            handshakeExchange = new DataExchange<CommandChangeData>();
+
+                            Logger.Trace("Before adding device notification of command '{command}'.", _adsCommandFbPath);
+                            cmdHandle = _adsConnection.AddDeviceNotificationEx(
+                                $"{_adsCommandFbPath}.stHandshake",
+                                AdsTransMode.OnChange,
+                                0,
+                                0,
+                                Tuple.Create(this, handshakeExchange),
+                                typeof(CommandHandshakeStruct));
+
+                            if (handshakeExchange.Wait(TimeSpan.FromSeconds(1)))
+                            {
+                                break;
+                            }
+
+                            _adsConnection.DeleteDeviceNotification(cmdHandle);
+
+                            if (++registerRepeatCount == 3)
+                            {
+                                throw new PlcCommandException(_adsCommandFbPath, $"Failed to register device notification {registerRepeatCount} times.");
+                            }
+
+                            Logger.Warn("Re-Register device notification because of missing initial event.");
+                        }
+
                         Logger.Trace("After adding device notification of command '{command}'.", _adsCommandFbPath);
 
                         try

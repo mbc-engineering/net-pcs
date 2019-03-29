@@ -40,5 +40,18 @@ namespace Mbc.Pcs.Net.Command
                 return _data;
             }
         }
+
+        public bool Wait(TimeSpan timeout)
+        {
+            lock (this)
+            {
+                if (!_signaled)
+                {
+                    Monitor.Wait(this, timeout);
+                }
+
+                return _signaled;
+            }
+        }
     }
 }
