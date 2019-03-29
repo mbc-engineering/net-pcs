@@ -119,19 +119,22 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                     {
                         _userData = parm.Arguments[4] as Tuple<PlcCommand, DataExchange<CommandChangeData>>;
 
-                        var initalHandshakeStruct = new CommandHandshakeStruct
+                        if (parm.Arguments[1] is AdsTransMode adsTransMode && adsTransMode == AdsTransMode.OnChange)
                         {
-                            SubTask = 0,
-                            Execute = true,
-                            Busy = true,
-                            Progress = 0,
-                            ResultCode = (ushort)CommandResultCode.Initialized,
-                        };
-                        var initialEventArgs = new AdsNotificationExEventArgs(ResponseTimestamp.ToFileTime(), _userData, 80, initalHandshakeStruct);
+                            var initalHandshakeStruct = new CommandHandshakeStruct
+                            {
+                                SubTask = 0,
+                                Execute = true,
+                                Busy = true,
+                                Progress = 0,
+                                ResultCode = (ushort)CommandResultCode.Initialized,
+                            };
+                            var initialEventArgs = new AdsNotificationExEventArgs(ResponseTimestamp.ToFileTime(), _userData, 80, initalHandshakeStruct);
 
-                        Debug.WriteLine("Raise faked initialevent AdsConnection.AdsNotificationEx");
-                        _adsConnection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>
-                            .With(_adsConnection, initialEventArgs);
+                            Debug.WriteLine("Raise faked initialevent AdsConnection.AdsNotificationEx");
+                            _adsConnection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>
+                                .With(_adsConnection, initialEventArgs);
+                        }
 
                         // Send simulated Result Data
                         if (option != PlcCommandFakeOption.NoResponse)
