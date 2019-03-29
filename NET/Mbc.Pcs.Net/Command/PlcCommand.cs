@@ -141,7 +141,7 @@ namespace Mbc.Pcs.Net.Command
 
                             _adsConnection.DeleteDeviceNotification(cmdHandle);
 
-                            if (++registerRepeatCount == 3)
+                            if (++registerRepeatCount >= 3)
                             {
                                 throw new PlcCommandException(_adsCommandFbPath, $"Failed to register device notification {registerRepeatCount} times.");
                             }

@@ -44,7 +44,7 @@ namespace Mbc.Pcs.Net.Test
                 .Returns(true);
             A.CallTo(() => connection.CreateVariableHandle("cmd.stHandshake.bExecute"))
                 .Returns(1);
-            A.CallTo(() => connection.AddDeviceNotificationEx("cmd.stHandshake", AdsTransMode.OnChange, 50, 0, A<object>.Ignored, typeof(PlcCommand.CommandHandshakeStruct)))
+            A.CallTo(() => connection.AddDeviceNotificationEx("cmd.stHandshake", AdsTransMode.OnChange, A<int>.Ignored, A<int>.Ignored, A<object>.Ignored, typeof(PlcCommand.CommandHandshakeStruct)))
                 .Invokes(call =>
                 {
                     var userData = call.Arguments[4];
@@ -401,6 +401,41 @@ namespace Mbc.Pcs.Net.Test
                     (tasks[idx].Result as PlcCommandLockException).Behavior.Should().Be(ExecutionBehavior.ThrowException);
                 }
             }
+        }
+
+        [Fact]
+        public void RequireInitialNotifictaionOnAddDeviceNotificationExWithOnChange()
+        {
+            // Arrange
+            var connection = A.Fake<IAdsConnection>();
+            A.CallTo(() => connection.IsConnected)
+                .Returns(true);
+            A.CallTo(() => connection.CreateVariableHandle("cmd.stHandshake.bExecute"))
+                .Returns(1);
+            A.CallTo(() => connection.AddDeviceNotificationEx("cmd.stHandshake", AdsTransMode.OnChange, A<int>.Ignored, A<int>.Ignored, A<object>.Ignored, typeof(PlcCommand.CommandHandshakeStruct)))
+                .Invokes(call =>
+                {
+                    // No Initial ivent is send
+                    // connection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>.With(connection, eventArgs);
+                })
+                .Returns(80);
+            IPlcCommand subject = new PlcCommand(connection, "cmd");
+
+            // Act
+            var ex = Record.Exception(() => subject.Execute());
+            // throw new PlcCommandException(_adsCommandFbPath, $"Failed to register device notification {registerRepeatCount} times.");
+            // Assert
+            ex.Should().NotBeNull();
+            ex.Should().BeOfType<PlcCommandException>()
+                .Subject.Message.Should().Be("Failed to register device notification 3 times.");
+            A.CallTo(() => connection.CreateVariableHandle("cmd.stHandshake.bExecute"))
+                .MustHaveHappenedTwiceExactly(); // Because of fail the execute will be reseted
+            A.CallTo(() => connection.WriteAny(1, true))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => connection.DeleteVariableHandle(1)) // Handle one is cmd.stHandshake.bExecute
+                .MustHaveHappenedTwiceExactly(); // Because of fail the execute will be reseted
+            A.CallTo(() => connection.DeleteDeviceNotification(80))
+                .MustHaveHappened(3, Times.Exactly);
         }
     }
 }
