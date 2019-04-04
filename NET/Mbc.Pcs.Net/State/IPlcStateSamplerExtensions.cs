@@ -94,7 +94,7 @@ namespace Mbc.Pcs.Net.State
         private class EnsureStateHandler<TState>
             where TState : IPlcState
         {
-            private readonly TaskCompletionSource<bool> _taskSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            private readonly TaskCompletionSource<bool> _taskSource = new TaskCompletionSource<bool>();
             private readonly Func<TState, bool> _ensureCondition;
             private readonly TimeSpan _time;
             private bool _first = true;
