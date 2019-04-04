@@ -66,6 +66,16 @@ namespace Mbc.Pcs.Net.State
             }
         }
 
+        /// <summary>
+        /// Stellt sicher, dass eine Bedingung während der vorgegebenen Zeit anliegt.
+        /// </summary>
+        /// <typeparam name="TState">Der Typ des Status.</typeparam>
+        /// <param name="plcState">Eine Instanz auf einen State-Sampler.</param>
+        /// <param name="ensureCondition">Die Bedingung, die eingehalten werden muss.</param>
+        /// <param name="ensureTime">Die Zeit, in welcher die Bedingung eingehalten werden muss.</param>
+        /// <param name="cancellationToken">Ein Abbruch-Token.</param>
+        /// <returns><c>true</c> wenn die Bedingung während der ganzen Zeit eingehalten wurde, sonst
+        /// <c>false</c>.</returns>
         public static async Task<bool> EnsureStateAsync<TState>(this IPlcStateSampler<TState> plcState, Func<TState, bool> ensureCondition, TimeSpan ensureTime, CancellationToken cancellationToken)
             where TState : IPlcState
         {
@@ -100,14 +110,8 @@ namespace Mbc.Pcs.Net.State
             {
                 if (!_taskSource.Task.IsCompleted)
                 {
-                    using (var cancelTask = new CancellationTokenExtensions.CancellationTokenTaskSource(cancellationToken))
+                    using (var cancelRegistration = cancellationToken.Register(() => _taskSource.TrySetCanceled()))
                     {
-                        var completedTask = await Task.WhenAny(_taskSource.Task, cancelTask.Task);
-                        if (completedTask == cancelTask.Task)
-                        {
-                            throw new TaskCanceledException();
-                        }
-
                         return await _taskSource.Task;
                     }
                 }
@@ -124,7 +128,8 @@ namespace Mbc.Pcs.Net.State
 
                     if (!_ensureCondition(state))
                     {
-                        _taskSource.TrySetResult(true);
+                        // nicht erfolgreich
+                        _taskSource.TrySetResult(false);
                         return;
                     }
 
@@ -137,6 +142,7 @@ namespace Mbc.Pcs.Net.State
                     {
                         if ((state.PlcTimeStamp - _startTime) >= _time)
                         {
+                            // erfolgreich
                             _taskSource.TrySetResult(true);
                             return;
                         }
