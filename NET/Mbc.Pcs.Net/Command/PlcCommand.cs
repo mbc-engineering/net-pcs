@@ -3,7 +3,9 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using Mbc.Ads.Utils.Connection;
 using NLog;
+
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -38,6 +40,11 @@ namespace Mbc.Pcs.Net.Command
             _commandResource = commandResource ?? new CommandResource();
             _commandArgumentHandler = commandArgumentHandler ?? new PrimitiveCommandArgumentHandler();
         }
+
+        /// <summary>
+        /// Detail configuration of PLC commands.
+        /// </summary>
+        public PlcCommandConfiguration Configuration { get; } = new PlcCommandConfiguration();
 
         /// <summary>
         /// Maximale time to wait for command completion.
@@ -129,24 +136,24 @@ namespace Mbc.Pcs.Net.Command
                             cmdHandle = _adsConnection.AddDeviceNotificationEx(
                                 $"{_adsCommandFbPath}.stHandshake",
                                 AdsTransMode.OnChange,
-                                0,
-                                0,
+                                (int)Configuration.OnChangeCycleTime.TotalMilliseconds,
+                                (int)Configuration.OnChangeMaxDelay.TotalMilliseconds,
                                 Tuple.Create(this, handshakeExchange),
                                 typeof(CommandHandshakeStruct));
 
-                            if (handshakeExchange.Wait(TimeSpan.FromSeconds(1)))
+                            if (handshakeExchange.Wait(Configuration.MaxWaitForInitialEvent))
                             {
                                 break;
                             }
 
                             _adsConnection.DeleteDeviceNotification(cmdHandle);
 
-                            if (++registerRepeatCount >= 3)
+                            if (++registerRepeatCount >= Configuration.MaxRetriesForInitialEvent)
                             {
                                 throw new PlcCommandException(_adsCommandFbPath, $"Failed to register device notification {registerRepeatCount} times.");
                             }
 
-                            Logger.Warn("Re-Register device notification because of missing initial event.");
+                            Logger.Warn("Re-Register device notification because of missing initial event. (repeat={repeatCount})", registerRepeatCount);
                         }
 
                         Logger.Trace("After adding device notification of command '{command}'.", _adsCommandFbPath);

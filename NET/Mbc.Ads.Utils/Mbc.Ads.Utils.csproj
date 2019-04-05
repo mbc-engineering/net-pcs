@@ -9,6 +9,8 @@
 
     <Product>Mbc.Ads.Utils</Product>
 
+    <Version>0.3.0</Version>
+
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.0" />
