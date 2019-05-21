@@ -14,7 +14,7 @@
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.4" />
     <PackageReference Include="Ensure.That" Version="8.1.1" />
     <PackageReference Include="Mbc.AsyncUtils" Version="0.2.2" />
-    <PackageReference Include="Mbc.Common" Version="0.2.3" />
+    <PackageReference Include="Mbc.Common" Version="0.3.1" />
     <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
     <PackageReference Include="NLog" Version="4.5.10" />
     <PackageReference Include="Optional" Version="4.0.0" />
