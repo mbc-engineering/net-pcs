@@ -16,7 +16,6 @@
     <PackageReference Include="Mbc.AsyncUtils" Version="0.2.2" />
     <PackageReference Include="Mbc.Common" Version="0.2.3" />
     <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
-    <PackageReference Include="Nito.AsyncEx" Version="4.0.1" />
     <PackageReference Include="NLog" Version="4.5.10" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
