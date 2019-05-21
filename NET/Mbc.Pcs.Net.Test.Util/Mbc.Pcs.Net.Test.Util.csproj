@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.0" />
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.4" />
     <PackageReference Include="FakeItEasy" Version="4.9.1" />
   </ItemGroup>
 

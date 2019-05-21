@@ -10,7 +10,7 @@
 
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.0" />
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.4" />
     <PackageReference Include="Ensure.That" Version="8.1.1" />
     <PackageReference Include="Mbc.Common" Version="0.2.3" />
     <PackageReference Include="NLog" Version="4.5.10" />
