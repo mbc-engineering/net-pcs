@@ -4,13 +4,11 @@
   <PropertyGroup>
     <!-- common nuget configuration see common.props-->
     
-    <VersionPrefix>0.2.1</VersionPrefix>
+    <VersionPrefix>0.3.1</VersionPrefix>
     <VersionSuffix></VersionSuffix>
 
     <Product>Mbc.Ads.Utils</Product>
-
-    <Version>0.3.0</Version>
-
+    
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.4" />
