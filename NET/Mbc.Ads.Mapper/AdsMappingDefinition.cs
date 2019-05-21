@@ -72,7 +72,7 @@ namespace Mbc.Ads.Mapper
                 return ConvertEnumValueToPlc(value);
             }
 
-            // Die SPS kennt zwei spezielle primitive Typen (TIME und DATE) die
+            // Die SPS kennt mehrere spezielle primitive Typen (TIME, DATE, DT, TOD) die
             // von Convert nicht gewandelt werden können.
             if (SourceElementType == typeof(TIME))
             {
@@ -100,6 +100,15 @@ namespace Mbc.Ads.Mapper
                 }
 
                 return new DT(Convert.ToInt64(value)).Date;
+            }
+            else if (SourceElementType == typeof(TOD))
+            {
+                if (value is TimeSpan)
+                {
+                    return value;
+                }
+
+                return new TOD(Convert.ToInt64(value)).Time;
             }
             else
             {

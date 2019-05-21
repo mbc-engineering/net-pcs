@@ -89,6 +89,11 @@ namespace Mbc.Ads.Mapper
                 return (adsReader) => Position(adsReader, streamByteOffset).ReadPlcDATE();
             }
 
+            if (managedType == typeof(TOD))
+            {
+                return (adsReader) => Position(adsReader, streamByteOffset).ReadPlcTIME();
+            }
+
             throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");
         }
 
@@ -170,6 +175,11 @@ namespace Mbc.Ads.Mapper
             if (managedType == typeof(DT))
             {
                 return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcType(new DT((DateTime)value).Value);
+            }
+
+            if (managedType == typeof(TOD))
+            {
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcType(new TOD((TimeSpan)value).Time);
             }
 
             throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");
