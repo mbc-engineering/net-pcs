@@ -51,6 +51,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Alarm.Service.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Command", "Mbc.Pcs.Net.Command\Mbc.Pcs.Net.Command.csproj", "{66567C2D-0CF5-480A-BA9E-FDE6E8F5E4EE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Command.Test", "Mbc.Pcs.Net.Command.Test\Mbc.Pcs.Net.Command.Test.csproj", "{DCD8BB64-82B9-4D75-A5B6-FFAB83EC9A59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{66567C2D-0CF5-480A-BA9E-FDE6E8F5E4EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66567C2D-0CF5-480A-BA9E-FDE6E8F5E4EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66567C2D-0CF5-480A-BA9E-FDE6E8F5E4EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCD8BB64-82B9-4D75-A5B6-FFAB83EC9A59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCD8BB64-82B9-4D75-A5B6-FFAB83EC9A59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCD8BB64-82B9-4D75-A5B6-FFAB83EC9A59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCD8BB64-82B9-4D75-A5B6-FFAB83EC9A59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

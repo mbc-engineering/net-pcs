@@ -66,7 +66,7 @@ namespace Mbc.Pcs.Net.Connection
             }
             catch (Exception ex)
             {
-                throw new PlcAdsException(string.Format(Resources.PlcAdsConnectingFailed, _session.Address.NetId, _session.Port), ex);
+                throw new PlcAdsException(string.Format(ConnectionResources.PlcAdsConnectingFailed, _session.Address.NetId, _session.Port), ex);
             }
         }
 
@@ -99,7 +99,7 @@ namespace Mbc.Pcs.Net.Connection
         {
             return Connection.ValueOr(() =>
             {
-                throw new PlcAdsException(Resources.NoPlcAdsConnection);
+                throw new PlcAdsException(ConnectionResources.NoPlcAdsConnection);
             });
         }
     }
