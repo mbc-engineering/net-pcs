@@ -3,7 +3,7 @@ using Mbc.Pcs.Net.Command;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Mbc.Pcs.Net.Test
+namespace Mbc.Pcs.Net.Command.Test
 {
     public class CommandResourceTest
     {

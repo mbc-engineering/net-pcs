@@ -47,7 +47,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Alarm.Mediator"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Alarm.Service", "Mbc.Pcs.Net.Alarm.Service\Mbc.Pcs.Net.Alarm.Service.csproj", "{941B0BDA-CB98-4AD3-AD8F-B5995F3AC5CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Pcs.Net.Alarm.Service.Test", "Mbc.Pcs.Net.Alarm.Service.Test\Mbc.Pcs.Net.Alarm.Service.Test.csproj", "{D5E5FF98-62C5-4231-B8B0-95F4A12FC033}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Alarm.Service.Test", "Mbc.Pcs.Net.Alarm.Service.Test\Mbc.Pcs.Net.Alarm.Service.Test.csproj", "{D5E5FF98-62C5-4231-B8B0-95F4A12FC033}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Command", "Mbc.Pcs.Net.Command\Mbc.Pcs.Net.Command.csproj", "{66567C2D-0CF5-480A-BA9E-FDE6E8F5E4EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +113,10 @@ Global
 		{D5E5FF98-62C5-4231-B8B0-95F4A12FC033}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5E5FF98-62C5-4231-B8B0-95F4A12FC033}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5E5FF98-62C5-4231-B8B0-95F4A12FC033}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66567C2D-0CF5-480A-BA9E-FDE6E8F5E4EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66567C2D-0CF5-480A-BA9E-FDE6E8F5E4EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66567C2D-0CF5-480A-BA9E-FDE6E8F5E4EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66567C2D-0CF5-480A-BA9E-FDE6E8F5E4EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

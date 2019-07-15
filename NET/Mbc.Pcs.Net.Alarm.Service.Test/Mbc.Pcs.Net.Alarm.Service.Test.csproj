@@ -5,9 +5,6 @@
     <Product>Mbc.Pcs.Net.Alarm.Service.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    
-    <!-- Some hack for issue: https://github.com/dotnet/project-system/issues/1358 -->
-    <TargetFramework>$(TargetFramework)</TargetFramework>
 
     <!-- Disable Architecture mismatch of Mbc.Pcs.Net.Alarm.Mediator Project -->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>

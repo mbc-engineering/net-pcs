@@ -59,6 +59,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Mbc.Pcs.Net.Command\Mbc.Pcs.Net.Command.csproj">
+      <Project>{66567c2d-0cf5-480a-ba9e-fde6e8f5e4ee}</Project>
+      <Name>Mbc.Pcs.Net.Command</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj">
       <Project>{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}</Project>
       <Name>Mbc.Pcs.Net</Name>

@@ -81,7 +81,7 @@ namespace Mbc.Pcs.Net.Test.State
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(true, null));
                 // #2 fire states until 2 and a half invervall time frames elapsed
                 var sw = Stopwatch.StartNew();
-                while (sw.Elapsed <= TimeSpan.FromMilliseconds(250))
+                while (sw.Elapsed <= TimeSpan.FromMilliseconds(290))
                 {
                     _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<PlcStateDummy>(new List<PlcStateDummy> { { new PlcStateDummy { PlcTimeStamp = DateTime.MinValue.Add(sw.Elapsed) } } }));
                 }

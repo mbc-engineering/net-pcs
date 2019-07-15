@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <Version>1.5.2</Version>
+    <Version>2.0.0</Version>
 
     <Product>Mbc.Pcs.Net</Product>
 
@@ -13,6 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
+    <ProjectReference Include="..\Mbc.Pcs.Net.Command\Mbc.Pcs.Net.Command.csproj" />
   </ItemGroup>
 </Project>
