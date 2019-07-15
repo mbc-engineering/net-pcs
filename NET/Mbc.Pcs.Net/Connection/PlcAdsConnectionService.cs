@@ -4,7 +4,6 @@
 //-----------------------------------------------------------------------------
 
 using Mbc.Common.Interface;
-using Mbc.Pcs.Net.Connection;
 using System;
 using TwinCAT.Ads;
 

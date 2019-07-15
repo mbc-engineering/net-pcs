@@ -3,9 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using Mbc.Ads.Utils.Connection;
 using NLog;
-
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -192,7 +190,14 @@ namespace Mbc.Pcs.Net.Command
                     }
                     catch (Exception resetEx)
                     {
-                        ex.Data.Add("ResetExecuteFlagException", resetEx);
+                        if (resetEx.GetType().IsSerializable)
+                        {
+                            ex.Data.Add("ResetExecuteFlagException", resetEx);
+                        }
+                        else
+                        {
+                            ex.Data.Add("ResetExecuteFlagException", resetEx.Message);
+                        }
 #pragma warning disable CA2200 // Rethrow to preserve stack details.
                         throw ex;
 #pragma warning restore CA2200 // Rethrow to preserve stack details.

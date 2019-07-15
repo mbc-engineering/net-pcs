@@ -2,13 +2,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->    
-    <Version>0.2.3</Version>
+    <Version>0.3.0</Version>
 
     <Product>Mbc.Ads.Mapper</Product>
 
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.4" />
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.7" />
     <PackageReference Include="Ensure.That" Version="8.1.1" />
     <PackageReference Include="Mbc.Common" Version="0.3.1" />
     <PackageReference Include="NLog" Version="4.5.10" />
