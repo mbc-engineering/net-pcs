@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2037
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli", "Samples\Cli\Cli.csproj", "{08056A54-605C-4ACC-ADD7-3DB109298C28}"
 EndProject
@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{601F9B25
 	ProjectSection(SolutionItems) = preProject
 		build.cake = build.cake
 		build.ps1 = build.ps1
-		Build\common.props = Build\common.props
+		Directory.Build.props = Directory.Build.props
 		Build\Mbc.CodeAnalysis.ruleset = Build\Mbc.CodeAnalysis.ruleset
 		Build\Mbc.Pcs.Net.TwinCat.EventLog.nuspec = Build\Mbc.Pcs.Net.TwinCat.EventLog.nuspec
 		Build\stylecop.json = Build\stylecop.json

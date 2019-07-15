@@ -1,8 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
-    <!-- common nuget configuration see common.props-->    
+    <!-- common nuget configuration see Directory.Build.props-->    
     <Version>0.2.3</Version>
 
     <Product>Mbc.Ads.Mapper</Product>

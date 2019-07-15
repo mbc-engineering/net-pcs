@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(SolutionDir)Build\common.props" />
   <PropertyGroup>
-    <!-- common nuget configuration see common.props-->
+    <!-- common nuget configuration see Directory.Build.props-->
     <Version>1.5.2</Version>
 
     <Product>Mbc.Pcs.Net</Product>
