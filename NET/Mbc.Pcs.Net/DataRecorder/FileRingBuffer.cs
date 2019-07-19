@@ -113,6 +113,8 @@ namespace Mbc.Pcs.Net.DataRecorder
             _backgroundExecutor.Dispose();
         }
 
+        public int BufferReadSize { get; set; } = 16384;
+
         private static string SequenceToFilename(ulong sequence) => sequence.ToString("X16");
 
         private void Init()
@@ -122,14 +124,14 @@ namespace Mbc.Pcs.Net.DataRecorder
                 .Select(x => Path.GetFileName(x))
                 .Select(x => Convert.ToUInt64(x, 16))
                 .OrderBy(x => x)
-                .Select(x => new SegmentInfo(x, Path.Combine(_baseDirectory, SequenceToFilename(x))));
+                .Select(x => new SegmentInfo(x, Path.Combine(_baseDirectory, SequenceToFilename(x)), BufferReadSize));
 
             _segments.AddRange(sequence);
 
             // nächste Sequenz-Nummer bestimmen
             _currentSequence = _segments.Select(x => x.Sequence + 1).DefaultIfEmpty(0UL).Last();
 
-            _currentBuffer = new AppendableSegmentBuffer(Path.Combine(_baseDirectory, SequenceToFilename(_currentSequence)), 8192);
+            _currentBuffer = new AppendableSegmentBuffer(Path.Combine(_baseDirectory, SequenceToFilename(_currentSequence)), 8192, BufferReadSize);
             _segments.Add(new SegmentInfo(_currentSequence, _nextIndex, _currentBuffer));
         }
 
@@ -165,7 +167,7 @@ namespace Mbc.Pcs.Net.DataRecorder
 
             if (createNewSegment)
             {
-                _currentBuffer = new AppendableSegmentBuffer(Path.Combine(_baseDirectory, SequenceToFilename(_currentSequence)), _currentBuffer.Capacaity);
+                _currentBuffer = new AppendableSegmentBuffer(Path.Combine(_baseDirectory, SequenceToFilename(_currentSequence)), _currentBuffer.Capacaity, BufferReadSize);
                 _segments.Add(new SegmentInfo(_currentSequence, _nextIndex, _currentBuffer));
             }
             else
@@ -304,10 +306,10 @@ namespace Mbc.Pcs.Net.DataRecorder
         {
             private long _startIndex;
 
-            public SegmentInfo(ulong sequence, string filename)
+            internal SegmentInfo(ulong sequence, string filename, int bufferSize)
             {
                 Sequence = sequence;
-                Buffer = new SegmentBuffer(filename);
+                Buffer = new SegmentBuffer(filename, bufferSize);
             }
 
             public SegmentInfo(ulong sequence, long startIndex, SegmentBuffer buffer)
@@ -349,16 +351,26 @@ namespace Mbc.Pcs.Net.DataRecorder
 
         private class SegmentBuffer
         {
-            public SegmentBuffer(string filename)
+            private readonly int _bufferSize;
+
+            internal SegmentBuffer(string filename, int bufferSize)
             {
                 Filename = filename;
+                _bufferSize = bufferSize;
             }
 
             protected string Filename { get; }
 
             public virtual Stream OpenReadableStream()
             {
-                return new DeflateStream(new FileStream(Filename, FileMode.Open, FileAccess.Read), CompressionMode.Decompress);
+                if (_bufferSize > 0)
+                {
+                    return new BufferedStream(new DeflateStream(new FileStream(Filename, FileMode.Open, FileAccess.Read), CompressionMode.Decompress), _bufferSize);
+                }
+                else
+                {
+                    return new DeflateStream(new FileStream(Filename, FileMode.Open, FileAccess.Read), CompressionMode.Decompress);
+                }
             }
         }
 
@@ -369,8 +381,8 @@ namespace Mbc.Pcs.Net.DataRecorder
             private volatile MemoryStream _buffer;
             private volatile bool _appendFinished;
 
-            public AppendableSegmentBuffer(string filename, int capacity)
-                : base(filename)
+            internal AppendableSegmentBuffer(string filename, int capacity, int bufferSize)
+                : base(filename, bufferSize)
             {
                 _buffer = new MemoryStream(capacity);
             }
