@@ -215,24 +215,33 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
             }
         }
 
+        public int ReadChannel(string channelName, long startSampleIndex, Array values)
+        {
+            return ReadChannel(channelName, startSampleIndex, values, 0, values.Length);
+        }
+
         /// <summary>
         /// Liest Daten eines Kanals aus. Der erste Sample wird über startSampleIndex
         /// referenziert. Können weniger Daten gelesen
         /// als das Array gross ist, werden diese rechtsbündig abgelegt. Die
         /// Methode liefert die Anzahl Samples im Array zurück:
         /// </summary>
-        public int ReadChannel(string channelName, Array values, long startSampleIndex)
+        public int ReadChannel(string channelName, long startSampleIndex, Array values, int offset, int count)
         {
+            EnsureArg.IsGte(offset, 0, nameof(offset));
+            EnsureArg.IsGte(count, 0, nameof(offset));
+            EnsureArg.IsTrue(offset + count <= values.Length, null, optsFn: x => x.WithMessage("offset/count does not match values."));
+
             _hdf5Lock.EnterReadLock();
             try
             {
                 EnsureArg.IsLte(startSampleIndex, _sampleIndex, nameof(startSampleIndex));
 
                 // Start-Index im Array
-                var valuesStart = 0;
+                var valuesStart = offset;
 
                 // Anzahl im Array
-                var valuesCount = values.Length;
+                var valuesCount = count;
 
                 // Offset zum Array-Anfang (pos. Wert)
                 var leftOffset = _sampleIndex - startSampleIndex;
@@ -241,7 +250,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 if (leftOffset >= _count)
                 {
                     var newLeftOffset = _count - 1;
-                    valuesStart = (int)(leftOffset - newLeftOffset);
+                    valuesStart += (int)(leftOffset - newLeftOffset);
                     valuesCount -= valuesStart;
                     leftOffset = newLeftOffset;
                 }
