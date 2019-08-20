@@ -1,17 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <Version>2.0.0</Version>
-
+    <TargetFramework>net471</TargetFramework>
+    <Version>2.0.1</Version>
     <Product>Mbc.Pcs.Net</Product>
-
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.7" />
     <PackageReference Include="Mbc.AsyncUtils" Version="0.2.2" />
     <PackageReference Include="Mbc.Common" Version="0.3.1" />
     <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
-    <PackageReference Include="Mbc.Hdf5Utils" Version="0.4.2" />
+    <PackageReference Include="Mbc.Hdf5Utils" Version="0.5.0" />
     <PackageReference Include="NLog" Version="4.5.10" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
@@ -32,5 +36,4 @@
       <LastGenOutput>ConnectionResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
 </Project>

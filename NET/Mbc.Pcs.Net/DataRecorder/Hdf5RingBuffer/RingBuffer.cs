@@ -1,20 +1,45 @@
-﻿using Mbc.Hdf5Utils;
+﻿using EnsureThat;
+using Mbc.Hdf5Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 {
     public class RingBuffer : IDisposable
     {
         private const string CurrentWritePosAttrName = "wpos";
+        private const string CurrentCountAttrName = "count";
 
+        private readonly ReaderWriterLockSlim _hdf5Lock = new ReaderWriterLockSlim();
         private readonly Dictionary<string, H5DataSet> _dataSets = new Dictionary<string, H5DataSet>();
         private readonly string _ringBufferHd5Path;
         private readonly RingBufferInfo _ringBufferInfo;
         private H5File _h5File;
+
+        /// <summary>
+        /// Enthält die nächste Schreibposition von 0..size-1.
+        /// </summary>
         private int _currentWritePos;
+
+        /// <summary>
+        /// Enthält die aktuelle Anzahl Samples von 0..size.
+        /// </summary>
+        private int _count;
+
+        /// <summary>
+        /// Enthält die Anzahl Samples, die geschrieben ober noch
+        /// nicht commited worden sind.
+        /// </summary>
+        private int _uncommitedSamples;
+
+        /// <summary>
+        /// Enthält den Sample-Index des zuletzt geschriebenen Samples.
+        /// Der Zähler zählt monoton alle Samples.
+        /// </summary>
+        private long _sampleIndex;
 
         public RingBuffer(string ringBufferHd5Path, RingBufferInfo ringBufferInfo)
         {
@@ -26,14 +51,25 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 
         public void Dispose()
         {
+            foreach (var dataSet in _dataSets)
+            {
+                dataSet.Value.Dispose();
+            }
+
             _h5File?.Dispose();
         }
 
         // Testing purpose
         internal int CurrentWritePos => _currentWritePos;
 
+        // Testing purpose
+        internal int Count => _count;
+
+        public long LastSampleIndex => _sampleIndex;
+
         private void OpenAndCheck()
         {
+            File.Delete(_ringBufferHd5Path);
             if (File.Exists(_ringBufferHd5Path))
             {
                 _h5File = new H5File(_ringBufferHd5Path, H5File.Flags.ReadWrite);
@@ -67,8 +103,8 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 _h5File = new H5File(_ringBufferHd5Path, H5File.Flags.CreateOnly);
 
                 // Struktur anlegen
-                _h5File.Attributes().Write(CurrentWritePosAttrName, 0);
-                _currentWritePos = 0;
+                UpdateWritePos(0);
+                UpdateCount(0);
 
                 foreach (var channelInfo in _ringBufferInfo.ChannelInfo)
                 {
@@ -90,48 +126,180 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         /// </summary>
         public void WriteChannel(string channelName, Array values)
         {
-            var dataSet = _dataSets[channelName];
-
-            using (var targetDataSpace = dataSet.GetSpace())
-            using (var sourceDataSpace = H5DataSpace.CreateSimpleFixed(new[] { (ulong)values.Length }))
+            _hdf5Lock.EnterWriteLock();
+            try
             {
-                var countPart1 = Math.Min(values.Length, _ringBufferInfo.Size - _currentWritePos);
-                var countPart2 = values.Length - countPart1;
-
-                H5DataSpace.CreateSelectionBuilder()
-                    .Start((ulong)_currentWritePos)
-                    .Count((ulong)countPart1)
-                    .ApplyTo(targetDataSpace);
-
-                H5DataSpace.CreateSelectionBuilder()
-                    .Start(0)
-                    .Count((ulong)countPart1)
-                    .ApplyTo(sourceDataSpace);
-
-                dataSet.Write(dataSet.ValueType, values, targetDataSpace, sourceDataSpace);
-
-                // Umlauf des Ringbuffers, 2. Teil
-                if (countPart2 > 0)
+                if (_uncommitedSamples != 0 && _uncommitedSamples != values.Length)
                 {
+                    throw new ArgumentException("Sample count must be same for single commit");
+                }
+
+                if (_uncommitedSamples == 0)
+                {
+                    _uncommitedSamples = values.Length;
+
+                    if ((_ringBufferInfo.Size - _count) < _uncommitedSamples)
+                    {
+                        UpdateCount(_ringBufferInfo.Size - _uncommitedSamples);
+                    }
+                }
+
+                var dataSet = _dataSets[channelName];
+
+                using (var fileDataSpace = dataSet.GetSpace())
+                using (var memoryDataSpace = H5DataSpace.CreateSimpleFixed(new[] { (ulong)values.Length }))
+                {
+                    var countPart1 = Math.Min(values.Length, _ringBufferInfo.Size - _currentWritePos);
+                    var countPart2 = values.Length - countPart1;
+
+                    H5DataSpace.CreateSelectionBuilder()
+                        .Start((ulong)_currentWritePos)
+                        .Count((ulong)countPart1)
+                        .ApplyTo(fileDataSpace);
+
                     H5DataSpace.CreateSelectionBuilder()
                         .Start(0)
-                        .Count((ulong)countPart2)
-                        .ApplyTo(targetDataSpace);
+                        .Count((ulong)countPart1)
+                        .ApplyTo(memoryDataSpace);
 
-                    H5DataSpace.CreateSelectionBuilder()
-                        .Start((ulong)countPart1)
-                        .Count((ulong)countPart2)
-                        .ApplyTo(sourceDataSpace);
+                    dataSet.Write(dataSet.ValueType, values, fileDataSpace, memoryDataSpace);
 
-                    dataSet.Write(dataSet.ValueType, values, targetDataSpace, sourceDataSpace);
+                    // Umlauf des Ringbuffers, 2. Teil
+                    if (countPart2 > 0)
+                    {
+                        H5DataSpace.CreateSelectionBuilder()
+                            .Start(0)
+                            .Count((ulong)countPart2)
+                            .ApplyTo(fileDataSpace);
+
+                        H5DataSpace.CreateSelectionBuilder()
+                            .Start((ulong)countPart1)
+                            .Count((ulong)countPart2)
+                            .ApplyTo(memoryDataSpace);
+
+                        dataSet.Write(dataSet.ValueType, values, fileDataSpace, memoryDataSpace);
+                    }
                 }
+            }
+            finally
+            {
+                _hdf5Lock.ExitWriteLock();
             }
         }
 
-        public void IncrementSamples(int count)
+        private void UpdateWritePos(int pos)
         {
-            _currentWritePos = (_currentWritePos + count) % _ringBufferInfo.Size;
+            _currentWritePos = pos;
             _h5File.Attributes().Write(CurrentWritePosAttrName, _currentWritePos);
+        }
+
+        private void UpdateCount(int count)
+        {
+            _count = count;
+            _h5File.Attributes().Write(CurrentCountAttrName, _count);
+        }
+
+        public long CommitWrite()
+        {
+            _hdf5Lock.EnterWriteLock();
+            try
+            {
+                UpdateCount(_count + _uncommitedSamples);
+                UpdateWritePos((_currentWritePos + _uncommitedSamples) % _ringBufferInfo.Size);
+                _sampleIndex += _uncommitedSamples;
+                return _sampleIndex;
+            }
+            finally
+            {
+                _hdf5Lock.ExitWriteLock();
+            }
+        }
+
+        /// <summary>
+        /// Liest Daten eines Kanals aus. Der erste Sample wird über startSampleIndex
+        /// referenziert. Können weniger Daten gelesen
+        /// als das Array gross ist, werden diese rechtsbündig abgelegt. Die
+        /// Methode liefert die Anzahl Samples im Array zurück:
+        /// </summary>
+        public int ReadChannel(string channelName, Array values, long startSampleIndex)
+        {
+            _hdf5Lock.EnterReadLock();
+            try
+            {
+                EnsureArg.IsLte(startSampleIndex, _sampleIndex, nameof(startSampleIndex));
+
+                // Start-Index im Array
+                var valuesStart = 0;
+
+                // Anzahl im Array
+                var valuesCount = values.Length;
+
+                // Offset zum Array-Anfang (pos. Wert)
+                var leftOffset = _sampleIndex - startSampleIndex;
+
+                // Offset ist grösser als verfügbare Samples
+                if (leftOffset >= _count)
+                {
+                    var newLeftOffset = _count - 1;
+                    valuesStart = (int)(leftOffset - newLeftOffset);
+                    valuesCount -= valuesStart;
+                    leftOffset = newLeftOffset;
+                }
+
+                // Shortcut: Wenn nichts gelesen werden kann wird hier beendet
+                if (valuesCount <= 0)
+                    return valuesCount;
+
+                var dataSet = _dataSets[channelName];
+
+                using (var fileDataSpace = dataSet.GetSpace())
+                using (var memoryDataSpace = H5DataSpace.CreateSimpleFixed(new[] { (ulong)values.Length }))
+                {
+                    var startPart1 = _currentWritePos - leftOffset - 1;
+                    if (startPart1 < 0)
+                    {
+                        startPart1 = _ringBufferInfo.Size + startPart1;
+                    }
+
+                    var countPart1 = Math.Min(valuesCount, _ringBufferInfo.Size - startPart1);
+
+                    var startPart2 = (startPart1 + countPart1) % _ringBufferInfo.Size;
+                    var countPart2 = valuesCount - countPart1;
+
+                    H5DataSpace.CreateSelectionBuilder()
+                        .Start((ulong)startPart1)
+                        .Count((ulong)countPart1)
+                        .ApplyTo(fileDataSpace);
+
+                    H5DataSpace.CreateSelectionBuilder()
+                        .Start((ulong)valuesStart)
+                        .Count((ulong)countPart1)
+                        .ApplyTo(memoryDataSpace);
+
+                    dataSet.Read(values, fileDataSpace, memoryDataSpace);
+
+                    if (countPart2 > 0)
+                    {
+                        H5DataSpace.CreateSelectionBuilder()
+                            .Start((ulong)startPart2)
+                            .Count((ulong)countPart2)
+                            .ApplyTo(fileDataSpace);
+
+                        H5DataSpace.CreateSelectionBuilder()
+                            .Start((ulong)(valuesStart + countPart1))
+                            .Count((ulong)countPart2)
+                            .ApplyTo(memoryDataSpace);
+
+                        dataSet.Read(values, fileDataSpace, memoryDataSpace);
+                    }
+                }
+
+                return valuesCount;
+            }
+            finally
+            {
+                _hdf5Lock.ExitReadLock();
+            }
         }
     }
 }
