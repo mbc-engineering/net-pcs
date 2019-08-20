@@ -1,5 +1,6 @@
 ﻿using EnsureThat;
 using Mbc.Hdf5Utils;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,8 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
     {
         private const string CurrentWritePosAttrName = "wpos";
         private const string CurrentCountAttrName = "count";
+
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly ReaderWriterLockSlim _hdf5Lock = new ReaderWriterLockSlim();
         private readonly Dictionary<string, H5DataSet> _dataSets = new Dictionary<string, H5DataSet>();
@@ -69,54 +72,86 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 
         private void OpenAndCheck()
         {
-            File.Delete(_ringBufferHd5Path);
             if (File.Exists(_ringBufferHd5Path))
             {
-                _h5File = new H5File(_ringBufferHd5Path, H5File.Flags.ReadWrite);
-
-                _currentWritePos = _h5File.Attributes().ReadInt(CurrentWritePosAttrName);
-
-                var existingNames = _h5File.GetNames().ToList();
-
-                foreach (var channelInfo in _ringBufferInfo.ChannelInfo)
+                var success = true;
+                try
                 {
-                    if (existingNames.Contains(channelInfo.Name))
-                    {
-                        var dataSet = H5DataSet.Open(_h5File, channelInfo.Name);
-                        _dataSets.Add(channelInfo.Name, dataSet);
-                    }
-                    else
-                    {
-                        var dataSet = new H5DataSet.Builder()
-                            .WithName(channelInfo.Name)
-                            .WithType(channelInfo.Type)
-                            .WithDimension(_ringBufferInfo.Size)
-                            .WithChunking(_ringBufferInfo.ChunkSize)
-                            .Create(_h5File);
+                    _h5File = new H5File(_ringBufferHd5Path, H5File.Flags.ReadWrite);
 
-                        _dataSets.Add(channelInfo.Name, dataSet);
+                    _currentWritePos = _h5File.Attributes().ReadInt(CurrentWritePosAttrName);
+                    _count = _h5File.Attributes().ReadInt(CurrentCountAttrName);
+
+                    var existingNames = _h5File.GetNames().ToList();
+
+                    foreach (var channelInfo in _ringBufferInfo.ChannelInfo)
+                    {
+                        if (existingNames.Contains(channelInfo.Name))
+                        {
+                            var dataSet = H5DataSet.Open(_h5File, channelInfo.Name);
+                            _dataSets.Add(channelInfo.Name, dataSet);
+
+                            if (dataSet.ValueType != channelInfo.Type)
+                            {
+                                _logger.Error("Error reopening hdf5 ring buffer: channel type changed {oldType} != {newType}", dataSet.ValueType, channelInfo.Type);
+                                success = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            _logger.Error("Error reopening hdf5 ring buffer: missing channel {channelName}.", channelInfo.Name);
+                            success = false;
+                            break;
+                        }
                     }
                 }
+                catch (Exception e)
+                {
+                    _logger.Error(e, "Error reopening hdf5 ring buffer.");
+                    success = false;
+                }
+
+                if (success)
+                {
+                    _logger.Info("Using existing hdf5 ring buffer with {count} samples.", _count);
+                    return;
+                }
+
+                foreach (var dataSet in _dataSets.Values)
+                {
+                    try { dataSet.Dispose(); } catch { }
+                }
+
+                try { _h5File?.Dispose(); } catch { }
+
+                File.Delete(_ringBufferHd5Path);
             }
-            else
+
+            CreateNewHdf5File();
+        }
+
+        private void CreateNewHdf5File()
+        {
+            _logger.Info("Creating new hdf5 ring buffer ({path}).", _ringBufferHd5Path);
+
+            _h5File = new H5File(_ringBufferHd5Path, H5File.Flags.CreateOnly);
+
+            // Struktur anlegen
+            UpdateWritePos(0);
+            UpdateCount(0);
+
+            _dataSets.Clear();
+            foreach (var channelInfo in _ringBufferInfo.ChannelInfo)
             {
-                _h5File = new H5File(_ringBufferHd5Path, H5File.Flags.CreateOnly);
+                var dataSet = new H5DataSet.Builder()
+                    .WithName(channelInfo.Name)
+                    .WithType(channelInfo.Type)
+                    .WithDimension(_ringBufferInfo.Size)
+                    .WithChunking(_ringBufferInfo.ChunkSize)
+                    .Create(_h5File);
 
-                // Struktur anlegen
-                UpdateWritePos(0);
-                UpdateCount(0);
-
-                foreach (var channelInfo in _ringBufferInfo.ChannelInfo)
-                {
-                    var dataSet = new H5DataSet.Builder()
-                        .WithName(channelInfo.Name)
-                        .WithType(channelInfo.Type)
-                        .WithDimension(_ringBufferInfo.Size)
-                        .WithChunking(_ringBufferInfo.ChunkSize)
-                        .Create(_h5File);
-
-                    _dataSets.Add(channelInfo.Name, dataSet);
-                }
+                _dataSets.Add(channelInfo.Name, dataSet);
             }
         }
 

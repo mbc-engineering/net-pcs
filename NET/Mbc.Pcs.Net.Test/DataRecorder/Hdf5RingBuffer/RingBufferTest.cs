@@ -43,7 +43,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             }
         }
 
-        [Fact(Skip = "Noch nicht fertig implementiert")]
+        [Fact]
         public void OpenExistingFile()
         {
             // Arrange
@@ -68,6 +68,85 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
                 // Assert
                 File.Exists(file).Should().BeTrue();
                 ringBuffer.CurrentWritePos.Should().Be(3);
+                ringBuffer.Count.Should().Be(3);
+            }
+        }
+
+        [Fact]
+        public void OpenExistingFileWithNewChannels()
+        {
+            // Arrange
+            var file = Path.GetTempFileName();
+            File.Delete(file);
+            _testOutput.WriteLine($"Test HDF5: {file}");
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1 });
+
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                ringBuffer.WriteChannel("c1", new float[] { 1, 2, 3 });
+                ringBuffer.CommitWrite();
+            }
+
+            // Act
+            channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var channelInfo2 = new ChannelInfo("c2", typeof(int));
+            ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1, channelInfo2 });
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                // Assert
+                File.Exists(file).Should().BeTrue();
+                ringBuffer.CurrentWritePos.Should().Be(0);
+                ringBuffer.Count.Should().Be(0);
+            }
+        }
+
+        [Fact]
+        public void OpenExistingFileWithNewChannelType()
+        {
+            // Arrange
+            var file = Path.GetTempFileName();
+            File.Delete(file);
+            _testOutput.WriteLine($"Test HDF5: {file}");
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1 });
+
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                ringBuffer.WriteChannel("c1", new float[] { 1, 2, 3 });
+                ringBuffer.CommitWrite();
+            }
+
+            // Act
+            channelInfo1 = new ChannelInfo("c1", typeof(int));
+            ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1 });
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                // Assert
+                File.Exists(file).Should().BeTrue();
+                ringBuffer.CurrentWritePos.Should().Be(0);
+                ringBuffer.Count.Should().Be(0);
+            }
+        }
+
+        [Fact]
+        public void OpenExistingCorruptedFile()
+        {
+            // Arrange
+            var file = Path.GetTempFileName();
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1 });
+
+            // Act
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                // Assert
+                File.Exists(file).Should().BeTrue();
+                ringBuffer.CurrentWritePos.Should().Be(0);
+                ringBuffer.Count.Should().Be(0);
             }
         }
 
@@ -264,6 +343,34 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             // Assert
             result.Should().Be(5);
             buffer.Should().BeEquivalentTo(0F, 0F, 0F, 0F, 10F, 11F, 12F, 13F, 14F, 0F);
+        }
+
+        [Fact]
+        public void ReadSingleElement()
+        {
+            // Arrange
+            var file = Path.GetTempFileName();
+            File.Delete(file);
+            _testOutput.WriteLine($"Test HDF5: {file}");
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var ringBufferInfo = new RingBufferInfo(100, 10, new[] { channelInfo1 });
+
+            var buffer = new float[1];
+            int result;
+
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14 });
+                ringBuffer.CommitWrite();
+
+                // Act
+                result = ringBuffer.ReadChannel("c1", 3, buffer);
+            }
+
+            // Assert
+            result.Should().Be(1);
+            buffer.Should().BeEquivalentTo(12F);
         }
     }
 }
