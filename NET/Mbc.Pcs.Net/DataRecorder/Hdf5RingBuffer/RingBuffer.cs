@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 {
-    public class RingBuffer : IDisposable
+    public class RingBuffer : IDisposable, IDataChannelWriter
     {
         private const string CurrentWritePosAttrName = "wpos";
         private const string CurrentCountAttrName = "count";
@@ -93,7 +93,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 
                             if (dataSet.ValueType != channelInfo.Type)
                             {
-                                _logger.Error("Error reopening hdf5 ring buffer: channel type changed {oldType} != {newType}", dataSet.ValueType, channelInfo.Type);
+                                _logger.Error("Error reopening hdf5 ring buffer: channel type changed {oldType} != {newType} on channel {channelName}", dataSet.ValueType, channelInfo.Type, channelInfo.Name);
                                 success = false;
                                 break;
                             }
@@ -234,6 +234,11 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
             _h5File.Attributes().Write(CurrentCountAttrName, _count);
         }
 
+        /// <summary>
+        /// Bestätigt die vorher mit <see cref="WriteChannel(string, Array)"/> geschriebenen
+        /// Samples und macht diese zum Lesen verfügbar. Liefert den Sampleindex des zu
+        /// letzt geschriebenen Samples zurück.
+        /// </summary>
         public long CommitWrite()
         {
             _hdf5Lock.EnterWriteLock();
