@@ -1,5 +1,5 @@
-﻿using Mbc.Common.Reflection;
-using Optional.Collections;
+﻿using Mbc.Common;
+using Mbc.Common.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +24,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         };
 
         private readonly ChannelOpts _channelOpts = new ChannelOpts();
-        private readonly List<(string Name, Type Type, Func<T, object> Getter, Action<T, object> Setter, Func<object, object> Converter, Type ConverterType)> _properties;
+        private readonly List<ChannelData> _channelData;
 
         public DataClassAdapter()
             : this(x => { })
@@ -35,29 +35,78 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         {
             channelOptsFn(_channelOpts);
 
-            _properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            _channelData = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(x => x.CanRead && x.CanWrite)
                 .Where(x => !_channelOpts.IgnoredProperties.Contains(x.Name))
-                .Select(x =>
+                .SelectMany(x =>
                 {
                     Func<object, object> converter = null;
-                    Type converterType = null;
-                    if (_typeConverter.ContainsKey(x.PropertyType))
+                    Type channelType = x.PropertyType;
+                    var oversamplingFactor = 1;
+
+                    if (_channelOpts.OversamplingChannels.ContainsKey(x.Name))
                     {
-                        converterType = _typeConverter[x.PropertyType].Type;
-                        converter = _typeConverter[x.PropertyType].Converter;
-                    }
-                    else if (x.PropertyType.IsEnum)
-                    {
-                        converterType = x.PropertyType.GetEnumUnderlyingType();
-                        converter = y => Convert.ChangeType(y, converterType);
-                    }
-                    else if (x.PropertyType.IsArray)
-                    {
-                        converterType = x.PropertyType.GetElementType();
+                        channelType = x.PropertyType.GetElementType();
+                        oversamplingFactor = _channelOpts.OversamplingChannels[x.Name];
                     }
 
-                    return (x.Name, x.PropertyType, FastInvoke.BuildUntypedGetter<T>(x), FastInvoke.BuildUntypedSetter<T>(x), converter, converterType);
+                    if (_channelOpts.MultiChannel.ContainsKey(x.Name))
+                    {
+                        if (!x.PropertyType.IsArray)
+                            throw new InvalidOperationException($"Property {x.Name} should return a array because it is a multi channel.");
+
+                        channelType = x.PropertyType.GetElementType();
+                        if (_typeConverter.ContainsKey(x.PropertyType))
+                        {
+                            channelType = _typeConverter[x.PropertyType].Type;
+                            converter = _typeConverter[x.PropertyType].Converter;
+                        }
+                        else if (x.PropertyType.IsEnum)
+                        {
+                            channelType = x.PropertyType.GetEnumUnderlyingType();
+                            converter = y => Convert.ChangeType(y, channelType);
+                        }
+
+                        var start = _channelOpts.MultiChannel[x.Name].Start;
+                        var count = _channelOpts.MultiChannel[x.Name].Count;
+
+                        if (oversamplingFactor == 1)
+                        {
+                            return Enumerable.Range(start, count)
+                                .Select(i => new MultiChannelData($"{x.Name}[{i}]", x.PropertyType, FastInvoke.BuildUntypedGetter<T>(x), FastInvoke.BuildUntypedSetter<T>(x), converter, channelType, i - start));
+                        }
+                        else
+                        {
+                            return Enumerable.Range(start, count)
+                                .Select(i => new OversamplingMultiChannelData($"{x.Name}[{i}]", x.PropertyType, FastInvoke.BuildUntypedGetter<T>(x), FastInvoke.BuildUntypedSetter<T>(x), converter, channelType, oversamplingFactor, i - start));
+                        }
+                    }
+                    else
+                    {
+                        if (_typeConverter.ContainsKey(x.PropertyType))
+                        {
+                            channelType = _typeConverter[x.PropertyType].Type;
+                            converter = _typeConverter[x.PropertyType].Converter;
+                        }
+                        else if (x.PropertyType.IsEnum)
+                        {
+                            channelType = x.PropertyType.GetEnumUnderlyingType();
+                            converter = y => Convert.ChangeType(y, channelType);
+                        }
+                        else if (channelType.IsArray)
+                        {
+                            throw new InvalidOperationException($"Array type must be multi or oversampling.");
+                        }
+
+                        if (oversamplingFactor == 1)
+                        {
+                            return Enumerables.Yield(new ChannelData(x.Name, x.PropertyType, FastInvoke.BuildUntypedGetter<T>(x), FastInvoke.BuildUntypedSetter<T>(x), converter, channelType));
+                        }
+                        else
+                        {
+                            return Enumerables.Yield(new OversamplingChannelData(x.Name, x.PropertyType, FastInvoke.BuildUntypedGetter<T>(x), FastInvoke.BuildUntypedSetter<T>(x), converter, channelType, oversamplingFactor));
+                        }
+                    }
                 })
                 .ToList();
         }
@@ -67,15 +116,13 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         /// </summary>
         public IEnumerable<ChannelInfo> CreateChannelInfos()
         {
-            return _properties
-                .Where(x => !x.Type.IsArray
-                            || (_channelOpts.OversamplingChannels.ContainsKey(x.Name) && x.Type.GetArrayRank() == 1))
+            return _channelData
                 .Select(x =>
                 {
                     return new ChannelInfo(
-                        x.Name,
-                        x.ConverterType ?? x.Type,
-                        _channelOpts.OversamplingChannels.GetValueOrNone(x.Name).ValueOr(1));
+                        x.ChannelName,
+                        x.ChannelType,
+                        x is OversamplingChannelData ocd ? ocd.OversamplingFactor : 1);
                 });
         }
 
@@ -84,82 +131,187 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         /// </summary>
         public void WriteData(IReadOnlyList<T> dataList, IDataChannelWriter channelWriter)
         {
-            var length = dataList.Count;
-
-            foreach (var prop in _properties)
+            foreach (var channel in _channelData)
             {
-                if (!prop.Type.IsArray)
+                var data = channel.GetValues(dataList);
+                channelWriter.WriteChannel(channel.ChannelName, data);
+            }
+        }
+
+        private class ChannelData
+        {
+            protected readonly Func<T, object> _getter;
+            protected readonly Action<T, object> _setter;
+            protected readonly Func<object, object> _converter;
+
+            public ChannelData(string channelName, Type propertyType, Func<T, object> getter, Action<T, object> setter, Func<object, object> converter, Type channelType)
+            {
+                ChannelName = channelName;
+                PropertyType = propertyType;
+                _getter = getter;
+                _setter = setter;
+                _converter = converter;
+                ChannelType = channelType;
+            }
+
+            public string ChannelName { get; }
+            public Type PropertyType { get; }
+            public Type ChannelType { get; }
+
+            public virtual Array GetValues(IReadOnlyList<T> input)
+            {
+                var length = input.Count;
+
+                var data = Array.CreateInstance(ChannelType, length);
+
+                if (_converter == null)
                 {
-                    Array data = CreateScalarData(dataList, length, prop);
-                    channelWriter.WriteChannel(prop.Name, data);
-                }
-                else if (prop.Type.GetArrayRank() == 1 && _channelOpts.OversamplingChannels.ContainsKey(prop.Name))
-                {
-                    var oversamplingFactor = _channelOpts.OversamplingChannels[prop.Name];
-                    Array data = CreateOversamplingData(dataList, length, prop, oversamplingFactor);
-                    channelWriter.WriteChannel(prop.Name, data);
+                    for (int i = 0; i < length; i++)
+                    {
+                        data.SetValue(_getter(input[i]), i);
+                    }
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Unhandled property type {prop.Type}.");
-                }
-            }
-        }
-
-        private static Array CreateOversamplingData(IReadOnlyList<T> dataList, int length, (string Name, Type Type, Func<T, object> Getter, Action<T, object> Setter, Func<object, object> Converter, Type ConverterType) prop, int oversamplingFactor)
-        {
-            var data = Array.CreateInstance(prop.ConverterType ?? prop.Type.GetElementType(), length * oversamplingFactor);
-
-            if (prop.Converter == null)
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    var values = (Array)prop.Getter(dataList[i]);
-                    if (values.Length != oversamplingFactor)
-                        throw new InvalidOperationException($"Oversamplingfactor does not match. Expected: {oversamplingFactor}, Got: {values.Length}");
-
-                    Array.Copy(values, 0, data, i * oversamplingFactor, oversamplingFactor);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    var values = (Array)prop.Getter(dataList[i]);
-                    if (values.Length != oversamplingFactor)
-                        throw new InvalidOperationException($"Oversamplingfactor does not match. Expected: {oversamplingFactor}, Got: {values.Length}");
-
-                    for (int j = 0; j < values.Length; j++)
+                    for (int i = 0; i < length; i++)
                     {
-                        values.SetValue(prop.Converter(values.GetValue(j)), (i * oversamplingFactor) + j);
+                        data.SetValue(_converter(_getter(input[i])), i);
                     }
                 }
-            }
 
-            return data;
+                return data;
+            }
         }
 
-        private static Array CreateScalarData(IReadOnlyList<T> dataList, int length, (string Name, Type Type, Func<T, object> Getter, Action<T, object> Setter, Func<object, object> Converter, Type ConverterType) prop)
+        private class OversamplingChannelData : ChannelData
         {
-            var valueType = prop.ConverterType ?? prop.Type;
-            var data = Array.CreateInstance(valueType, length);
-
-            if (prop.Converter == null)
+            public OversamplingChannelData(string channelName, Type propertyType, Func<T, object> getter, Action<T, object> setter, Func<object, object> converter, Type channelType, int oversamplingFactor)
+                : base(channelName, propertyType, getter, setter, converter, channelType)
             {
-                for (int i = 0; i < length; i++)
-                {
-                    data.SetValue(prop.Getter(dataList[i]), i);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    data.SetValue(prop.Converter(prop.Getter(dataList[i])), i);
-                }
+                OversamplingFactor = oversamplingFactor;
             }
 
-            return data;
+            public int OversamplingFactor { get; }
+
+            public override Array GetValues(IReadOnlyList<T> input)
+            {
+                var length = input.Count;
+
+                var data = Array.CreateInstance(ChannelType, length * OversamplingFactor);
+
+                if (_converter == null)
+                {
+                    for (int i = 0; i < length; i++)
+                    {
+                        var values = (Array)_getter(input[i]);
+                        if (values.Length != OversamplingFactor)
+                            throw new InvalidOperationException($"Oversamplingfactor does not match. Expected: {OversamplingFactor}, Got: {values.Length}");
+
+                        Array.Copy(values, 0, data, i * OversamplingFactor, OversamplingFactor);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < length; i++)
+                    {
+                        var values = (Array)_getter(input[i]);
+                        if (values.Length != OversamplingFactor)
+                            throw new InvalidOperationException($"Oversamplingfactor does not match. Expected: {OversamplingFactor}, Got: {values.Length}");
+
+                        for (int j = 0; j < values.Length; j++)
+                        {
+                            values.SetValue(_converter(values.GetValue(j)), (i * OversamplingFactor) + j);
+                            values.SetValue(_converter(values.GetValue(j)), (i * OversamplingFactor) + j);
+                        }
+                    }
+                }
+
+                return data;
+            }
+        }
+
+        private class MultiChannelData : ChannelData
+        {
+            private readonly int _index;
+
+            public MultiChannelData(string channelName, Type propertyType, Func<T, object> getter, Action<T, object> setter, Func<object, object> converter, Type channelType, int index)
+                : base(channelName, propertyType, getter, setter, converter, channelType)
+            {
+                _index = index;
+            }
+
+            public override Array GetValues(IReadOnlyList<T> input)
+            {
+                var length = input.Count;
+
+                var data = Array.CreateInstance(ChannelType, length);
+
+                if (_converter == null)
+                {
+                    for (int i = 0; i < length; i++)
+                    {
+                        data.SetValue(((Array)_getter(input[i])).GetValue(_index), i);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < length; i++)
+                    {
+                        data.SetValue(_converter(((Array)_getter(input[i])).GetValue(_index)), i);
+                    }
+                }
+
+                return data;
+            }
+        }
+
+        private class OversamplingMultiChannelData : OversamplingChannelData
+        {
+            private readonly int _index;
+
+            public OversamplingMultiChannelData(string channelName, Type propertyType, Func<T, object> getter, Action<T, object> setter, Func<object, object> converter, Type channelType, int oversamplingFactor, int index)
+                : base(channelName, propertyType, getter, setter, converter, channelType, oversamplingFactor)
+            {
+                _index = index;
+            }
+
+            public override Array GetValues(IReadOnlyList<T> input)
+            {
+                var length = input.Count;
+
+                var data = Array.CreateInstance(ChannelType, length * OversamplingFactor);
+
+                if (_converter == null)
+                {
+                    for (int i = 0; i < length; i++)
+                    {
+                        var values = (Array)_getter(input[i]);
+                        if (values.GetLength(1) != OversamplingFactor)
+                            throw new InvalidOperationException($"Oversamplingfactor does not match. Expected: {OversamplingFactor}, Got: {values.GetLength(_index)}");
+
+                        for (int j = 0; j < values.GetLength(1); j++)
+                        {
+                            data.SetValue(values.GetValue(_index, j), (i * OversamplingFactor) + j);
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < length; i++)
+                    {
+                        var values = (Array)_getter(input[i]);
+                        if (values.Length != OversamplingFactor)
+                            throw new InvalidOperationException($"Oversamplingfactor does not match. Expected: {OversamplingFactor}, Got: {values.Length}");
+
+                        for (int j = 0; j < values.Length; j++)
+                        {
+                            data.SetValue(_converter(values.GetValue(_index, j)), (i * OversamplingFactor) + j);
+                        }
+                    }
+                }
+
+                return data;
+            }
         }
     }
 }

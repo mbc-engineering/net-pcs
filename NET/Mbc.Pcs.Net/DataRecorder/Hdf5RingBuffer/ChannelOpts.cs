@@ -9,6 +9,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
     {
         private readonly Dictionary<string, int> _oversamplingChannels = new Dictionary<string, int>();
         private readonly HashSet<string> _ignoredProperties = new HashSet<string>();
+        private readonly Dictionary<string, (int Start, int Count)> _multiChannel = new Dictionary<string, (int Start, int Count)>();
 
         internal ChannelOpts()
         {
@@ -24,6 +25,12 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
             return this;
         }
 
+        public ChannelOpts WithMulti(string propName, int startIndex, int count)
+        {
+            _multiChannel[propName] = (startIndex, count);
+            return this;
+        }
+
         /// <summary>
         /// Ignoriert das Property mit dem angegebenen Namen.
         /// </summary>
@@ -36,5 +43,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         internal Dictionary<string, int> OversamplingChannels => _oversamplingChannels;
 
         internal HashSet<string> IgnoredProperties => _ignoredProperties;
+
+        internal Dictionary<string, (int Start, int Count)> MultiChannel => _multiChannel;
     }
 }
