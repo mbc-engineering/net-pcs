@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 
 namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 {
@@ -16,7 +15,8 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly ReaderWriterLockSlim _hdf5Lock = new ReaderWriterLockSlim();
+        // Alle Zugriffe auf HDF5-Lib müssen gelockt werden
+        private readonly object _hdf5Lock = new object();
         private readonly Dictionary<string, H5DataSet> _dataSets = new Dictionary<string, H5DataSet>();
         private readonly string _ringBufferHd5Path;
         private readonly RingBufferInfo _ringBufferInfo;
@@ -120,10 +120,24 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 
                 foreach (var dataSet in _dataSets.Values)
                 {
-                    try { dataSet.Dispose(); } catch { }
+                    try
+                    {
+                        dataSet.Dispose();
+                    }
+                    catch
+                    {
+                        // kein Error-Handling
+                    }
                 }
 
-                try { _h5File?.Dispose(); } catch { }
+                try
+                {
+                    _h5File?.Dispose();
+                }
+                catch
+                {
+                    // kein Error-Handling
+                }
 
                 File.Delete(_ringBufferHd5Path);
             }
@@ -161,8 +175,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         /// </summary>
         public void WriteChannel(string channelName, Array values)
         {
-            _hdf5Lock.EnterWriteLock();
-            try
+            lock (_hdf5Lock)
             {
                 if (_uncommitedSamples != 0 && _uncommitedSamples != values.Length)
                 {
@@ -216,10 +229,6 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                     }
                 }
             }
-            finally
-            {
-                _hdf5Lock.ExitWriteLock();
-            }
         }
 
         private void UpdateWritePos(int pos)
@@ -241,17 +250,12 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         /// </summary>
         public long CommitWrite()
         {
-            _hdf5Lock.EnterWriteLock();
-            try
+            lock (_hdf5Lock)
             {
                 UpdateCount(_count + _uncommitedSamples);
                 UpdateWritePos((_currentWritePos + _uncommitedSamples) % _ringBufferInfo.Size);
                 _sampleIndex += _uncommitedSamples;
                 return _sampleIndex;
-            }
-            finally
-            {
-                _hdf5Lock.ExitWriteLock();
             }
         }
 
@@ -272,8 +276,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
             EnsureArg.IsGte(count, 0, nameof(offset));
             EnsureArg.IsTrue(offset + count <= values.Length, null, optsFn: x => x.WithMessage("offset/count does not match values."));
 
-            _hdf5Lock.EnterReadLock();
-            try
+            lock (_hdf5Lock)
             {
                 EnsureArg.IsLte(startSampleIndex, _sampleIndex, nameof(startSampleIndex));
 
@@ -344,10 +347,6 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 }
 
                 return valuesCount;
-            }
-            finally
-            {
-                _hdf5Lock.ExitReadLock();
             }
         }
     }
