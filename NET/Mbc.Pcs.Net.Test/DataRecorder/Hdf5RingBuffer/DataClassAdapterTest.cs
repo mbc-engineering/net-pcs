@@ -27,13 +27,14 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
                 .WithOversampling(nameof(MockDataClass.FloatPropOversampling), 2)
                 .WithMulti(nameof(MockDataClass.MultiProp), 1, 2)
                 .WithOversampling(nameof(MockDataClass.FloatMultiOversampling), 4)
-                .WithMulti(nameof(MockDataClass.FloatMultiOversampling), 1, 2));
+                .WithMulti(nameof(MockDataClass.FloatMultiOversampling), 1, 2)
+                .WithMulti(nameof(MockDataClass.MultiBoolProp), 1, 2));
 
             // Act
             var channelInfos = adapter.CreateChannelInfos();
 
             // Assert
-            channelInfos.Should().HaveCount(9).And.BeEquivalentTo(
+            channelInfos.Should().HaveCount(11).And.BeEquivalentTo(
                 new ChannelInfo("IntProp", typeof(int)),
                 new ChannelInfo("FloatProp", typeof(float)),
                 new ChannelInfo("DateTimeProp", typeof(long)),
@@ -42,9 +43,12 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
                 new ChannelInfo("MultiProp[1]", typeof(int)),
                 new ChannelInfo("MultiProp[2]", typeof(int)),
                 new ChannelInfo("FloatMultiOversampling[1]", typeof(float), 4),
-                new ChannelInfo("FloatMultiOversampling[2]", typeof(float), 4));
+                new ChannelInfo("FloatMultiOversampling[2]", typeof(float), 4),
+                new ChannelInfo("MultiBoolProp[1]", typeof(byte)),
+                new ChannelInfo("MultiBoolProp[2]", typeof(byte)));
         }
 
+#pragma warning disable CA1814
         [Fact]
         public void WriteDataTest()
         {
@@ -53,12 +57,40 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
                 .WithOversampling(nameof(MockDataClass.FloatPropOversampling), 2)
                 .WithMulti(nameof(MockDataClass.MultiProp), 1, 2)
                 .WithOversampling(nameof(MockDataClass.FloatMultiOversampling), 4)
-                .WithMulti(nameof(MockDataClass.FloatMultiOversampling), 1, 2));
+                .WithMulti(nameof(MockDataClass.FloatMultiOversampling), 1, 2)
+                .WithMulti(nameof(MockDataClass.MultiBoolProp), 1, 2));
             var dataChannelWriter = A.Fake<IDataChannelWriter>();
             var dataList = new List<MockDataClass>
             {
-                new MockDataClass { IntProp = 42, FloatProp = 0.42F, DateTimeProp = DateTime.FromFileTime(1000000), BoolProp = true, FloatPropOversampling = new[] { 1F, 2F }, MultiProp = new[] { 10, 20 }, FloatMultiOversampling = new[,] { { 1F, 2F, 3F, 4F }, { 10F, 20F, 30F, 40F } } },
-                new MockDataClass { IntProp = 100, FloatProp = 4.2F, DateTimeProp = DateTime.FromFileTime(2000000), BoolProp = false, FloatPropOversampling = new[] { 3F, 4F }, MultiProp = new[] { 11, 21 }, FloatMultiOversampling = new[,] { { 5F, 6F, 7F, 8F }, { 50F, 60F, 70F, 80F } } },
+                new MockDataClass
+                {
+                    IntProp = 42,
+                    FloatProp = 0.42F,
+                    DateTimeProp = DateTime.FromFileTime(1000000),
+                    BoolProp = true,
+                    FloatPropOversampling = new[] { 1F, 2F },
+                    MultiProp = new[] { 10, 20 },
+                    FloatMultiOversampling = new[,]
+                    {
+                        { 1F, 2F, 3F, 4F },
+                        { 10F, 20F, 30F, 40F },
+                    },
+                    MultiBoolProp = new[] { true, false },
+                },
+                new MockDataClass
+                {
+                    IntProp = 100,
+                    FloatProp = 4.2F,
+                    DateTimeProp = DateTime.FromFileTime(2000000),
+                    BoolProp = false, FloatPropOversampling = new[] { 3F, 4F },
+                    MultiProp = new[] { 11, 21 },
+                    FloatMultiOversampling = new[,]
+                    {
+                        { 5F, 6F, 7F, 8F },
+                        { 50F, 60F, 70F, 80F },
+                    },
+                    MultiBoolProp = new[] { false, true },
+                },
             };
 
             // Act
@@ -77,6 +109,8 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             A.CallTo(() => dataChannelWriter.WriteChannel("MultiProp[2]", A<Array>.That.IsSameSequenceAs(20, 21))).MustHaveHappenedOnceExactly();
             A.CallTo(() => dataChannelWriter.WriteChannel("FloatMultiOversampling[1]", A<Array>.That.IsSameSequenceAs(1F, 2F, 3F, 4F, 5F, 6F, 7F, 8F))).MustHaveHappenedOnceExactly();
             A.CallTo(() => dataChannelWriter.WriteChannel("FloatMultiOversampling[2]", A<Array>.That.IsSameSequenceAs(10F, 20F, 30F, 40F, 50F, 60F, 70F, 80F))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("MultiBoolProp[1]", A<Array>.That.IsSameSequenceAs((byte)1, (byte)0))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("MultiBoolProp[2]", A<Array>.That.IsSameSequenceAs((byte)0, (byte)1))).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
@@ -86,7 +120,8 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var adapter = new DataClassAdapter<MockDataClass>(opt => opt
                 .IgnoreProperty(nameof(MockDataClass.FloatPropOversampling))
                 .IgnoreProperty(nameof(MockDataClass.MultiProp))
-                .IgnoreProperty(nameof(MockDataClass.FloatMultiOversampling)));
+                .IgnoreProperty(nameof(MockDataClass.FloatMultiOversampling))
+                .IgnoreProperty(nameof(MockDataClass.MultiBoolProp)));
             var dataChannelWriter = A.Fake<IDataChannelWriter>();
             var dataList = Enumerable.Range(0, 100).Select(x => new MockDataClass()).ToList();
 
@@ -119,6 +154,8 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             public int[] MultiProp { get; set; } = new int[2];
 
             public float[,] FloatMultiOversampling { get; set; } = new float[2, 5];
+
+            public bool[] MultiBoolProp { get; set; } = new bool[2];
         }
     }
 }

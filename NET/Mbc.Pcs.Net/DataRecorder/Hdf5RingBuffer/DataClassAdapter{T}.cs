@@ -56,12 +56,13 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                             throw new InvalidOperationException($"Property {x.Name} should return a array because it is a multi channel.");
 
                         channelType = x.PropertyType.GetElementType();
-                        if (_typeConverter.ContainsKey(x.PropertyType))
+                        if (_typeConverter.ContainsKey(channelType))
                         {
-                            channelType = _typeConverter[x.PropertyType].Type;
-                            converter = _typeConverter[x.PropertyType].Converter;
+                            var converterEntry = _typeConverter[channelType];
+                            converter = converterEntry.Converter;
+                            channelType = converterEntry.Type;
                         }
-                        else if (x.PropertyType.IsEnum)
+                        else if (channelType.IsEnum)
                         {
                             channelType = x.PropertyType.GetEnumUnderlyingType();
                             converter = y => Convert.ChangeType(y, channelType);
@@ -138,6 +139,9 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
             }
         }
 
+        /// <summary>
+        /// Definiert einen "normalen" Kanal.
+        /// </summary>
         private class ChannelData
         {
             protected readonly Func<T, object> _getter;
@@ -183,6 +187,10 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
             }
         }
 
+        /// <summary>
+        /// Definiert einen Oversampling-Kanal. Bei diesen wird kein einzelner Wert über den getter/setter ermittelt
+        /// sondern ein Array mit mehreren nacheinander gesampelten Werten.
+        /// </summary>
         private class OversamplingChannelData : ChannelData
         {
             public OversamplingChannelData(string channelName, Type propertyType, Func<T, object> getter, Action<T, object> setter, Func<object, object> converter, Type channelType, int oversamplingFactor)
@@ -230,6 +238,10 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
             }
         }
 
+        /// <summary>
+        /// Definiert einen Multikanal. Bei diesen liefert der getter/setter keinen einzelen Wert, 
+        /// sondern ein Array, bei dem jeder Index einen Kanal zugeordnet ist.
+        /// </summary>
         private class MultiChannelData : ChannelData
         {
             private readonly int _index;
@@ -265,6 +277,10 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
             }
         }
 
+        /// <summary>
+        /// Definiert einen Multi-/Oversampling Kanal. Dies ist die Verbindung von
+        /// <see cref="MultiChannelData"/> und <see cref="OversamplingChannelData"/>.
+        /// </summary>
         private class OversamplingMultiChannelData : OversamplingChannelData
         {
             private readonly int _index;
