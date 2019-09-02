@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Mbc.Hdf5Utils;
 using Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer;
 using System.IO;
 using System.Linq;
@@ -40,6 +41,50 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
                 ringBuffer.CurrentWritePos.Should().Be(3);
                 ringBuffer.Count.Should().Be(3);
                 ringBuffer.LastSampleIndex.Should().Be(3);
+            }
+        }
+
+        [Fact(Skip = "Momentan werden keine Oversampling-Kanäle geloggt")]
+        public void OversamplingWriteNewFile()
+        {
+            /*
+             * TODO:
+             *  - Konzept überlegen wie das Schreiben und Lesen mit Oversampling funktionieren soll
+             */
+
+            // Arrange
+            var file = Path.GetTempFileName();
+            File.Delete(file);
+            _testOutput.WriteLine($"Test HDF5: {file}");
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(int), 5);
+            var ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1 });
+
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                // Act
+                ringBuffer.WriteChannel("c1", Enumerable.Range(0, 10).ToArray());
+                ringBuffer.CommitWrite();
+
+                // Assert
+                File.Exists(file).Should().BeTrue();
+                ringBuffer.CurrentWritePos.Should().Be(2, "oversampling factor should not be included");
+                ringBuffer.Count.Should().Be(2, "oversampling factor should not be included");
+                ringBuffer.LastSampleIndex.Should().Be(2, "oversampling factor should not be included");
+            }
+
+            // Assert
+            File.Exists(file).Should().BeTrue();
+            using (var h5File = new H5File(file, H5File.Flags.ReadOnly))
+            {
+                h5File.GetNames().Should().BeEquivalentTo("c1");
+                using (var c1DataSet = H5DataSet.Open(h5File, "c1"))
+                {
+                    c1DataSet.ValueType.Should().Be(typeof(int));
+                    c1DataSet.GetDimensions().Should().BeEquivalentTo(new[] { 1000 * 5UL }, "oversampling factor should be included");
+                    c1DataSet.Attributes().GetAttributeNames().Should().BeEquivalentTo("OversamplingFactor");
+                    c1DataSet.Attributes().ReadInt("OversamplingFactor").Should().Be(5);
+                }
             }
         }
 

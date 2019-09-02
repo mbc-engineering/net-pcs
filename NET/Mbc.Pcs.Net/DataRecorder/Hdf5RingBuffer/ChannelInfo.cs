@@ -7,16 +7,15 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
     /// </summary>
     public class ChannelInfo
     {
-        public ChannelInfo(string name, Type type, int oversamplingFator = 1)
+        public ChannelInfo(string name, Type type, int oversamplingFactor = 1)
         {
             Name = name;
             Type = type;
-            OversamplingFator = oversamplingFator;
+            OversamplingFactor = oversamplingFactor;
         }
 
         public string Name { get; }
         public Type Type { get; }
-        public int OversamplingFator { get; }
         public int OversamplingFactor { get; }
     }
 }

@@ -12,6 +12,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
     {
         private const string CurrentWritePosAttrName = "wpos";
         private const string CurrentCountAttrName = "count";
+        private const string OversamplingFactorAttrName = "OversamplingFactor";
 
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
@@ -97,6 +98,25 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                                 success = false;
                                 break;
                             }
+
+                            if (channelInfo.OversamplingFactor > 1)
+                            {
+                                if (!dataSet.Attributes().GetAttributeNames().Contains(OversamplingFactorAttrName) || dataSet.Attributes().ReadInt(OversamplingFactorAttrName) != channelInfo.OversamplingFactor)
+                                {
+                                    _logger.Error("Error reopening hdf5 ring buffer: oversampling factor does not match on channel {channelName}", channelInfo.Name);
+                                    success = false;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                if (dataSet.Attributes().GetAttributeNames().Contains(OversamplingFactorAttrName))
+                                {
+                                    _logger.Error("Error reopening hdf5 ring buffer: channel {channelName} is not oversampled.", channelInfo.Name);
+                                    success = false;
+                                    break;
+                                }
+                            }
                         }
                         else
                         {
@@ -161,9 +181,15 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 var dataSet = new H5DataSet.Builder()
                     .WithName(channelInfo.Name)
                     .WithType(channelInfo.Type)
-                    .WithDimension(_ringBufferInfo.Size)
-                    .WithChunking(_ringBufferInfo.ChunkSize)
+                    .WithDimension(_ringBufferInfo.Size * channelInfo.OversamplingFactor)
+                    .WithChunking(_ringBufferInfo.ChunkSize * channelInfo.OversamplingFactor)
                     .Create(_h5File);
+
+                if (channelInfo.OversamplingFactor > 1)
+                {
+                    dataSet.Attributes().Write(OversamplingFactorAttrName, channelInfo.OversamplingFactor);
+                    throw new NotImplementedException("Oversampling-Logging is not yet implemented.");
+                }
 
                 _dataSets.Add(channelInfo.Name, dataSet);
             }
