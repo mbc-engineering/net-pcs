@@ -22,7 +22,7 @@ namespace Mbc.Pcs.Net.State
         private readonly IPlcAdsConnectionService _adsConnectionService;
         private readonly PlcAdsStateReaderConfig<TStatus> _config;
         private readonly int _notificationBlockSize;
-        private readonly List<TStatus> _notificationBlockBuffer;
+        private List<TStatus> _notificationBlockBuffer;
         private AsyncSerializedTaskExecutor _notificationExecutor;
         private IAdsSymbolInfo _adsSymbolInfo;
         private int _statusNotificationHandle;
@@ -148,7 +148,7 @@ namespace Mbc.Pcs.Net.State
                 if (_notificationBlockBuffer.Count == _notificationBlockSize)
                 {
                     OnStatesChanged(_notificationBlockBuffer);
-                    _notificationBlockBuffer.Clear();
+                    _notificationBlockBuffer = new List<TStatus>(_notificationBlockSize);
                 }
             }
             catch (Exception ex)
