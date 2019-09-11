@@ -1,4 +1,5 @@
-﻿using Mbc.Common;
+﻿using EnsureThat;
+using Mbc.Common;
 using Mbc.Common.Reflection;
 using System;
 using System.Collections.Generic;
@@ -140,6 +141,24 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         }
 
         /// <summary>
+        /// Liest ausgehend vom startSampleIndex die Anzahl Samples und verpackt sie wieder
+        /// im Typ T.
+        /// </summary>
+        public List<T> ReadData(IDataChannelWriter channelWriter, long startSampleIndex, int length)
+        {
+            var result = new List<T>(length);
+
+            foreach (var channel in _channelData)
+            {
+                var data = Array.CreateInstance(channel.PropertyType, length);
+                channelWriter.ReadChannel(channel.ChannelName, startSampleIndex, data);
+                channel.SetValues(result, data);
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Definiert einen "normalen" Kanal.
         /// </summary>
         private class ChannelData
@@ -184,6 +203,24 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 }
 
                 return data;
+            }
+
+            public virtual void SetValues(List<T> output, Array data)
+            {
+                EnsureArg.Is(1, data.Rank, nameof(data), optsFn: x => x.WithMessage("Array must have rank 1."));
+
+                if (output.Count != data.Length)
+                    throw new ArgumentException($"{nameof(output)} must have same length as {nameof(data)}.");
+
+                var length = output.Count;
+
+                if (_converter == null)
+                {
+                    for (int i = 0; i < length; i++)
+                    {
+                        _setter(output[i], data.GetValue(i));
+                    }
+                }
             }
         }
 

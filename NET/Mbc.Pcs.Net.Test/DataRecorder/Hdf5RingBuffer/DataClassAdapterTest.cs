@@ -139,6 +139,55 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             A.CallTo(() => dataChannelWriter.WriteChannel("IntProp", A<Array>.That.Matches(x => x.Length == 100))).MustHaveHappenedOnceExactly();
         }
 
+        [Fact(Skip = "not implemented")]
+        public void ReadDataTest()
+        {
+            // Arrange
+            var adapter = new DataClassAdapter<MockDataClass>(opts => opts
+                .WithOversampling(nameof(MockDataClass.FloatPropOversampling), 2)
+                .WithMulti(nameof(MockDataClass.MultiProp), 1, 2)
+                .WithOversampling(nameof(MockDataClass.FloatMultiOversampling), 4)
+                .WithMulti(nameof(MockDataClass.FloatMultiOversampling), 1, 2)
+                .WithMulti(nameof(MockDataClass.MultiBoolProp), 1, 2));
+            var dataChannelWriter = A.Fake<IDataChannelWriter>();
+
+            // Act
+            var result = adapter.ReadData(dataChannelWriter, 1, 2);
+
+            // Assert
+            result.Should().BeEquivalentTo(
+                new MockDataClass
+                {
+                    IntProp = 42,
+                    FloatProp = 0.42F,
+                    DateTimeProp = DateTime.FromFileTime(1000000),
+                    BoolProp = true,
+                    FloatPropOversampling = new[] { 1F, 2F },
+                    MultiProp = new[] { 10, 20 },
+                    FloatMultiOversampling = new[,]
+                    {
+                        { 1F, 2F, 3F, 4F },
+                        { 10F, 20F, 30F, 40F },
+                    },
+                    MultiBoolProp = new[] { true, false },
+                },
+                new MockDataClass
+                {
+                    IntProp = 42,
+                    FloatProp = 0.42F,
+                    DateTimeProp = DateTime.FromFileTime(1000000),
+                    BoolProp = true,
+                    FloatPropOversampling = new[] { 1F, 2F },
+                    MultiProp = new[] { 10, 20 },
+                    FloatMultiOversampling = new[,]
+                    {
+                        { 1F, 2F, 3F, 4F },
+                        { 10F, 20F, 30F, 40F },
+                    },
+                    MultiBoolProp = new[] { true, false },
+                });
+        }
+
         private class MockDataClass
         {
             public int IntProp { get; set; }

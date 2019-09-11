@@ -304,7 +304,8 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 
             lock (_hdf5Lock)
             {
-                EnsureArg.IsLte(startSampleIndex, _sampleIndex, nameof(startSampleIndex));
+                if (startSampleIndex > _sampleIndex)
+                    return 0;
 
                 // Start-Index im Array
                 var valuesStart = offset;
