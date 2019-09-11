@@ -53,7 +53,7 @@ Task("Test")
 
     var xunitSettings = new XUnit2Settings {
         UseX86 = false,
-        Parallelism = ParallelismOption.Assemblies,
+        Parallelism = ParallelismOption.None,
         HtmlReport = true,
         JUnitReport = true,
         NoAppDomain = true,
@@ -70,6 +70,7 @@ Task("Test")
 });
 
 Task("NugetPublish")
+    //.IsDependentOn("Build")
     .IsDependentOn("Test")
     .Does(() =>
 {

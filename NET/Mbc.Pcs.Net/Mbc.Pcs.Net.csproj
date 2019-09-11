@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
     <TargetFramework>net471</TargetFramework>
-    <Version>2.0.2</Version>
+    <Version>2.0.3</Version>
     <Product>Mbc.Pcs.Net</Product>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -15,7 +15,7 @@
     <PackageReference Include="Mbc.AsyncUtils" Version="0.2.2" />
     <PackageReference Include="Mbc.Common" Version="0.3.1" />
     <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
-    <PackageReference Include="Mbc.Hdf5Utils" Version="0.5.0" />
+    <PackageReference Include="Mbc.Hdf5Utils" Version="0.5.3" />
     <PackageReference Include="NLog" Version="4.5.10" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
