@@ -5,8 +5,7 @@
     <OutputType>Exe</OutputType>
     <ApplicationIcon>tceventbar.ico</ApplicationIcon>
     
-    <VersionPrefix>1.1.0</VersionPrefix>
-    <VersionSuffix></VersionSuffix>
+    <Version>1.1.1</Version>
 
     <Product>Mbc.Pcs.Net.Alarm.Mediator</Product>
     <PlatformTarget>x86</PlatformTarget>

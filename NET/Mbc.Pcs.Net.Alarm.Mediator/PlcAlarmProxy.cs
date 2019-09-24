@@ -17,7 +17,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
     /// </summary>
     internal class PlcAlarmProxy : IDisposable
     {
-        private static readonly ILogger _log = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ManualResetEventSlim _activeEventsInitialized = new ManualResetEventSlim(false);
         private readonly object _alarmChangedLock = new object();
         private readonly string _adsNetId;
@@ -44,11 +44,21 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
 
         public void Dispose()
         {
+            Logger.Debug("Disposing");
+
+            if (_tcEventLog != null)
+            {
+                Marshal.ReleaseComObject(_tcEventLog);
+                _tcEventLog = null;
+            }
+
             _activeEventsInitialized.Dispose();
         }
 
         public void Connect()
         {
+            Logger.Debug("Connecting to {adsNetId}", _adsNetId);
+
             TcEventLogAdsProxyClass tcEventLog = CreateTcEventLogAdsProxyClass();
 
             try
@@ -60,7 +70,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
                 tcEventLog.OnClearEvent += TcEventLogOnOnClearEvent;
                 tcEventLog.OnDisconnect += (reason) =>
                 {
-                    _log.Warn("TwinCAT Event-Logger disconnected (reason = {reason}).", reason);
+                    Logger.Warn("TwinCAT Event-Logger disconnected (reason = {reason}).", reason);
                     OnDisconnect?.Invoke(this, null);
                 };
                 tcEventLog.Connect(_adsNetId);
@@ -68,7 +78,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
             }
             catch (Exception e)
             {
-                _log.Error(e, "Could not start connection to TwincAT Event-Logger at {adsNetId}.", _adsNetId);
+                Logger.Error(e, "Could not start connection to TwincAT Event-Logger at {adsNetId}.", _adsNetId);
 
                 tcEventLog.Disconnect();
                 Marshal.ReleaseComObject(tcEventLog);
@@ -82,7 +92,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
             }
             catch (Exception e)
             {
-                _log.Error(e, "Could not initialize events.");
+                Logger.Error(e, "Could not initialize events.");
                 Disconnect();
 
                 throw;
@@ -91,6 +101,8 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
 
         public void Disconnect()
         {
+            Logger.Debug("Disconnecting");
+
             if (_tcEventLog != null)
             {
                 _tcEventLog.Disconnect();
@@ -172,7 +184,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
             }
             catch (Exception e)
             {
-                _log.Warn(e, "Error handling TC-Event {0}.", tcEvent);
+                Logger.Warn(e, "Error handling TC-Event {0}.", tcEvent);
             }
         }
 

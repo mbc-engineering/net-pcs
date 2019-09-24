@@ -1,13 +1,18 @@
 ﻿using Microsoft.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
+using NLog;
 using System;
+using System.Reflection;
 using TwinCAT.Ads;
 
 namespace Mbc.Pcs.Net.Alarm.Mediator
 {
     public static class Program
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private static PlcAlarmProxy _plcAlarmProxy;
+
         /// <summary>
         /// Startup arguments:
         /// '-?' -> display command arguments
@@ -20,6 +25,8 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
         /// <param name="args">the start arguments</param>
         public static void Main(string[] args)
         {
+            Logger.Info("Startup Application with Version={version} on host={host} with arguments={args}.", Assembly.GetExecutingAssembly().GetName().Version.ToString(), Environment.MachineName, args);
+
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.InputEncoding = System.Text.Encoding.UTF8;
 
@@ -66,16 +73,27 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
 
             // Parse input arguments
             Environment.ExitCode = commandLineApplication.Execute(args);
+
+            Logger.Info("Exit Application with with {exitCode}", Environment.ExitCode);
         }
 
         private static void OnDisconnect(object sender, EventArgs e)
         {
-            _plcAlarmProxy?.Disconnect(); // Release COM objects and clean-up.
-            Environment.Exit(1); // Exit application
+            try
+            {
+                _plcAlarmProxy?.Dispose(); // Release COM objects and clean-up.
+            }
+            finally
+            {
+                Environment.Exit(1); // Exit application
+            }
         }
 
         private static void OnAlarmChanged(object sender, PlcAlarmChangeEventArgs e)
         {
+            string data = JsonConvert.SerializeObject(e);
+            Logger.Debug("On Alarm changed with data={json}", data);
+
             Console.WriteLine(JsonConvert.SerializeObject(e));
         }
     }
