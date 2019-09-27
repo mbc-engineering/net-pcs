@@ -223,6 +223,35 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
         }
 
         [Fact]
+        public void WriteWithOverrunEnsureSize()
+        {
+            // Arrange
+            var file = Path.GetTempFileName();
+            File.Delete(file);
+            _testOutput.WriteLine($"Test HDF5: {file}");
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var channelInfo2 = new ChannelInfo("c2", typeof(int));
+            var ringBufferInfo = new RingBufferInfo(100, 10, new[] { channelInfo1, channelInfo2 });
+
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                // Act
+                ringBuffer.WriteChannel("c1", Enumerable.Range(0, 150).Select(x => (float)x).ToArray());
+                ringBuffer.WriteChannel("c2", Enumerable.Range(0, 150).Select(x => (int)x).ToArray());
+                ringBuffer.CommitWrite();
+                ringBuffer.WriteChannel("c1", Enumerable.Range(0, 150).Select(x => (float)x).ToArray());
+                ringBuffer.WriteChannel("c2", Enumerable.Range(0, 150).Select(x => (int)x).ToArray());
+                ringBuffer.CommitWrite();
+
+                // Assert
+                File.Exists(file).Should().BeTrue();
+                ringBuffer.CurrentWritePos.Should().Be(0);
+                ringBuffer.Count.Should().Be(100);
+                ringBuffer.LastSampleIndex.Should().Be(300);
+            }
+        }
+        [Fact]
         public void ReadSimple()
         {
             // Arrange

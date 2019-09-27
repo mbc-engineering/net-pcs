@@ -281,6 +281,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 UpdateCount(_count + _uncommitedSamples);
                 UpdateWritePos((_currentWritePos + _uncommitedSamples) % _ringBufferInfo.Size);
                 _sampleIndex += _uncommitedSamples;
+                _uncommitedSamples = 0;
                 return _sampleIndex;
             }
         }
