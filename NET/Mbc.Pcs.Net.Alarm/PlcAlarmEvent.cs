@@ -4,6 +4,7 @@
 //-----------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace Mbc.Pcs.Net.Alarm
 {
@@ -80,6 +81,11 @@ namespace Mbc.Pcs.Net.Alarm
         /// Freie Verwendung von der PLC.
         /// </summary>
         public int UserData { get; set; }
+
+        /// <summary>
+        /// Enthält die Argumente der Message.
+        /// </summary>
+        public IReadOnlyList<object> ArgumentData { get; set; }
 
         public bool Equals(PlcAlarmEvent other)
         {

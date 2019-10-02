@@ -3,6 +3,8 @@ using Newtonsoft.Json;
 using NLog;
 using System;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using TwinCAT.Ads;
 
 namespace Mbc.Pcs.Net.Alarm.Mediator
@@ -11,6 +13,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
+        private static CancellationTokenSource _ctsExit = new CancellationTokenSource();
         private static PlcAlarmProxy _plcAlarmProxy;
 
         /// <summary>
@@ -51,19 +54,20 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
                         _plcAlarmProxy = plcAlarm;
                         plcAlarm.Connect();
 
-                        // wait for quit command
-                        string input = string.Empty;
-                        do
+                        Task.Run(() =>
                         {
-                            input = Console.ReadLine();
-                            // Dedect close of input stream -> Close of parent application
-                            if (input == null)
+                            while (true)
                             {
-                                return 1; // Cancel
+                                var input = Console.ReadLine();
+                                if (input == null || string.Equals(input, "quit", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    _ctsExit.Cancel();
+                                    break;
+                                }
                             }
-                        } while (!string.Equals(input, "quit", StringComparison.OrdinalIgnoreCase));
+                        });
 
-                        plcAlarm.Disconnect();
+                        _ctsExit.Token.WaitHandle.WaitOne();
                     }
 
                     Console.WriteLine($"disconected");
@@ -79,14 +83,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
 
         private static void OnDisconnect(object sender, EventArgs e)
         {
-            try
-            {
-                _plcAlarmProxy?.Dispose(); // Release COM objects and clean-up.
-            }
-            finally
-            {
-                Environment.Exit(1); // Exit application
-            }
+            _ctsExit.Cancel();
         }
 
         private static void OnAlarmChanged(object sender, PlcAlarmChangeEventArgs e)

@@ -1,16 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">  
-  <PropertyGroup> 
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    
-    <Version>1.3.1</Version>
-    
+
+    <Version>1.4.0</Version>
+
     <Product>Mbc.Pcs.Net.Alarm.Service</Product>
 
     <!-- Disable Architecture mismatch of Mbc.Pcs.Net.Alarm.Mediator Project-->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
 
-  <ItemGroup>    
+  <ItemGroup>
     <!-- Include Mbc.Pcs.Net.Alarm.Mediator files into the package-->
     <Content Include="$(OutDir)\Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="build" Visible="false" />
     <Content Include="Mbc.Pcs.Net.Alarm.Service.targets" PackagePath="build" />
@@ -19,12 +19,12 @@
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
   </ItemGroup>
 
-  <ItemGroup>    
-    <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />    
+  <ItemGroup>
+    <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="NLog" Version="4.5.10" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Pcs.Net.Alarm.Mediator\Mbc.Pcs.Net.Alarm.Mediator.csproj" PrivateAssets="All" />
     <ProjectReference Include="..\Mbc.Pcs.Net.Alarm\Mbc.Pcs.Net.Alarm.csproj" />

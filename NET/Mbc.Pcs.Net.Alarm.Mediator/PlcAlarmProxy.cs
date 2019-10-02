@@ -5,6 +5,7 @@
 
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using TCEVENTLOGGERLib;
@@ -175,6 +176,7 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
                     DateConfirmed = tcEvent.DateConfirmed + TimeSpan.FromMilliseconds(tcEvent.MsConfirmed),
                     DateReset = tcEvent.DateReset + TimeSpan.FromMilliseconds(tcEvent.MsReset),
                     UserData = tcEvent.UserData,
+                    ArgumentData = ReadArgumentData(tcEvent),
                 };
 
                 lock (_alarmChangedLock)
@@ -198,6 +200,19 @@ namespace Mbc.Pcs.Net.Alarm.Mediator
             {
                 return string.Empty;
             }
+        }
+
+        private IReadOnlyList<object> ReadArgumentData(ITcEvent tcEvent)
+        {
+            Array data = null;
+            tcEvent.GetData(ref data);
+            var list = new List<object>(data.Length);
+            for (int i = 0; i < data.Length; i++)
+            {
+                list.Add(data.GetValue(i));
+            }
+
+            return list.AsReadOnly();
         }
     }
 }
