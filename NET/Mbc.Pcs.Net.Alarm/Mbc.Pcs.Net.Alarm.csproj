@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">  
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <Version>1.1.6</Version>
-    
+    <Version>1.2.0</Version>
+
     <Product>Mbc.Pcs.Net.Alarm</Product>
   </PropertyGroup>
 </Project>
