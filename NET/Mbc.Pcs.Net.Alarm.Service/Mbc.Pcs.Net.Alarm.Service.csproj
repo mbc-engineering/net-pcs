@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
 
-    <Version>1.5.0</Version>
+    <Version>1.5.1</Version>
 
     <Product>Mbc.Pcs.Net.Alarm.Service</Product>
 

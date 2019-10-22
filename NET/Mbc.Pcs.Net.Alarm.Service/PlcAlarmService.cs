@@ -174,29 +174,34 @@ namespace Mbc.Pcs.Net.Alarm.Service
 
             try
             {
+                var formatedAlarmEventArgs = new PlcAlarmChangeEventArgs()
+                {
+                    ChangeType = plcAlarmChangeEventArgs.ChangeType,
+                    AlarmEvent = FormatPlcAlarmEvent(plcAlarmChangeEventArgs.AlarmEvent),
+                };
+
                 lock (_activeEvents)
                 {
                     var existingAlarmEvent = _activeEvents
-                        .FirstOrDefault(x => x.Id == plcAlarmChangeEventArgs.AlarmEvent.Id && x.SrcId == plcAlarmChangeEventArgs.AlarmEvent.SrcId);
+                        .FirstOrDefault(x => x.Id == formatedAlarmEventArgs.AlarmEvent.Id && x.SrcId == formatedAlarmEventArgs.AlarmEvent.SrcId);
                     if (existingAlarmEvent != null)
                     {
-                        if (plcAlarmChangeEventArgs.ChangeType == PlcAlarmEventChangeType.Clear)
+                        if (formatedAlarmEventArgs.ChangeType == PlcAlarmEventChangeType.Clear)
                         {
                             _activeEvents.Remove(existingAlarmEvent);
                         }
                         else
                         {
                             var idx = _activeEvents.IndexOf(existingAlarmEvent);
-                            _activeEvents[idx] = plcAlarmChangeEventArgs.AlarmEvent;
+                            _activeEvents[idx] = formatedAlarmEventArgs.AlarmEvent;
                         }
                     }
                     else
                     {
-                        var formatedAlarmEvent = FormatPlcAlarmEvent(plcAlarmChangeEventArgs.AlarmEvent);
-                        _activeEvents.Add(formatedAlarmEvent);
+                        _activeEvents.Add(formatedAlarmEventArgs.AlarmEvent);
                     }
 
-                    AlarmChanged?.Invoke(this, plcAlarmChangeEventArgs);
+                    AlarmChanged?.Invoke(this, formatedAlarmEventArgs);
                 }
             }
             catch (Exception e)
