@@ -28,7 +28,15 @@ namespace Mbc.Pcs.Net.Alarm.Service
             _languageId = languageId;
         }
 
+        public PlcAlarmService(string adsNetId, int languageId, IPlcAlarmEventFormatter plcAlarmEventFormatter)
+            : this(adsNetId, languageId)
+        {
+            PlcAlarmEventFormatter = plcAlarmEventFormatter;
+        }
+
         public bool IsConnected => _plcAlarmServiceMediator != null && !_plcAlarmServiceMediator.HasExited;
+
+        public IPlcAlarmEventFormatter PlcAlarmEventFormatter { get; } = new EmptyPlcAlarmEventFormatter();
 
         public event EventHandler<PlcAlarmChangeEventArgs> AlarmChanged;
 
@@ -184,7 +192,8 @@ namespace Mbc.Pcs.Net.Alarm.Service
                     }
                     else
                     {
-                        _activeEvents.Add(plcAlarmChangeEventArgs.AlarmEvent);
+                        var formatedAlarmEvent = FormatPlcAlarmEvent(plcAlarmChangeEventArgs.AlarmEvent);
+                        _activeEvents.Add(formatedAlarmEvent);
                     }
 
                     AlarmChanged?.Invoke(this, plcAlarmChangeEventArgs);
@@ -195,6 +204,16 @@ namespace Mbc.Pcs.Net.Alarm.Service
                 _log.Error(e, "Error handling PlcAlarmChangeEventArgs from 'Mbc.Pcs.Net.Alarm.Mediator.exe'.");
                 OnError(e.Message);
             }
+        }
+
+        protected virtual PlcAlarmEvent FormatPlcAlarmEvent(PlcAlarmEvent plcAlarmEvent)
+        {
+            if (PlcAlarmEventFormatter != null)
+            {
+                return PlcAlarmEventFormatter.Format(plcAlarmEvent);
+            }
+
+            return plcAlarmEvent;
         }
 
         protected virtual void OnError(string data)
