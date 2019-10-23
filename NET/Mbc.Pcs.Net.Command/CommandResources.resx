@@ -138,6 +138,14 @@
     <value>Missing output variables on the PLC implementation: '{0}'</value>
     <comment>{0} = replace with a list of variables</comment>
   </data>
+  <data name="ERR_RequiredInputVariablesMissing" xml:space="preserve">
+    <value>Missing required input variables on PCS call : '{0}'</value>
+    <comment>{0} = replace with a list of variables</comment>
+  </data>
+  <data name="ERR_RequiredOutputVariablesMissing" xml:space="preserve">
+    <value>Missing required output variables on PCS call: '{0}'</value>
+    <comment>{0} = replace with a list of variables</comment>
+  </data>
   <data name="ERR_ResultCode" xml:space="preserve">
     <value>The command execution failed with resultCode '{0}'.</value>
     <comment>Fallback error / {0} =replace with Result Code number</comment>

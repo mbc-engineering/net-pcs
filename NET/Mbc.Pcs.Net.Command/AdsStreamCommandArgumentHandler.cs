@@ -25,23 +25,32 @@ namespace Mbc.Pcs.Net.Command
 
         public override void ReadOutputData(IAdsConnection adsConnection, string adsCommandFbPath, ICommandOutput output)
         {
+            // read symbols with attribute flags for output data
+            IDictionary<string, ITcAdsSubItem> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandOutput, PlcAttributeNames.PlcCommandOutputOptional });
+            IDictionary<string, ITcAdsSubItem> requiredfbItems = fbItems
+                .Where(x => x.Value.Attributes.Any(a => string.Equals(a.Name, PlcAttributeNames.PlcCommandOutput, StringComparison.OrdinalIgnoreCase)))
+                .ToDictionary(x => x.Key, x => x.Value);
+
             // ToList => deterministische Reihenfolge notwendig
             List<string> outputNames = output.GetOutputNames().ToList();
 
-            // read symbols with attribute flags for output data
-            IDictionary<string, ITcAdsSubItem> items = ReadFbSymbols(adsConnection, adsCommandFbPath, PlcAttributeNames.PlcCommandOutput);
-
-            var missingOutputVariables = outputNames.Where(x => !items.ContainsKey(x)).ToArray();
+            var missingOutputVariables = outputNames.Where(x => !fbItems.ContainsKey(x)).ToArray();
             if (missingOutputVariables.Length > 0)
             {
                 throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_OutputVariablesMissing, string.Join(",", missingOutputVariables)));
+            }
+
+            var missingRequiredOutputVariables = requiredfbItems.Where(x => !outputNames.Contains(x.Key)).ToArray();
+            if (missingOutputVariables.Length > 0)
+            {
+                throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_RequiredOutputVariablesMissing, string.Join(",", missingOutputVariables)));
             }
 
             var symbols = new List<string>();
             var symbolSizes = new List<int>();
             foreach (var name in outputNames)
             {
-                var item = items[name];
+                var item = fbItems[name];
                 symbols.Add(adsCommandFbPath + "." + item.SubItemName);
                 symbolSizes.Add(item.ByteSize);
             }
@@ -64,7 +73,7 @@ namespace Mbc.Pcs.Net.Command
             for (var i = 0; i < outputNames.Count; i++)
             {
                 var name = outputNames[i];
-                var item = items[name];
+                var item = fbItems[name];
                 // TODO Marker nur 2. Wahl, siehe MR !11 und Issue #28
                 if (output.GetOutputData<object>(name) == ReadAsPrimitiveMarker)
                 {
@@ -88,10 +97,18 @@ namespace Mbc.Pcs.Net.Command
                 .Where(x => x.Value.Attributes.Any(a => string.Equals(a.Name, PlcAttributeNames.PlcCommandInput, StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(x => x.Key, x => x.Value);
 
-            var missingInputVariables = inputData.Keys.Where(x => !requiredfbItems.ContainsKey(x)).ToArray();
+            // Existing CommandInput must be exist on fb
+            var missingInputVariables = inputData.Keys.Where(x => !fbItems.ContainsKey(x)).ToArray();
             if (missingInputVariables.Length > 0)
             {
                 throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_InputVariablesMissing, string.Join(",", missingInputVariables)));
+            }
+
+            // fb required flaged arguments must be in the CommandInput
+            var missingReqInputVariables = requiredfbItems.Where(x => !inputData.ContainsKey(x.Key)).ToArray();
+            if (missingReqInputVariables.Length > 0)
+            {
+                throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_RequiredInputVariablesMissing, string.Join(",", missingReqInputVariables)));
             }
 
             var symbols = new List<string>();

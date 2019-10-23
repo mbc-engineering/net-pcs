@@ -72,6 +72,11 @@ namespace Mbc.Pcs.Net.Command
             {
                 _dictonary[name] = value;
             }
+
+            public bool HasOutputName(string name)
+            {
+                return _dictonary.ContainsKey(name);
+            }
         }
     }
 }

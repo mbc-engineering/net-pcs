@@ -115,6 +115,24 @@ namespace Mbc.Pcs.Net.Command {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missing required input variables on PCS call : &apos;{0}&apos;.
+        /// </summary>
+        internal static string ERR_RequiredInputVariablesMissing {
+            get {
+                return ResourceManager.GetString("ERR_RequiredInputVariablesMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing required output variables on PCS call: &apos;{0}&apos;.
+        /// </summary>
+        internal static string ERR_RequiredOutputVariablesMissing {
+            get {
+                return ResourceManager.GetString("ERR_RequiredOutputVariablesMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The command execution failed with resultCode &apos;{0}&apos;..
         /// </summary>
         internal static string ERR_ResultCode {

@@ -11,6 +11,8 @@ namespace Mbc.Pcs.Net.Command
     {
         IEnumerable<string> GetOutputNames();
 
+        bool HasOutputName(string name);
+
         void SetOutputData<T>(string name, T value);
 
         T GetOutputData<T>(string name);
