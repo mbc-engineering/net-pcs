@@ -70,10 +70,13 @@ namespace Mbc.Pcs.Net.Command
         public override void WriteInputData(IAdsConnection adsConnection, string adsCommandFbPath, ICommandInput input)
         {
             // read symbols with attribute flags for input data
-            IDictionary<string, ITcAdsSubItem> items = ReadFbSymbols(adsConnection, adsCommandFbPath, PlcAttributeNames.PlcCommandInput);
+            IDictionary<string, ITcAdsSubItem> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandInput, PlcAttributeNames.PlcCommandInputOptional });
+            IDictionary<string, ITcAdsSubItem> requiredfbItems = fbItems
+                .Where(x => x.Value.Attributes.Any(a => string.Equals(a.Name, PlcAttributeNames.PlcCommandInput, StringComparison.OrdinalIgnoreCase)))
+                .ToDictionary(x => x.Key, x => x.Value);
 
             var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
-            foreach (var item in items.Values)
+            foreach (var item in fbItems.Values)
             {
                 if (!validTypeCategories.Contains(item.BaseType.Category))
                     throw new PlcCommandException(string.Format("Input variable {0} has invalid data type category {1}.", item.SubItemName, item.Category));
@@ -81,7 +84,7 @@ namespace Mbc.Pcs.Net.Command
 
             IDictionary<string, object> inputData = input.GetInputData();
 
-            var missingInputVariables = inputData.Keys.Where(x => !items.ContainsKey(x)).ToArray();
+            var missingInputVariables = inputData.Keys.Where(x => !requiredfbItems.ContainsKey(x)).ToArray();
             if (missingInputVariables.Length > 0)
             {
                 throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_InputVariablesMissing, string.Join(",", missingInputVariables)));
@@ -90,9 +93,10 @@ namespace Mbc.Pcs.Net.Command
             var symbols = new List<string>();
             var types = new List<Type>();
             var values = new List<object>();
+            // Based on ICommandInput data, write the values to fb
             foreach (var name in inputData.Keys)
             {
-                var item = items[name];
+                var item = fbItems[name];
                 var type = GetManagedTypeForSubItem(item);
                 symbols.Add(adsCommandFbPath + "." + item.SubItemName);
                 types.Add(type);

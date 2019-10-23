@@ -26,6 +26,15 @@ namespace Mbc.Pcs.Net.Command
         /// </summary>
         protected static IDictionary<string, ITcAdsSubItem> ReadFbSymbols(IAdsConnection adsConnection, string adsCommandFbPath, string attributeName)
         {
+            return ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { attributeName });
+        }
+
+        /// <summary>
+        /// Reads all symbols in the same hierarchy as the function block they are flaged with one of the Attribute
+        /// named in <para>attributeNames</para>.
+        /// </summary>
+        protected static IDictionary<string, ITcAdsSubItem> ReadFbSymbols(IAdsConnection adsConnection, string adsCommandFbPath, IEnumerable<string> attributeNames)
+        {
             ITcAdsSymbol commandSymbol = adsConnection.ReadSymbolInfo(adsCommandFbPath);
             if (commandSymbol == null)
             {
@@ -34,10 +43,9 @@ namespace Mbc.Pcs.Net.Command
             }
 
             var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
-
             return ((ITcAdsSymbol5)commandSymbol)
                 .DataType.SubItems
-                .Where(item => item.Attributes.Any(a => string.Equals(a.Name, attributeName, StringComparison.OrdinalIgnoreCase)))
+                .Where(item => item.Attributes.Any(a => attributeNames.Contains(a.Name, StringComparer.OrdinalIgnoreCase)))
                 .ToDictionary(
                     item => item.SubItemName,
                     item => item);

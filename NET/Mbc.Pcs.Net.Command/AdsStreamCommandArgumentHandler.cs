@@ -5,6 +5,7 @@
 
 using EnsureThat;
 using Mbc.Ads.Utils.SumCommand;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TwinCAT.Ads;
@@ -82,9 +83,12 @@ namespace Mbc.Pcs.Net.Command
             IDictionary<string, object> inputData = input.GetInputData();
 
             // read symbols with attribute flags for input data
-            IDictionary<string, ITcAdsSubItem> items = ReadFbSymbols(adsConnection, adsCommandFbPath, PlcAttributeNames.PlcCommandInput);
+            IDictionary<string, ITcAdsSubItem> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandInput, PlcAttributeNames.PlcCommandInputOptional });
+            IDictionary<string, ITcAdsSubItem> requiredfbItems = fbItems
+                .Where(x => x.Value.Attributes.Any(a => string.Equals(a.Name, PlcAttributeNames.PlcCommandInput, StringComparison.OrdinalIgnoreCase)))
+                .ToDictionary(x => x.Key, x => x.Value);
 
-            var missingInputVariables = inputData.Keys.Where(x => !items.ContainsKey(x)).ToArray();
+            var missingInputVariables = inputData.Keys.Where(x => !requiredfbItems.ContainsKey(x)).ToArray();
             if (missingInputVariables.Length > 0)
             {
                 throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_InputVariablesMissing, string.Join(",", missingInputVariables)));
@@ -94,12 +98,12 @@ namespace Mbc.Pcs.Net.Command
             var streams = new List<AdsStream>();
             foreach (var name in inputData.Keys)
             {
-                var item = items[name];
+                var item = fbItems[name];
                 symbols.Add(adsCommandFbPath + "." + item.SubItemName);
 
                 if (inputData[name] is AdsStream adsStream)
                 {
-                    streams.Add((AdsStream)inputData[name]);
+                    streams.Add(adsStream);
                 }
                 else
                 {

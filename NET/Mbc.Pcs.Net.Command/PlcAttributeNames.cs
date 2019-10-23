@@ -16,5 +16,10 @@ namespace Mbc.Pcs.Net.Command
         /// PLC Attribute to define Output Data like: {attribute 'PlcCommandOutput'}
         /// </summary>
         public const string PlcCommandOutput = "PlcCommandOutput";
+
+        /// <summary>
+        /// PLC Attribute to define a optional Input Data like: {attribute 'PlcCommandInputOptional'}
+        /// </summary>
+        public const string PlcCommandInputOptional = "PlcCommandInputOptional";
     }
 }
