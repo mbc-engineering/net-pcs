@@ -110,14 +110,22 @@ namespace Mbc.Pcs.Net.Command
             var symbols = new List<string>();
             var types = new List<Type>();
             var values = new List<object>();
-            // Based on ICommandInput data, write the values to fb
-            foreach (var name in inputData.Keys)
+            // Based on fbItems, write the values from  ICommandInput data to fb
+            foreach (var fbItem in fbItems)
             {
-                var item = fbItems[name];
+                var item = fbItem.Value;
                 var type = GetManagedTypeForSubItem(item);
                 symbols.Add(adsCommandFbPath + "." + item.SubItemName);
                 types.Add(type);
-                values.Add(Convert.ChangeType(inputData[name], type));
+
+                if (inputData.TryGetValue(fbItem.Key, out object value))
+                {
+                    values.Add(Convert.ChangeType(value, type));
+                }
+                else
+                {
+                    values.Add(type.GetDefaultValue());
+                }
             }
 
             var handleCreator = new SumCreateHandles(adsConnection, symbols);
@@ -132,14 +140,6 @@ namespace Mbc.Pcs.Net.Command
                 var handleReleaser = new SumReleaseHandles(adsConnection, handles);
                 handleReleaser.ReleaseHandles();
             }
-        }
-
-        private static Type GetManagedTypeForSubItem(ITcAdsSubItem subitem)
-        {
-            if (subitem.BaseType.ManagedType != null)
-                return subitem.BaseType.ManagedType;
-
-            return subitem.BaseType.BaseType.ManagedType;
         }
     }
 }

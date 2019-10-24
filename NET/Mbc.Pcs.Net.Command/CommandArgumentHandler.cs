@@ -50,5 +50,13 @@ namespace Mbc.Pcs.Net.Command
                     item => item.SubItemName,
                     item => item);
         }
+
+        protected static Type GetManagedTypeForSubItem(ITcAdsSubItem subitem)
+        {
+            if (subitem.BaseType.ManagedType != null)
+                return subitem.BaseType.ManagedType;
+
+            return subitem.BaseType.BaseType.ManagedType;
+        }
     }
 }

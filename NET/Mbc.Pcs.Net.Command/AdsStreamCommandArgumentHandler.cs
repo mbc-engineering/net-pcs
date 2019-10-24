@@ -113,20 +113,33 @@ namespace Mbc.Pcs.Net.Command
 
             var symbols = new List<string>();
             var streams = new List<AdsStream>();
-            foreach (var name in inputData.Keys)
+            // Based on fbItems, write the values from  ICommandInput data to fb
+            foreach (var fbItem in fbItems)
             {
-                var item = fbItems[name];
+                var item = fbItem.Value;
                 symbols.Add(adsCommandFbPath + "." + item.SubItemName);
 
-                if (inputData[name] is AdsStream adsStream)
+                if (inputData.TryGetValue(fbItem.Key, out object value))
                 {
-                    streams.Add(adsStream);
+                    if (value is AdsStream adsStream)
+                    {
+                        streams.Add(adsStream);
+                    }
+                    else
+                    {
+                        Ensure.Bool.IsTrue(PrimitiveTypeConverter.CanMarshal(item.DataTypeId), nameof(input), (opt) => opt.WithMessage($"Input '{fbItem.Key}' of data type '{item.DataTypeId}' cannot be marshalled."));
+
+                        PrimitiveTypeConverter.Marshal(item.DataTypeId, value, out byte[] data);
+                        streams.Add(new AdsStream(data));
+                    }
                 }
                 else
                 {
-                    Ensure.Bool.IsTrue(PrimitiveTypeConverter.CanMarshal(item.DataTypeId), nameof(input), (opt) => opt.WithMessage($"Input '{name}' of data type '{item.DataTypeId}' cannot be marshalled."));
+                    // Set it to default Value
+                    Ensure.Bool.IsTrue(PrimitiveTypeConverter.CanMarshal(item.DataTypeId), nameof(input), (opt) => opt.WithMessage($"Input '{fbItem.Key}' of data type '{item.DataTypeId}' cannot be marshalled."));
 
-                    PrimitiveTypeConverter.Marshal(item.DataTypeId, inputData[name], out byte[] data);
+                    var type = GetManagedTypeForSubItem(item);
+                    PrimitiveTypeConverter.Marshal(item.DataTypeId, type.GetDefaultValue(), out byte[] data);
                     streams.Add(new AdsStream(data));
                 }
             }
