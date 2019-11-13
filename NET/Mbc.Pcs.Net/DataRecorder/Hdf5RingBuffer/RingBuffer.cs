@@ -3,6 +3,7 @@ using Mbc.Hdf5Utils;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -14,7 +15,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         private const string CurrentCountAttrName = "count";
         private const string OversamplingFactorAttrName = "OversamplingFactor";
 
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         // Alle Zugriffe auf HDF5-Lib müssen gelockt werden
         private readonly object _hdf5Lock = new object();
@@ -50,7 +51,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
             _ringBufferHd5Path = ringBufferHd5Path;
             _ringBufferInfo = ringBufferInfo;
 
-            OpenAndCheck();
+            ExecuteAndLogDuration("OpenAndCheck()", OpenAndCheck);
         }
 
         public void Dispose()
@@ -78,49 +79,93 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 var success = true;
                 try
                 {
+                    Logger.Debug("Opening Ringbuffer File");
+                    var swOpen = Stopwatch.StartNew();
                     _h5File = new H5File(_ringBufferHd5Path, H5File.Flags.ReadWrite);
+                    Logger.Debug($"oppened Ringbuffer File in {swOpen.Elapsed.TotalMilliseconds}MS.");
 
                     _currentWritePos = _h5File.Attributes().ReadInt(CurrentWritePosAttrName);
-                    _count = _h5File.Attributes().ReadInt(CurrentCountAttrName);
+                    if (_currentWritePos < 0 || _currentWritePos >= _ringBufferInfo.Size)
+                    {
+                        Logger.Warn("Invalid write position {writePos}.", _currentWritePos);
+                        UpdateWritePos(0);
+                        UpdateCount(0);
+                    }
 
+                    _count = _h5File.Attributes().ReadInt(CurrentCountAttrName);
+                    if (_count > _ringBufferInfo.Size)
+                    {
+                        Logger.Warn("Invalid size {_count}.", _count);
+                        UpdateCount(_ringBufferInfo.Size);
+                    }
+
+                    var swReadNames = Stopwatch.StartNew();
                     var existingNames = _h5File.GetNames().ToList();
+                    Logger.Debug($"Read Names in {swReadNames.Elapsed.TotalMilliseconds}MS.");
 
                     foreach (var channelInfo in _ringBufferInfo.ChannelInfo)
                     {
                         if (existingNames.Contains(channelInfo.Name))
                         {
+                            var swOpenDs = Stopwatch.StartNew();
                             var dataSet = H5DataSet.Open(_h5File, channelInfo.Name);
+                            Logger.Debug($"Open Dataset {channelInfo.Name} in {swOpenDs.Elapsed.TotalMilliseconds}MS.");
+
                             _dataSets.Add(channelInfo.Name, dataSet);
 
                             if (dataSet.ValueType != channelInfo.Type)
                             {
-                                _logger.Error("Error reopening hdf5 ring buffer: channel type changed {oldType} != {newType} on channel {channelName}", dataSet.ValueType, channelInfo.Type, channelInfo.Name);
+                                Logger.Error("Error reopening hdf5 ring buffer: channel type changed {oldType} != {newType} on channel {channelName}.", dataSet.ValueType, channelInfo.Type, channelInfo.Name);
                                 success = false;
                                 break;
                             }
 
+                            var dim = dataSet.GetDimensions();
+                            if (dim.Length != 1 || dim[0] != (ulong)_ringBufferInfo.Size)
+                            {
+                                Logger.Error("Error reopening hdf5 ring buffer: channel dimension is invalid on channel {channelName}.", channelInfo.Name);
+                                success = false;
+                                break;
+                            }
+
+                            var chunk = dataSet.GetChunkSize();
+                            if (chunk.Length != 1 || chunk[0] != (ulong)_ringBufferInfo.ChunkSize)
+                            {
+                                Logger.Error("Error reopening hdf5 ring buffer: channel chunk size is invalid on channel {channelName}.", channelInfo.Name);
+                                success = false;
+                                break;
+                            }
+
+                            /* ToDo: .GetAttributeNames() is very slow operation for large files when application coldstarts. Change check for OversamplingFactorAttrName
+                            var swReadAttributeNames = Stopwatch.StartNew();
+                            var attributeNames = dataSet.Attributes().GetAttributeNames().ToList();
+                            Logger.Debug($"Read Dataset attributenames in {swReadAttributeNames.Elapsed.TotalMilliseconds}MS.");
+
                             if (channelInfo.OversamplingFactor > 1)
                             {
-                                if (!dataSet.Attributes().GetAttributeNames().Contains(OversamplingFactorAttrName) || dataSet.Attributes().ReadInt(OversamplingFactorAttrName) != channelInfo.OversamplingFactor)
+                                Logger.Debug($"enter oversampling channel {channelInfo.Name}.");
+
+                                if (!attributeNames.Contains(OversamplingFactorAttrName) || dataSet.Attributes().ReadInt(OversamplingFactorAttrName) != channelInfo.OversamplingFactor)
                                 {
-                                    _logger.Error("Error reopening hdf5 ring buffer: oversampling factor does not match on channel {channelName}", channelInfo.Name);
+                                    Logger.Error("Error reopening hdf5 ring buffer: oversampling factor does not match on channel {channelName}", channelInfo.Name);
                                     success = false;
                                     break;
                                 }
                             }
                             else
                             {
-                                if (dataSet.Attributes().GetAttributeNames().Contains(OversamplingFactorAttrName))
+                                if (attributeNames.Contains(OversamplingFactorAttrName))
                                 {
-                                    _logger.Error("Error reopening hdf5 ring buffer: channel {channelName} is not oversampled.", channelInfo.Name);
+                                    Logger.Error("Error reopening hdf5 ring buffer: channel {channelName} is not oversampled.", channelInfo.Name);
                                     success = false;
                                     break;
                                 }
                             }
+                            */
                         }
                         else
                         {
-                            _logger.Error("Error reopening hdf5 ring buffer: missing channel {channelName}.", channelInfo.Name);
+                            Logger.Error("Error reopening hdf5 ring buffer: missing channel {channelName}.", channelInfo.Name);
                             success = false;
                             break;
                         }
@@ -128,13 +173,13 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 }
                 catch (Exception e)
                 {
-                    _logger.Error(e, "Error reopening hdf5 ring buffer.");
+                    Logger.Error(e, "Error reopening hdf5 ring buffer.");
                     success = false;
                 }
 
                 if (success)
                 {
-                    _logger.Info("Using existing hdf5 ring buffer with {count} samples.", _count);
+                    Logger.Info("Using existing hdf5 ring buffer with {count} samples.", _count);
                     return;
                 }
 
@@ -142,6 +187,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 {
                     try
                     {
+                        Logger.Debug($"Dispose dataset.");
                         dataSet.Dispose();
                     }
                     catch
@@ -167,7 +213,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 
         private void CreateNewHdf5File()
         {
-            _logger.Info("Creating new hdf5 ring buffer ({path}).", _ringBufferHd5Path);
+            Logger.Info("Creating new hdf5 ring buffer ({path}).", _ringBufferHd5Path);
 
             _h5File = new H5File(_ringBufferHd5Path, H5File.Flags.CreateOnly);
 
@@ -212,7 +258,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 {
                     _uncommitedSamples = values.Length;
 
-                    if ((_ringBufferInfo.Size - _count) < _uncommitedSamples)
+                    if (_ringBufferInfo.Size - _count < _uncommitedSamples)
                     {
                         UpdateCount(_ringBufferInfo.Size - _uncommitedSamples);
                     }
@@ -375,6 +421,21 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 }
 
                 return valuesCount;
+            }
+        }
+
+        private static void ExecuteAndLogDuration(string actionMessage, Action act)
+        {
+            if (Logger.IsTraceEnabled)
+            {
+                var sw = Stopwatch.StartNew();
+                act();
+                sw.Stop();
+                Logger.Trace("{action} lasts {duration}.", actionMessage, sw.Elapsed);
+            }
+            else
+            {
+                act();
             }
         }
     }
