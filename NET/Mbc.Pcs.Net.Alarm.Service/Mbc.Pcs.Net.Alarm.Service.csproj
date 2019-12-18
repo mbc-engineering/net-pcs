@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
 
-    <Version>1.5.1</Version>
+    <Version>1.5.2</Version>
 
     <Product>Mbc.Pcs.Net.Alarm.Service</Product>
 
@@ -14,15 +14,15 @@
     <!-- Include Mbc.Pcs.Net.Alarm.Mediator files into the package-->
     <Content Include="$(OutDir)\Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="build" Visible="false" />
     <Content Include="Mbc.Pcs.Net.Alarm.Service.targets" PackagePath="build" />
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.7" />
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
     <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="NLog" Version="4.5.10" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="NLog" Version="4.6.8" />
   </ItemGroup>
 
   <ItemGroup>

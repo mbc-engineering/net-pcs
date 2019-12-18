@@ -52,6 +52,7 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Command", "Mbc.Pcs.Net.Command\Mbc.Pcs.Net.Command.csproj", "{66567C2D-0CF5-480A-BA9E-FDE6E8F5E4EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Command.Test", "Mbc.Pcs.Net.Command.Test\Mbc.Pcs.Net.Command.Test.csproj", "{DCD8BB64-82B9-4D75-A5B6-FFAB83EC9A59}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profiling", "Profiling\Profiling.csproj", "{6718F565-F3E0-4F0A-8A0B-FE85F9355E10}"
 EndProject
 Global
@@ -135,6 +136,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{08056A54-605C-4ACC-ADD7-3DB109298C28} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
 		{9E261388-7847-46BD-8D2F-7E928279AB89} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
+		{6718F565-F3E0-4F0A-8A0B-FE85F9355E10} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {41EBCC31-1BB3-4F43-BB31-8BD9166775A7}

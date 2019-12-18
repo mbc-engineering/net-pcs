@@ -5,7 +5,7 @@
     <OutputType>Exe</OutputType>
     <ApplicationIcon>tceventbar.ico</ApplicationIcon>
 
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
 
     <Product>Mbc.Pcs.Net.Alarm.Mediator</Product>
     <PlatformTarget>x86</PlatformTarget>
@@ -15,11 +15,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.7" />
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
     <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="NLog" Version="4.5.10" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="NLog" Version="4.6.8" />
   </ItemGroup>
 
   <ItemGroup>
