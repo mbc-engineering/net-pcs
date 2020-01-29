@@ -120,6 +120,9 @@ namespace Mbc.Pcs.Net.State
             else
             {
                 StopStateObservation();
+
+                // If not conneced no beat possible
+                OnHeartDied(LastHeartBeat);
             }
         }
 
