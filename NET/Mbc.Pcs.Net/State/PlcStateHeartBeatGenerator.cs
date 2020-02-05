@@ -13,11 +13,11 @@ namespace Mbc.Pcs.Net.State
 {
     /// <summary>
     /// Provides a Heart beat event and also a died event
-    /// based on the recived <see cref="IPlcStateSampler{TState}.StateChanged"/> events
-    /// The heart can only beat if the <see cref="IPlcStateSampler{TState}"/> sends new states, 
+    /// based on the recived <see cref="IPlcStateSampler{TState}.StatesChanged"/> events
+    /// The heart can only beat if the <see cref="IPlcStateSampler{TState}"/> sends new states,
     /// this is happen when the <see cref="IPlcAdsConnectionService.IsConnected"/> is true
     /// otherwise the there are no heart beats.
-    /// the event <see cref="HeartDied"/> fires after the first <see cref="HeartBeats"/> has fired
+    /// the event <see cref="HeartDied"/> fires after missing states after <see cref="TimeUntilDie"/>
     /// </summary>
     /// <typeparam name="TState">Object of state</typeparam>
     public class PlcStateHeartBeatGenerator<TState> : IHeartBeat, IDisposable
@@ -42,8 +42,8 @@ namespace Mbc.Pcs.Net.State
             _plcStateSampler = Ensure.Any.IsNotNull(plcStateSampler, nameof(plcStateSampler));
             HeartBeatInterval = beatInterval;
 
-            // set default timeout
-            TimeUntilDie = TimeSpan.FromMilliseconds(HeartBeatInterval.TotalMilliseconds * 1.5);
+            // set default timeout of factor 2
+            TimeUntilDie = TimeSpan.FromMilliseconds(HeartBeatInterval.TotalMilliseconds * 2);
 
             _adsConnection.ConnectionStateChanged += AdsConnectionOnConnectionStateChanged;
         }

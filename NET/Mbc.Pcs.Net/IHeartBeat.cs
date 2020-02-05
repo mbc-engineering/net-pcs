@@ -18,6 +18,11 @@ namespace Mbc.Pcs.Net
         TimeSpan HeartBeatInterval { get; set; }
 
         /// <summary>
+        /// The time for missing feedback until die
+        /// </summary>
+        TimeSpan TimeUntilDie { get; set; }
+
+        /// <summary>
         /// The beat of the heart
         /// </summary>
         event EventHandler<HeartBeatEventArgs> HeartBeats;
