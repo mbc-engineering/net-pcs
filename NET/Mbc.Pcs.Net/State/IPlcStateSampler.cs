@@ -14,9 +14,6 @@ namespace Mbc.Pcs.Net.State
     public interface IPlcStateSampler<TState>
         where TState : IPlcState
     {
-        [Obsolete("Use StatesChanged instead")]
-        event EventHandler<PlcStateChangedEventArgs<TState>> StateChanged;
-
         /// <summary>
         /// Event für eine Block an Statusänderungen. Die Blockgrösse ist eine
         /// Eigenschaft der Implementierung dieser Schnittstelle.
