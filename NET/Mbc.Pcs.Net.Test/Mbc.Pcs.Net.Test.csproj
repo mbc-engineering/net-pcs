@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
-    <PackageReference Include="FakeItEasy" Version="5.5.0" />
+    <PackageReference Include="FakeItEasy" Version="6.0.0" />
     <PackageReference Include="FluentAssertions" Version="5.9.0" />
     <PackageReference Include="HDF.PInvoke" Version="1.10.5.2" />
     <PackageReference Include="Mbc.Hdf5Utils" Version="0.5.3" />
