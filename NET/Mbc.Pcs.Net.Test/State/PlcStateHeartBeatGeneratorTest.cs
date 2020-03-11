@@ -99,7 +99,7 @@ namespace Mbc.Pcs.Net.Test.State
         }
 
         [Fact]
-        public async Task HearDiedEventShouldTriggerAfterConnectionWithoutBeat()
+        public async Task HeardDiedEventShouldTriggerAfterConnectionWithoutBeat()
         {
             // Arrange
             _testee.TimeUntilDie = TimeSpan.FromMilliseconds(100);
@@ -124,7 +124,7 @@ namespace Mbc.Pcs.Net.Test.State
         }
 
         [Fact]
-        public async Task HearDiedEventShouldTriggerBeatsLost()
+        public async Task HeardDiedEventShouldTriggerBeatsLost()
         {
             // Arrange
             using (var monitoredTestee = _testee.Monitor())
@@ -152,7 +152,7 @@ namespace Mbc.Pcs.Net.Test.State
         }
 
         [Fact]
-        public async Task HearDiedEventDoesNotTriggerWhenConnectionLost()
+        public async Task HearDiedEventDoesTriggerWhenConnectionLost()
         {
             // Arrange
             _testee.TimeUntilDie = TimeSpan.FromMilliseconds(100);
@@ -165,7 +165,6 @@ namespace Mbc.Pcs.Net.Test.State
                 _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<PlcStateDummy>(new List<PlcStateDummy> { { new PlcStateDummy { PlcTimeStamp = DateTime.FromFileTime(10) } } }));
                 // #3 connection lost
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(false, null));
-
                 // wait for timeout
                 await Task.Delay(TimeSpan.FromMilliseconds(500));
 
@@ -176,7 +175,9 @@ namespace Mbc.Pcs.Net.Test.State
                     .WithArgs<HeartBeatEventArgs>(args => args.BeatTime == DateTime.FromFileTime(10));
 
                 monitoredTestee
-                    .Should().NotRaise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied));
+                    .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied))
+                    .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.FromFileTime(10))
+                    .WithArgs<HeartBeatDiedEventArgs>(args => args.DiedTime == DateTime.FromFileTime(10));
             }
         }
 
