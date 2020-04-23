@@ -79,10 +79,8 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                 var success = true;
                 try
                 {
-                    Logger.Debug("Opening Ringbuffer File");
-                    var swOpen = Stopwatch.StartNew();
+                    Logger.Debug("Opening Ringbuffer File '{file}'.", _ringBufferHd5Path);
                     _h5File = new H5File(_ringBufferHd5Path, H5File.Flags.ReadWrite);
-                    Logger.Debug($"oppened Ringbuffer File in {swOpen.Elapsed.TotalMilliseconds}MS.");
 
                     _currentWritePos = _h5File.Attributes().ReadInt(CurrentWritePosAttrName);
                     if (_currentWritePos < 0 || _currentWritePos >= _ringBufferInfo.Size)
@@ -99,17 +97,13 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                         UpdateCount(_ringBufferInfo.Size);
                     }
 
-                    var swReadNames = Stopwatch.StartNew();
                     var existingNames = _h5File.GetNames().ToList();
-                    Logger.Debug($"Read Names in {swReadNames.Elapsed.TotalMilliseconds}MS.");
 
                     foreach (var channelInfo in _ringBufferInfo.ChannelInfo)
                     {
                         if (existingNames.Contains(channelInfo.Name))
                         {
-                            var swOpenDs = Stopwatch.StartNew();
                             var dataSet = H5DataSet.Open(_h5File, channelInfo.Name);
-                            Logger.Debug($"Open Dataset {channelInfo.Name} in {swOpenDs.Elapsed.TotalMilliseconds}MS.");
 
                             _dataSets.Add(channelInfo.Name, dataSet);
 
@@ -337,14 +331,11 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
             return ReadChannel(channelName, startSampleIndex, values, 0, values.Length);
         }
 
-        /// <summary>
-        /// Liest Daten eines Kanals aus. Der erste Sample wird über startSampleIndex
-        /// referenziert. Können weniger Daten gelesen
-        /// als das Array gross ist, werden diese rechtsbündig abgelegt. Die
-        /// Methode liefert die Anzahl Samples im Array zurück:
-        /// </summary>
         public int ReadChannel(string channelName, long startSampleIndex, Array values, int offset, int count)
         {
+#if true
+            return ReadChannel(channelName, startSampleIndex, values, offset, count, 1);
+#else
             EnsureArg.IsGte(offset, 0, nameof(offset));
             EnsureArg.IsGte(count, 0, nameof(offset));
             EnsureArg.IsTrue(offset + count <= values.Length, null, optsFn: x => x.WithMessage("offset/count does not match values."));
@@ -372,56 +363,154 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                     leftOffset = newLeftOffset;
                 }
 
-                // Shortcut: Wenn nichts gelesen werden kann wird hier beendet
-                if (valuesCount <= 0)
-                    return valuesCount;
-
-                var dataSet = _dataSets[channelName];
-
-                using (var fileDataSpace = dataSet.GetSpace())
-                using (var memoryDataSpace = H5DataSpace.CreateSimpleFixed(new[] { (ulong)values.Length }))
+                if (valuesCount > 0)
                 {
-                    var startPart1 = _currentWritePos - leftOffset - 1;
-                    if (startPart1 < 0)
-                    {
-                        startPart1 = _ringBufferInfo.Size + startPart1;
-                    }
-
-                    var countPart1 = Math.Min(valuesCount, _ringBufferInfo.Size - startPart1);
-
-                    var startPart2 = (startPart1 + countPart1) % _ringBufferInfo.Size;
-                    var countPart2 = valuesCount - countPart1;
-
-                    H5DataSpace.CreateSelectionBuilder()
-                        .Start((ulong)startPart1)
-                        .Count((ulong)countPart1)
-                        .ApplyTo(fileDataSpace);
-
-                    H5DataSpace.CreateSelectionBuilder()
-                        .Start((ulong)valuesStart)
-                        .Count((ulong)countPart1)
-                        .ApplyTo(memoryDataSpace);
-
-                    dataSet.Read(values, fileDataSpace, memoryDataSpace);
-
-                    if (countPart2 > 0)
-                    {
-                        H5DataSpace.CreateSelectionBuilder()
-                            .Start((ulong)startPart2)
-                            .Count((ulong)countPart2)
-                            .ApplyTo(fileDataSpace);
-
-                        H5DataSpace.CreateSelectionBuilder()
-                            .Start((ulong)(valuesStart + countPart1))
-                            .Count((ulong)countPart2)
-                            .ApplyTo(memoryDataSpace);
-
-                        dataSet.Read(values, fileDataSpace, memoryDataSpace);
-                    }
+                    ReadChannelInternal(channelName, _sampleIndex - leftOffset, values, valuesStart, valuesCount, 1);
                 }
 
                 return valuesCount;
             }
+#endif
+        }
+
+        /// <summary>
+        /// Liest Daten eines Kanals aus. Der erste Sample wird über startSampleIndex
+        /// referenziert. Können weniger Daten gelesen
+        /// als das Array gross ist, werden diese rechtsbündig abgelegt. Die
+        /// Methode liefert die Anzahl Samples im Array zurück.
+        /// </summary>
+        /// <param name="channelName">Der Name des Kanals, der gelesen werden soll.</param>
+        /// <param name="startSampleIndex">Der SampleIndex des ersten zu lesenden Samples.</param>
+        /// <param name="values">Ein vordefiniertes Array, in dem die Daten geschrieben werden.</param>
+        /// <param name="offset">Offset im Array, ab dem die Daten geschrieben werden.</param>
+        /// <param name="count">Anzahl Daten, die in das Array geschrieben werden.</param>
+        /// <param name="stride">Schrittgrösse zwischen den Samples (1=jedes Sample, 2=jedes 2. Sample, usw.)</param>
+        public int ReadChannel(string channelName, long startSampleIndex, Array values, int offset, int count, int stride)
+        {
+            EnsureArg.IsGte(offset, 0, nameof(offset));
+            EnsureArg.IsGte(count, 0, nameof(offset));
+            EnsureArg.IsTrue(offset + count <= values.Length, null, optsFn: x => x.WithMessage("offset/count does not match values."));
+            EnsureArg.IsGte(stride, 1, nameof(stride));
+
+            lock (_hdf5Lock)
+            {
+                // Es sollen samples gelesen werden, die noch nicht geschrieben wurden
+                if (startSampleIndex > _sampleIndex)
+                    return 0;
+
+                // Prüfen ob der startSampleIndex vorhanden ist, ggf. anpassen
+                var actualStartSampleIndex = startSampleIndex;
+                if ((_sampleIndex - startSampleIndex + 1) > _count)
+                {
+                    actualStartSampleIndex = _sampleIndex - _count + 1;
+                }
+
+                // Array parameter anpassen
+                var actualOffset = offset;
+                var actualCount = count;
+
+                // Korrekt aufgrund eines geänderten Start-Samples
+                if (startSampleIndex != actualStartSampleIndex)
+                {
+                    var missingSamples = (int)((actualStartSampleIndex - startSampleIndex + stride - 1) / stride);
+                    actualOffset += missingSamples;
+                    actualCount -= missingSamples;
+                }
+
+                // Korrektur aufgrund zu wenig Daten
+                var availableSamples = (int)(Math.Min(_sampleIndex - actualStartSampleIndex + 1, _count) + stride - 1) / stride;
+                if (availableSamples < actualCount)
+                {
+                    var missingSamples = (int)(actualCount - availableSamples);
+                    actualOffset += missingSamples;
+                    actualCount -= missingSamples;
+                }
+
+                if (actualCount > 0)
+                {
+                    ReadChannelInternal(channelName, actualStartSampleIndex, values, actualOffset, actualCount, stride);
+                }
+
+                return actualCount;
+            }
+        }
+
+        private void ReadChannelInternal(string channelName, long startSampleIndex, Array values, int offset, int count, int stride)
+        {
+            // alle Argumente wurden beim Aufruf vorgängig bereinigt
+
+            var dataSet = _dataSets[channelName];
+
+            using (var fileDataSpace = dataSet.GetSpace())
+            using (var memoryDataSpace = H5DataSpace.CreateSimpleFixed(new[] { (ulong)values.Length }))
+            {
+                var startPart1 = _currentWritePos - (_sampleIndex - startSampleIndex) - 1;
+                if (startPart1 < 0)
+                {
+                    startPart1 = _ringBufferInfo.Size + startPart1;
+                }
+
+                var countPart1 = Math.Min(count, (_ringBufferInfo.Size - startPart1 + stride - 1) / stride);
+
+                var startPart2 = (startPart1 + (countPart1 * stride)) % _ringBufferInfo.Size;
+                var countPart2 = count - countPart1;
+
+                if (stride > 1)
+                {
+                    fileDataSpace.Select(
+                        new[] { (ulong)startPart1 },
+                        new[] { (ulong)countPart1 },
+                        new[] { (ulong)stride },
+                        new[] { 1UL });
+                }
+                else
+                {
+                    fileDataSpace.Select(new[] { (ulong)startPart1 }, new[] { (ulong)countPart1 });
+                }
+
+                H5DataSpace.CreateSelectionBuilder()
+                    .Start((ulong)offset)
+                    .Count((ulong)countPart1)
+                    .ApplyTo(memoryDataSpace);
+
+                dataSet.Read(values, fileDataSpace, memoryDataSpace);
+
+                if (countPart2 > 0)
+                {
+                    if (stride > 1)
+                    {
+                        fileDataSpace.Select(
+                            new[] { (ulong)startPart2 },
+                            new[] { (ulong)countPart2 },
+                            new[] { (ulong)stride },
+                            new[] { 1UL });
+                    }
+                    else
+                    {
+                        fileDataSpace.Select(new[] { (ulong)startPart2 }, new[] { (ulong)countPart2 });
+                    }
+
+                    H5DataSpace.CreateSelectionBuilder()
+                        .Start((ulong)(offset + countPart1))
+                        .Count((ulong)countPart2)
+                        .ApplyTo(memoryDataSpace);
+
+                    dataSet.Read(values, fileDataSpace, memoryDataSpace);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Liest alle Kanäle ausgehend vom angegeben Start-Sample bis die angegebene Anzahl Samples
+        /// erreicht wurde oder keine Samples mehr verfügbar sind.
+        /// </summary>
+        /// <param name="startSampleIndex">Das Start-Sample, ab dem die Kanäle ausgegeben werden.</param>
+        /// <param name="count">Die max. Anzahl an Samples die gelesen wurden.</param>
+        /// <param name="readCallback">Eine Methode die für jeden Kanal zusammen mit den Samples aufgerufen wird.</param>
+        /// <returns>Die tatsächliche Anzahl gelesener Samples.</returns>
+        public int ReadAllChannels(long startSampleIndex, int count, Action<string, Array> readCallback)
+        {
+            return 0;
         }
 
         private static void ExecuteAndLogDuration(string actionMessage, Action act)

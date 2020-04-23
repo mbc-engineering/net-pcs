@@ -420,6 +420,148 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
         }
 
         [Fact]
+        public void ReadChannel_WithStride_ShouldSkipValues()
+        {
+            // Arrange
+            var file = Path.GetTempFileName();
+            File.Delete(file);
+            _testOutput.WriteLine($"Test HDF5: {file}");
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var ringBufferInfo = new RingBufferInfo(100, 10, new[] { channelInfo1 });
+
+            var buffer = new float[3];
+            int result;
+
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14, 15, 16, 17 });
+                ringBuffer.CommitWrite();
+
+                // Act
+                result = ringBuffer.ReadChannel("c1", 1, buffer, 0, 3, 2);
+            }
+
+            // Assert
+            result.Should().Be(3);
+            buffer.Should().BeEquivalentTo(10F, 12F, 14F);
+        }
+
+        [Fact]
+        public void ReadChannel_WithStrideSampleCount_ShouldRightAlignValues()
+        {
+            // Arrange
+            var file = Path.GetTempFileName();
+            File.Delete(file);
+            _testOutput.WriteLine($"Test HDF5: {file}");
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var ringBufferInfo = new RingBufferInfo(100, 10, new[] { channelInfo1 });
+
+            var buffer = new float[6];
+            int result;
+
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14, 15, 16, 17 });
+                ringBuffer.CommitWrite();
+
+                // Act
+                result = ringBuffer.ReadChannel("c1", 1, buffer, 0, 6, 2);
+            }
+
+            // Assert
+            result.Should().Be(4);
+            buffer.Should().BeEquivalentTo(0F, 0F, 10F, 12F, 14F, 16F);
+        }
+
+        [Fact]
+        public void ReadChannel_WithStrideStartSample_ShouldRightAlignValues()
+        {
+            // Arrange
+            var file = Path.GetTempFileName();
+            File.Delete(file);
+            _testOutput.WriteLine($"Test HDF5: {file}");
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var ringBufferInfo = new RingBufferInfo(100, 10, new[] { channelInfo1 });
+
+            var buffer = new float[6];
+            int result;
+
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22 });
+                ringBuffer.CommitWrite();
+
+                // Act
+                result = ringBuffer.ReadChannel("c1", 7, buffer, 0, 6, 2);
+            }
+
+            // Assert
+            result.Should().Be(4);
+            buffer.Should().BeEquivalentTo(0F, 0F, 16F, 18F, 20F, 22F);
+        }
+
+        [Fact]
+        public void ReadChannel_WithStrideBufferSize_ShouldRightAlignValues()
+        {
+            // Arrange
+            var file = Path.GetTempFileName();
+            File.Delete(file);
+            _testOutput.WriteLine($"Test HDF5: {file}");
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var ringBufferInfo = new RingBufferInfo(10, 5, new[] { channelInfo1 });
+
+            var buffer = new float[6];
+            int result;
+
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                // Ringbuffer min. 1x umrunden
+                ringBuffer.WriteChannel("c1", Enumerable.Range(10, 20).Select(x => (float)x).ToArray());
+                ringBuffer.CommitWrite();
+
+                // Act
+                result = ringBuffer.ReadChannel("c1", 14, buffer, 0, 6, 2);
+            }
+
+            // Assert
+            result.Should().Be(4);
+            buffer.Should().BeEquivalentTo(0F, 0F, 23F, 25F, 27F, 29F);
+        }
+
+        [Fact]
+        public void ReadChannel_WithStride_ShouldWrap()
+        {
+            // Arrange
+            var file = Path.GetTempFileName();
+            File.Delete(file);
+            _testOutput.WriteLine($"Test HDF5: {file}");
+
+            var channelInfo1 = new ChannelInfo("c1", typeof(float));
+            var ringBufferInfo = new RingBufferInfo(10, 5, new[] { channelInfo1 });
+
+            var buffer = new float[6];
+            int result;
+
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            {
+                // Ringbuffer min. 1x umrunden
+                ringBuffer.WriteChannel("c1", Enumerable.Range(10, 18).Select(x => (float)x).ToArray());
+                ringBuffer.CommitWrite();
+
+                // Act
+                result = ringBuffer.ReadChannel("c1", 6, buffer, 0, 6, 3);
+            }
+
+            // Assert
+            result.Should().Be(4);
+            buffer.Should().BeEquivalentTo(0F, 0F, 18F, 21F, 24F, 27F);
+        }
+
+        [Fact]
         public void ReadSingleElement()
         {
             // Arrange
