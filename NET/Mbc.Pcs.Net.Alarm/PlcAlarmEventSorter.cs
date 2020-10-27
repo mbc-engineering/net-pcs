@@ -31,13 +31,23 @@ namespace Mbc.Pcs.Net.Alarm
                 {
                     return 1;
                 }
-                else if (x.Date > y.Date)
+
+                // we need to seperate the date and the time for correct sorting
+                else if (x.Date.Date > y.Date.Date)
                 {
                     return 1;
                 }
-                else if (x.Date < y.Date)
+                else if (x.Date.Date < y.Date.Date)
                 {
                     return -1;
+                }
+                else if (x.Date.TimeOfDay > y.Date.TimeOfDay)
+                {
+                    return -1;
+                }
+                else if (x.Date.TimeOfDay < y.Date.TimeOfDay)
+                {
+                    return 1;
                 }
                 else
                 {
