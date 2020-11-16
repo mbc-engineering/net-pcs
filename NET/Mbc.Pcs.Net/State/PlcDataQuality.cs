@@ -3,23 +3,23 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using System;
-
 namespace Mbc.Pcs.Net.State
 {
-    /// <summary>
-    /// Basis-Interface für alle PLC-Statusklassen.
-    /// </summary>
-    public interface IPlcState
+    public enum PlcDataQuality
     {
         /// <summary>
-        /// SPS Zeitstempel der Status Daten
+        /// Connection is lost
         /// </summary>
-        DateTime PlcTimeStamp { get; set; }
+        Lost,
 
         /// <summary>
-        /// Güte der Status Daten
+        /// Data are misssing
         /// </summary>
-        PlcDataQuality PlcDataQuality { get; set; }
+        Skipped,
+
+        /// <summary>
+        /// Regular
+        /// </summary>
+        Good,
     }
 }

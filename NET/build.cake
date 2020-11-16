@@ -136,8 +136,9 @@ Task("NugetPush")
 });
 
 
-Task("Default")
+Task("Default")    
     .IsDependentOn("Build")
-    .IsDependentOn("Test");
+    .IsDependentOn("Test")
+    .IsDependentOn("NugetPublish");
 
 RunTarget(target);

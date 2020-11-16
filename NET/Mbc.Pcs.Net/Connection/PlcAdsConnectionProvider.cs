@@ -30,6 +30,9 @@ namespace Mbc.Pcs.Net.Connection
             _session = new AdsSession(amsNetId, adsPort, settings);
             _session.ConnectionStateChanged += (s, e) =>
             {
+                // Log some statistic
+                _logger.Debug("Ads Communication Statistics: {@statistics}", _session.Statistics);
+
                 OnConnectionStateChanged(e);
             };
         }
@@ -80,6 +83,11 @@ namespace Mbc.Pcs.Net.Connection
         private void OnConnectionStateChanged(ConnectionStateChangedEventArgs e)
         {
             _logger.Info("ADS Connection State Change {old_state} -> {new_state} because of {reason}.", e.OldState, e.NewState, e.Reason);
+
+            if (e.Exception != null)
+            {
+                _logger.Error(e.Exception, "ADS Connection State Changed to {new_state} Exception", e.NewState);
+            }
 
             var connected = e.NewState == ConnectionState.Connected;
             if (_wasConnected != connected)

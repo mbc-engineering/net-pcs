@@ -29,6 +29,8 @@ namespace Mbc.Pcs.Net.State
         private AdsMapper<TStatus> _adsMapper;
         private bool _queueOverflowLogging;
         private int _maxOverflow;
+        private SampleTime _lastSampleTime;
+        private bool _firstNotificationSample = true;
 
         public event EventHandler<PlcStateChangedEventArgs<TStatus>> StateChanged;
 
@@ -104,6 +106,8 @@ namespace Mbc.Pcs.Net.State
             _adsConnectionService.Connection.AdsNotificationError -= OnAdsNotificationError;
             _adsConnectionService.Connection.AdsNotification -= OnAdsNotification;
 
+            _firstNotificationSample = true;
+
             if (_notificationExecutor != null)
             {
                 _notificationExecutor.WaitForExecution();
@@ -124,6 +128,15 @@ namespace Mbc.Pcs.Net.State
         private void OnAdsNotificationError(object sender, AdsNotificationErrorEventArgs e)
         {
             _logger.Error(e.Exception, "ADS Notification error.");
+
+            // Error: Neues Sample erstellen mit letzten Wert
+            CurrentSample.PlcDataQuality = PlcDataQuality.Lost;
+            _notificationBlockBuffer.Add(CurrentSample);
+
+            // Event auf jedenfall auslösen
+            OnStateChanged(CurrentSample);
+            OnStatesChanged(_notificationBlockBuffer);
+            _notificationBlockBuffer = new List<TStatus>(_notificationBlockSize);
         }
 
         protected virtual void OnAdsNotification(object sender, AdsNotificationEventArgs e)
@@ -138,6 +151,28 @@ namespace Mbc.Pcs.Net.State
                 TStatus status = _adsMapper.MapStream(e.DataStream);
                 var timestamp = DateTime.FromFileTime(e.TimeStamp);
                 status.PlcTimeStamp = timestamp;
+
+                // Bei bestimmten Situationen können verluste an Samples auftreten (z.B. Breakpoints) -> wird hier geloggt
+                if (_firstNotificationSample)
+                {
+                    _firstNotificationSample = false;
+                    _lastSampleTime = new SampleTime(status.PlcTimeStamp, SampleRate);
+
+                    // First notification can not be checked
+                    status.PlcDataQuality = PlcDataQuality.Good;
+                }
+                else
+                {
+                    var currentSampleTime = new SampleTime(status.PlcTimeStamp, SampleRate);
+                    bool missingSample = currentSampleTime - _lastSampleTime > 1;
+
+                    status.PlcDataQuality = missingSample ? PlcDataQuality.Skipped : PlcDataQuality.Good;
+
+                    if (missingSample)
+                    {
+                        _logger.Warn("Missing sample between last sample on {lastTimeStamp} and new sample at {currentTimeStamp}", _lastSampleTime.ToString(), currentSampleTime.ToString());
+                    }
+                }
 
                 CurrentSample = status;
 

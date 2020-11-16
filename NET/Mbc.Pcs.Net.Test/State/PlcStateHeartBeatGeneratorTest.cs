@@ -184,6 +184,7 @@ namespace Mbc.Pcs.Net.Test.State
         public class PlcStateDummy : IPlcState
         {
             public DateTime PlcTimeStamp { get; set; }
+            public PlcDataQuality PlcDataQuality { get; set; }
         }
     }
 }

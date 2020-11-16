@@ -7,6 +7,8 @@ namespace Mbc.Pcs.Net.Test.TestUtils
     {
         public DateTime PlcTimeStamp { get; set; }
 
+        public PlcDataQuality PlcDataQuality { get; set; }
+
         public int Foo { get; set; }
     }
 }
