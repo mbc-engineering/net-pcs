@@ -151,19 +151,18 @@ namespace Mbc.Pcs.Net.State
                 TStatus status = _adsMapper.MapStream(e.DataStream);
                 var timestamp = DateTime.FromFileTime(e.TimeStamp);
                 status.PlcTimeStamp = timestamp;
+                var currentSampleTime = new SampleTime(status.PlcTimeStamp, SampleRate);
 
                 // Bei bestimmten Situationen können verluste an Samples auftreten (z.B. Breakpoints) -> wird hier geloggt
                 if (_firstNotificationSample)
                 {
                     _firstNotificationSample = false;
-                    _lastSampleTime = new SampleTime(status.PlcTimeStamp, SampleRate);
 
                     // First notification can not be checked
                     status.PlcDataQuality = PlcDataQuality.Good;
                 }
                 else
                 {
-                    var currentSampleTime = new SampleTime(status.PlcTimeStamp, SampleRate);
                     bool missingSample = currentSampleTime - _lastSampleTime > 1;
 
                     status.PlcDataQuality = missingSample ? PlcDataQuality.Skipped : PlcDataQuality.Good;
@@ -173,6 +172,8 @@ namespace Mbc.Pcs.Net.State
                         _logger.Warn("Missing sample between last sample on {lastTimeStamp} and new sample at {currentTimeStamp}", _lastSampleTime.ToString(), currentSampleTime.ToString());
                     }
                 }
+
+                _lastSampleTime = currentSampleTime;
 
                 CurrentSample = status;
 

@@ -30,6 +30,9 @@ namespace Mbc.Pcs.Net.Connection
             _session = new AdsSession(amsNetId, adsPort, settings);
             _session.ConnectionStateChanged += (s, e) =>
             {
+                // Log some statistic
+                _logger.Debug("Ads Communication Statistics: {@statistics}", _session.Statistics);
+
                 OnConnectionStateChanged(e);
             };
         }

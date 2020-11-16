@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
     <TargetFramework>net471</TargetFramework>
-    <Version>2.2.1</Version>
+    <Version>2.2.2</Version>
     <Product>Mbc.Pcs.Net</Product>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
