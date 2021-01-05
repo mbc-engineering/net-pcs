@@ -1,6 +1,7 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
 using Mbc.Pcs.Net.State;
+using Mbc.Pcs.Net.State.Utils;
 using Mbc.Pcs.Net.Test.TestUtils;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Mbc.Pcs.Net.Test.State
+namespace Mbc.Pcs.Net.Test.State.Utils
 {
     public class IPlcStateSamplerExtensionsTest
     {

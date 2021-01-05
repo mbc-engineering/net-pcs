@@ -8,7 +8,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mbc.Pcs.Net.State
+namespace Mbc.Pcs.Net.State.Utils
 {
     public static class IPlcStateSamplerExtensions
     {
@@ -139,7 +139,7 @@ namespace Mbc.Pcs.Net.State
                     }
                     else
                     {
-                        if ((state.PlcTimeStamp - _startTime) >= _time)
+                        if (state.PlcTimeStamp - _startTime >= _time)
                         {
                             // erfolgreich
                             _taskSource.TrySetResult(true);
