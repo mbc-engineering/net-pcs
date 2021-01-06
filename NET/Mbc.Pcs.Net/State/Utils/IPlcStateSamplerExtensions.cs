@@ -125,11 +125,19 @@ namespace Mbc.Pcs.Net.State.Utils
                     if (_taskSource.Task.IsCompleted)
                         return;
 
-                    if (!_ensureCondition(state))
+                    try
                     {
-                        // nicht erfolgreich
-                        _taskSource.TrySetResult(false);
-                        return;
+                        if (!_ensureCondition(state))
+                        {
+                            // nicht erfolgreich
+                            _taskSource.TrySetResult(false);
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Exceptions sollen dem EnsureStateHandler aufrufer übergeben werden.
+                        _taskSource.SetException(ex);
                     }
 
                     if (_first)

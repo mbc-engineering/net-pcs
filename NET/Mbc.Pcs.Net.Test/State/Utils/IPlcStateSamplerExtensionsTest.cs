@@ -63,6 +63,23 @@ namespace Mbc.Pcs.Net.Test.State.Utils
         }
 
         [Fact]
+        public async Task EnsureStateAsyncExceptionTest()
+        {
+            // Arrange
+            var sampler = A.Fake<IPlcStateSampler<TestState>>();
+            var state = new TestState { PlcTimeStamp = DateTime.FromFileTime(0) };
+
+            // Act
+            var exceptionTask = Record.ExceptionAsync(async () => await sampler.EnsureStateAsync(x => throw new Exception("throwed Exeption"), TimeSpan.FromSeconds(10), default));
+            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { state }));
+            var exception = await exceptionTask;
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Message.Should().Be("throwed Exeption");
+        }
+
+        [Fact]
         public async Task WaitForStateAsyncTest()
         {
             // Arrange
@@ -123,6 +140,23 @@ namespace Mbc.Pcs.Net.Test.State.Utils
 
             // Assert
             ex.Should().BeOfType<TaskCanceledException>();
+        }
+
+        [Fact]
+        public async Task WaitForStateAsyncExceptionTest()
+        {
+            // Arrange
+            var sampler = A.Fake<IPlcStateSampler<TestState>>();
+            var state = new TestState { PlcTimeStamp = DateTime.FromFileTime(0) };
+
+            // Act
+            var exceptionTask = Record.ExceptionAsync(async () => await sampler.WaitForStateAsync(x => throw new Exception("throwed Exeption"), TimeSpan.FromSeconds(10), default));
+            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { state }));
+            var exception = await exceptionTask;
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Message.Should().Be("throwed Exeption");
         }
     }
 }
