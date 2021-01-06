@@ -13,53 +13,43 @@ namespace Mbc.Pcs.Net.Test.State.Utils
 {
     public class IPlcStateSamplerExtensionsTest
     {
-        public IPlcStateSamplerExtensionsTest()
-        {
-        }
-
-        [Fact(Skip = "Geht noch nicht wegen async")]
-        public void StateIsEnsured()
+        [Fact]
+        public async Task StateIsEnsured()
         {
             // Arrange
             var sampler = A.Fake<IPlcStateSampler<TestState>>();
-            var state = new TestState { PlcTimeStamp = DateTime.FromFileTime(0) };
-            var task = sampler.EnsureStateAsync(x => x.Foo == 0, TimeSpan.FromMilliseconds(100), default);
+            var stateTrue1 = new TestState { PlcTimeStamp = DateTime.FromFileTime(0), Foo = 0, };
+            var stateTrue2 = new TestState { PlcTimeStamp = stateTrue1.PlcTimeStamp.AddMilliseconds(20), Foo = 0, };
+            var stateTrue3 = new TestState { PlcTimeStamp = stateTrue1.PlcTimeStamp.AddMilliseconds(100), Foo = 0, };
 
             // Act
-            var completed1 = task.IsCompleted;
-            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { state }));
-            var completed2 = task.IsCompleted;
-            state.PlcTimeStamp += TimeSpan.FromMilliseconds(100);
-            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { state }));
+            var task = sampler.EnsureStateAsync(x => x.Foo == 0, TimeSpan.FromMilliseconds(100), default);
+            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { stateTrue1 }));
+            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { stateTrue2 }));
+            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { stateTrue3 }));
+            var ensureResult = await task;
 
             // Assert
-            completed1.Should().BeFalse();
-            completed2.Should().BeFalse();
-            task.IsCompleted.Should().BeTrue();
-            task.Result.Should().BeTrue();
+            ensureResult.Should().BeTrue();
         }
 
-        [Fact(Skip = "Geht noch nicht wegen async")]
-        public void StateIsNotEnsured()
+        [Fact]
+        public async Task StateIsNotEnsured()
         {
             // Arrange
             var sampler = A.Fake<IPlcStateSampler<TestState>>();
-            var state = new TestState { PlcTimeStamp = DateTime.FromFileTime(0) };
-            var task = sampler.EnsureStateAsync(x => x.Foo == 0, TimeSpan.FromMilliseconds(100), default);
+            var stateTrue = new TestState { PlcTimeStamp = DateTime.FromFileTime(0), Foo = 0, };
+            var stateFalse = new TestState { PlcTimeStamp = stateTrue.PlcTimeStamp.AddMilliseconds(20), Foo = 42, };
 
             // Act
-            var completed1 = task.IsCompleted;
-            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { state }));
-            var completed2 = task.IsCompleted;
-            state.PlcTimeStamp += TimeSpan.FromMilliseconds(100);
-            state.Foo = 42;
-            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { state }));
+            var task = sampler.EnsureStateAsync(x => x.Foo == 0, TimeSpan.FromMilliseconds(100), default);
+            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { stateTrue }));
+            sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { stateFalse }));
+            var ensureResult = await task;
 
             // Assert
-            completed1.Should().BeFalse();
-            completed2.Should().BeFalse();
+            ensureResult.Should().BeFalse();
             task.IsCompleted.Should().BeTrue();
-            task.Result.Should().BeFalse();
         }
 
         [Fact]
