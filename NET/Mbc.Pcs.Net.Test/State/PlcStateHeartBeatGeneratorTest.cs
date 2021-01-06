@@ -136,7 +136,7 @@ namespace Mbc.Pcs.Net.Test.State
                 _plcStateSampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<PlcStateDummy>(new List<PlcStateDummy> { { new PlcStateDummy { PlcTimeStamp = DateTime.FromFileTime(10) } } }));
 
                 // wait for timeout
-                await Task.Delay(_testee.TimeUntilDie);
+                await Task.Delay(_testee.TimeUntilDie.Add(TimeSpan.FromSeconds(1))); // Add extratime for parallel task handling
 
                 // Assert
                 monitoredTestee
