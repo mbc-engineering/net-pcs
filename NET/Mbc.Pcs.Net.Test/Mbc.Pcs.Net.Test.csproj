@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
+    <TargetFramework>net471</TargetFramework>
     <Product>Mbc.Pcs.Net.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -8,13 +9,13 @@
 
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
-    <PackageReference Include="FakeItEasy" Version="6.0.0" />
-    <PackageReference Include="FluentAssertions" Version="5.9.0" />
-    <PackageReference Include="HDF.PInvoke" Version="1.10.5.2" />
-    <PackageReference Include="Mbc.Hdf5Utils" Version="0.5.3" />
+    <PackageReference Include="FakeItEasy" Version="6.2.1" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="HDF.PInvoke" Version="1.10.6.1" />
+    <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
     <PackageReference Include="Xbehave" Version="2.4.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

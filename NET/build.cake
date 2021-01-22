@@ -11,14 +11,15 @@ var configuration = Argument("configuration", "Release");
 var testreportfolder = Argument("testreportfolder", "testresult").TrimEnd('/');
 var nuspecPath = Argument("nuspec", "");
 var nugetOutputDirectory =  $"./{Argument("nugetoutputfolder", "nuget")}";
+var nugetapikey =  Argument("apikey", "apikeymissing");
 
 ///////////////////////////////////////////////////////////////////////////////
 // VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
 var nugetPushServerConfiguration = new NuGetPushSettings() 
 {
-    Source = "mbcpublic",    // Is defined in nuget.config!
-    ApiKey = "VSTS"
+    Source = "nuget.org",    // Is defined in nuget.config!
+    ApiKey = nugetapikey,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,7 +41,7 @@ Task("Build")
                 .SetConfiguration(configuration)                
                 .WithRestore()           
                 .SetVerbosity(Verbosity.Minimal)                
-                .UseToolVersion(MSBuildToolVersion.VS2017)
+                .UseToolVersion(MSBuildToolVersion.VS2019)
                 .SetPlatformTarget(PlatformTarget.MSIL));   // MSIL = AnyCPU    
     }    
 });
@@ -74,16 +75,17 @@ Task("NugetPublish")
     .IsDependentOn("Test")
     .Does(() =>
 {
+    Information($"publish nuget to {nugetPushServerConfiguration.Source} with api key {nugetPushServerConfiguration.ApiKey}");
+
     // Collect all nuget files
-    var nugetPackages = GetFiles($"./**/bin/{configuration}/**/*.symbols.nupkg");
+    // !!! NuGet will publish both packages to nuget.org. MyPackage.nupkg will be published first, followed by MyPackage.snupkg.
+    var nugetPackages = GetFiles($"./**/bin/{configuration}/**/*.nupkg");
 
     foreach (var package in nugetPackages)
     {
         // Push the package
         try
         {
-            // ToDo: check for already published!
-
             NuGetPush(package, nugetPushServerConfiguration);
         }
         catch (CakeException cex)
@@ -115,6 +117,8 @@ Task("NugetPush")
     .IsDependentOn("NugetCreate")
     .Does(() =>
 {    
+    Information($"publish nuget to {nugetPushServerConfiguration.Source} with api key {nugetPushServerConfiguration.ApiKey}");
+
     // Collect all nuget files
     var nugetPackages = GetFiles($"{nugetOutputDirectory}/*.nupkg");
 
@@ -123,8 +127,6 @@ Task("NugetPush")
         // Push the package
         try
         {
-            // ToDo: check for already published!
-
             NuGetPush(package, nugetPushServerConfiguration);
         }
         catch (CakeException cex)

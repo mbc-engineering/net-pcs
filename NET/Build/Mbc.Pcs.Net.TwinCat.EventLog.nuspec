@@ -3,10 +3,10 @@
   <metadata>
     <id>Mbc.Pcs.Net.TwinCat.EventLog</id>
     <version>1.0.0</version>
-    <authors>mbc engineering GmbH</authors>
-    <owners>Beckhoff Automation GmbH</owners>
+    <authors>mbc engineering</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>assemblies from type libraries for TwinCat Alarm and Event alias TcEventLoggerLib and TcEventLogProxyLib</description>
+    <projectUrl>https://github.com/mbc-engineering/net-pcs</projectUrl>
+    <description>unofficial assemblies from type libraries for TwinCat Alarm and Event alias TcEventLoggerLib and TcEventLogProxyLib</description>
     <dependencies>
       <group targetFramework=".NETFramework4.6.1" />
     </dependencies>

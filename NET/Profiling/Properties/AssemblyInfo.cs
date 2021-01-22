@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Profiling")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("mbc engineering GmbH")]
+[assembly: AssemblyCompany("mbc engineering")]
 [assembly: AssemblyProduct("Profiling")]
-[assembly: AssemblyCopyright("Copyright (c) 2020 by mbc engineering GmbH, CH-6015 Luzern")]
+[assembly: AssemblyCopyright("Copyright (c) 2020 by mbc engineering, CH-6015 Luzern")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

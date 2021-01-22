@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <Version>2.1.2</Version>
+    <TargetFramework>net471</TargetFramework>
+    <Version>2.2.0</Version>
 
     <Product>Mbc.Pcs.Net.Command</Product>
 

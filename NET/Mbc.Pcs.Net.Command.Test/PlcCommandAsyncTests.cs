@@ -349,7 +349,7 @@ namespace Mbc.Pcs.Net.Test
 
             // Act
             Task[] tasks = new Task[2];
-            tasks[0] = command1.ExecuteAsync();
+            tasks[0] = command1.ExecuteAsync(A.Fake<ICommandInput>());
             tasks[1] = command2.ExecuteAsync(A.Fake<ICommandInput>());
             await Task.WhenAll(tasks);
 

@@ -2,15 +2,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    
-    <Version>0.4.1</Version>
+    <TargetFramework>net471</TargetFramework>
+    <Version>0.5.0</Version>
 
     <Product>Mbc.Ads.Utils</Product>
     
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
-    <PackageReference Include="Castle.Core" Version="4.4.0" />
+    <PackageReference Include="Castle.Core" Version="4.4.1" />
     <PackageReference Include="Ensure.That" Version="8.1.2" />
   </ItemGroup>
 </Project>

@@ -10,10 +10,10 @@
     <Prefer32Bit>false</Prefer32Bit>
     <LangVersion>latest</LangVersion>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>True</ContinuousIntegrationBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -24,19 +24,23 @@
   <!-- Nuget Configuration 
        ################### -->
   <PropertyGroup>
-    <Company>mbc engineering GmbH</Company>
-    <Copyright>mbc engineering GmbH</Copyright>
-    <Authors>mbc engineering GmbH</Authors>
+    <Authors>devs @mbc engineering;stegm;JoelGeiser;bqstony</Authors>
 
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>        
-    <RepositoryUrl>http://gitlab.mbc-engineering.ch/mbc/pcs.git</RepositoryUrl>
-    <PackageProjectUrl>http://gitlab.mbc-engineering.ch/mbc/pcs</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <IncludeSource>true</IncludeSource>
+    <EmbedAllSources>true</EmbedAllSources>
+
+    <PackageProjectUrl>https://github.com/mbc-engineering/net-pcs</PackageProjectUrl>
 
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Description>
-Copyright mbc engineering GmbH
+Copyright mbc engineering
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -69,16 +73,18 @@ limitations under the License.
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.9.8">
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.*">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.9.8">
+    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="3.*">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NetFramework.Analyzers" Version="2.9.8">
+
+    <PackageReference Include="Microsoft.NetFramework.Analyzers" Version="3.*" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Roslyn.Diagnostics.Analyzers" Version="2.9.8">
+
+    <PackageReference Include="Microsoft.NetCore.Analyzers" Version="3.*" Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>

@@ -2,20 +2,16 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
     <TargetFramework>net471</TargetFramework>
-    <Version>3.0.1</Version>
+    <Version>3.1.0</Version>
+    
     <Product>Mbc.Pcs.Net</Product>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
-    <PackageReference Include="Mbc.AsyncUtils" Version="0.2.4" />
-    <PackageReference Include="Mbc.Common" Version="0.3.3" />
-    <PackageReference Include="Mbc.Common.Interface" Version="0.1.0" />
-    <PackageReference Include="Mbc.Hdf5Utils" Version="0.5.3" />
+    <PackageReference Include="Mbc.AsyncUtils" Version="0.4.0" />
+    <PackageReference Include="Mbc.Common" Version="0.5.0" />
+    <PackageReference Include="Mbc.Common.Interface" Version="0.3.0" />
+    <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
     <PackageReference Include="NLog" Version="4.6.8" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>

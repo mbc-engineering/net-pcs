@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-
+    <TargetFramework>net471</TargetFramework>
+    <Version>1.3.0</Version>
+    
     <OutputType>Exe</OutputType>
     <ApplicationIcon>tceventbar.ico</ApplicationIcon>
-
-    <Version>1.2.1</Version>
 
     <Product>Mbc.Pcs.Net.Alarm.Mediator</Product>
     <PlatformTarget>x86</PlatformTarget>
