@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
   <POU Name="MAIN" Id="{12ac386e-9f2f-456d-9446-322109fb7ee0}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
@@ -9,13 +9,10 @@ END_VAR
     <Implementation>
       <ST><![CDATA[counter := counter + 1;
 
+Commands.fbStartCommand1.bEnabled := TRUE;
+
 PRG_Commands();
 ]]></ST>
     </Implementation>
-    <LineIds Name="MAIN">
-      <LineId Id="141" Count="1" />
-      <LineId Id="130" Count="0" />
-      <LineId Id="121" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
   <DUT Name="ST_CommandBaseHandshake" Id="{32bcade6-9e18-0fb5-177f-7513fed5a572}">
     <Declaration><![CDATA[(*---------------------------------------------------------------------------
  Copyright (c) 2018 BY mbc engineering GmbH, CH-6015 Luzern
@@ -8,11 +8,12 @@
 // Strukture for communication with PCS in the ``CommandBase`` class
 TYPE ST_CommandBaseHandshake :
 STRUCT
-	bExecute		: BOOL;		// Will be set to true from the PCS to start the command. When the operation is finished, the PLC will it set to false. On a long running Task, the PCS can reset to false for Abort the operation. 
-	bBusy			: BOOL;		// Is True when the command is executing.
-	nResultCode		: UINT;		// Shows the operation result code of the commando state. Default Values see 'CommandResultCode' Enum Type. It is possible to set other codes!
-	nProgress		: BYTE;		// Shows the optional calculated progress. The value is depend on the command implementation. (default can be 0..100%). Only necessary on long running operations.
-	nSubTask		: UINT;		// Shows the optional state of long running Command Execution. It is possible to set it on own need.
+	bExecute		: BOOL;			// Will be set to true from the PCS to start the command. When the operation is finished, the PLC will it set to false. On a long running Task, the PCS can reset to false for Abort the operation. 
+	bBusy			: BOOL;			// Is True when the command is executing.
+	bEnabled		: BOOL := TRUE;	// Enables a command. Only PLC writes this flag. PCS only reads this flag. 
+	nResultCode		: UINT;			// Shows the operation result code of the commando state. Default Values see 'CommandResultCode' Enum Type. It is possible to set other codes!
+	nProgress		: BYTE;			// Shows the optional calculated progress. The value is depend on the command implementation. (default can be 0..100%). Only necessary on long running operations.
+	nSubTask		: UINT;			// Shows the optional state of long running Command Execution. It is possible to set it on own need.
 END_STRUCT
 END_TYPE
 ]]></Declaration>

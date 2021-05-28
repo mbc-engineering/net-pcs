@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
   <POU Name="CommandBase" Id="{ada50c45-e2a4-0e1e-2882-6555ee7dd9e0}" SpecialFunc="None">
     <Declaration><![CDATA[(*---------------------------------------------------------------------------
  Copyright (c) 2018 BY mbc engineering GmbH, CH-6015 Luzern
@@ -38,7 +38,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Starting Case
-stHandshake.bBusy S= bInit := (stHandshake.bExecute AND NOT stHandshake.bBusy);
+stHandshake.bBusy S= bInit := (stHandshake.bExecute AND NOT stHandshake.bBusy AND stHandshake.bEnabled);
 IF bInit THEN
 	stHandshake.nResultCode := E_CommandResultCode.Init;
 	Init();
@@ -164,72 +164,5 @@ METHOD PROTECTED Task : BOOL
 Task := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="CommandBase">
-      <LineId Id="94" Count="0" />
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="CommandBase.CalculateProgress">
-      <LineId Id="5" Count="2" />
-    </LineIds>
-    <LineIds Name="CommandBase.Call">
-      <LineId Id="40" Count="0" />
-      <LineId Id="56" Count="0" />
-      <LineId Id="62" Count="0" />
-      <LineId Id="71" Count="0" />
-      <LineId Id="64" Count="1" />
-      <LineId Id="63" Count="0" />
-      <LineId Id="13" Count="1" />
-      <LineId Id="29" Count="0" />
-      <LineId Id="19" Count="0" />
-      <LineId Id="81" Count="2" />
-      <LineId Id="85" Count="0" />
-      <LineId Id="80" Count="0" />
-      <LineId Id="41" Count="0" />
-      <LineId Id="20" Count="1" />
-      <LineId Id="45" Count="0" />
-      <LineId Id="67" Count="0" />
-      <LineId Id="77" Count="0" />
-      <LineId Id="69" Count="1" />
-      <LineId Id="27" Count="0" />
-      <LineId Id="88" Count="0" />
-      <LineId Id="87" Count="0" />
-      <LineId Id="89" Count="2" />
-      <LineId Id="94" Count="0" />
-      <LineId Id="93" Count="0" />
-    </LineIds>
-    <LineIds Name="CommandBase.Cancelled">
-      <LineId Id="15" Count="1" />
-    </LineIds>
-    <LineIds Name="CommandBase.Done">
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="CommandBase.Finish">
-      <LineId Id="13" Count="0" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="CommandBase.Init">
-      <LineId Id="6" Count="0" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="7" Count="0" />
-    </LineIds>
-    <LineIds Name="CommandBase.Progress.Get">
-      <LineId Id="2" Count="1" />
-    </LineIds>
-    <LineIds Name="CommandBase.Progress.Set">
-      <LineId Id="2" Count="0" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="CommandBase.SubTask.Get">
-      <LineId Id="2" Count="0" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="CommandBase.SubTask.Set">
-      <LineId Id="2" Count="0" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="CommandBase.Task">
-      <LineId Id="10" Count="0" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

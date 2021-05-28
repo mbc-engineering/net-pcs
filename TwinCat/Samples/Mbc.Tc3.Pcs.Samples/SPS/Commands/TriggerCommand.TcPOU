@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
   <POU Name="TriggerCommand" Id="{d02418d5-5cd7-0a17-16e2-bc96f2eeb812}" SpecialFunc="None">
     <Declaration><![CDATA[// Command that detect the execution AND generates one cycle TRUE on the output Q
 FUNCTION_BLOCK PUBLIC TriggerCommand EXTENDS CommandBase
 VAR_INPUT
+	bEnabled	:BOOL := TRUE;
 END_VAR
 VAR_OUTPUT
 	Q : BOOL;
@@ -13,7 +14,10 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[// OO-Class 
+      <ST><![CDATA[//Enables command
+stHandshake.bEnabled := bEnabled;
+
+// OO-Class 
 SUPER^();]]></ST>
     </Implementation>
     <Method Name="Init" Id="{fefad13b-36f4-09af-2cda-4ebdb7042fe2}">
@@ -42,19 +46,5 @@ Q := bInit;
 bInit := FALSE;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="TriggerCommand">
-      <LineId Id="20" Count="0" />
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="TriggerCommand.Init">
-      <LineId Id="6" Count="0" />
-    </LineIds>
-    <LineIds Name="TriggerCommand.Task">
-      <LineId Id="17" Count="0" />
-      <LineId Id="21" Count="4" />
-      <LineId Id="29" Count="2" />
-      <LineId Id="26" Count="1" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

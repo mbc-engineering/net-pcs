@@ -12,6 +12,10 @@ The following types of changes exist:
 - **Fixed** for any bug fixes.
 - **Security** in case of vulnerabilities.
 
+## [1.2.1.1] - 28.05.2021
+### Added
+- It is now possible to enable or disable commands with the `stHandshake.bEnabled`
+
 ## [1.2.0] - 01.06.2018
 ### Changed
 - The `CommandBase` Public Method `Abort` is renamed to Protected Method `Cancelled`
