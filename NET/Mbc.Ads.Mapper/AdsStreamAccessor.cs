@@ -205,7 +205,7 @@ namespace Mbc.Ads.Mapper
                 }
 
                 // Writing the string without the termination of /0
-                return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcString((string)value, sourceDatatype.ByteSize - 1, System.Text.Encoding.UTF7);
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcAnsiStringFixedLength((string)value, sourceDatatype.ByteSize);
             }
 
             if (managedType == typeof(string) && sourceDatatype.DataTypeId == AdsDatatypeId.ADST_WSTRING)
@@ -215,9 +215,8 @@ namespace Mbc.Ads.Mapper
                     throw new NotSupportedException($"AdsStreamMappingDelegate execution not possible for the ManagedType '{managedType?.ToString()}' with a total ByteSize of '{sourceDatatype.ByteSize}'.");
                 }
 
-                // Writing the string without the termination of /0
-                int size = (sourceDatatype.ByteSize / 2) - 1;
-                return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcString((string)value, size, System.Text.Encoding.Unicode);
+                // Writing the string with the termination of /0
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcUnicodeStringFixedLength((string)value, sourceDatatype.ByteSize);
             }
 
             throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");

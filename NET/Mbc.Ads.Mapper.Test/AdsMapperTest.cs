@@ -28,7 +28,7 @@ namespace Mbc.Ads.Mapper.Test
         {
             // Arrange
             AdsMapperConfiguration<DestinationDataObject> config = new AdsMapperConfiguration<DestinationDataObject>(
-                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "b", "a", "e", "t", "d", "dt", "s"))
+                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "b", "a", "e", "t", "d", "dt", "s", "ws"))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertFromSourceUsing(value => ((double)value) / 2)));
 
@@ -58,6 +58,10 @@ namespace Mbc.Ads.Mapper.Test
             mappedResult.IntArrayValue[2].Should().Be(102);
 
             mappedResult.EnumStateValue.Should().Be(State.Running);
+
+            mappedResult.PlcVersion.Should().Be("21.08.30.0");
+            mappedResult.Utf7String.Should().Be("ÄÖö@Ü7");
+            mappedResult.UnicodeString.Should().Be("ÄÖö@Ü8");
         }
 
         [Fact]
@@ -65,7 +69,7 @@ namespace Mbc.Ads.Mapper.Test
         {
             // Arrange
             AdsMapperConfiguration<DestinationDataObject> config = new AdsMapperConfiguration<DestinationDataObject>(
-                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix('f', 'n', 'b', 'a', 'e'))
+                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "b", "a", "e", "t", "d", "dt", "s", "ws"))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertFromSourceUsing(value => ((double)value) / 2)));
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
@@ -161,7 +165,7 @@ namespace Mbc.Ads.Mapper.Test
         {
             // Arrange
             AdsMapperConfiguration<DestinationDataObject> config = new AdsMapperConfiguration<DestinationDataObject>(
-                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "b", "a", "e", "t", "d", "dt"))
+                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "b", "a", "e", "t", "d", "dt", "s", "ws"))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertToSourceUsing((value, type) => value * 2)));
             var dataObject = new DestinationDataObject
@@ -183,9 +187,12 @@ namespace Mbc.Ads.Mapper.Test
                 PlcDateTimeValue1 = new DateTime(2018, 08, 30, 19, 33, 44),
                 IntArrayValue = new int[] { 100, 101, 102 },
                 EnumStateValue = State.Running,
+                PlcVersion = "21.08.30.0",
+                Utf7String = "ÄÖö@Ü7",
+                UnicodeString = "ÄÖö@Ü8",
             };
             byte[] expectedData = _fakePlcData.AdsStream.ToArray();
-            Array.Clear(expectedData, 82, 8); // nested MotorObject
+            Array.Clear(expectedData, 114, 8); // nested MotorObject
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
@@ -217,6 +224,9 @@ namespace Mbc.Ads.Mapper.Test
             public DateTime PlcDateTimeValue1 { get; set; }
             public int[] IntArrayValue { get; set; } = new int[3];
             public State EnumStateValue { get; set; }
+            public string PlcVersion { get; set; }
+            public string Utf7String { get; set; }
+            public string UnicodeString { get; set; }
             public Motor MotorObject { get; set; }
         }
 

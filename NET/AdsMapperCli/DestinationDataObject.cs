@@ -23,7 +23,6 @@ namespace AdsMapperCli
 	    dtPlcDateTimeValue1 : DATE_AND_TIME := DT#2021-08-30-11:12:13;
 	    aIntArrayValue : ARRAY[0..2] OF DINT := [1, 2, 3];
 	    eEnumStateValue : E_State := E_State.eRunning;
-        sPlcVersion : STRING(10) := '21.08.30.0';
     	sPlcVersion : STRING(10) := '21.08.30.0';
 	    sUtf7String : STRING(6) := 'ÄÖö@Ü7';
 	    wsUnicodeString : WSTRING(6) := "ÄÖö@Ü8";

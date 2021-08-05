@@ -40,6 +40,9 @@ namespace Mbc.Ads.Mapper.Test
                 dtPlcDateTimeValue1 : DATE_AND_TIME;
                 aIntArrayValue : ARRAY[0..2] OF DINT;
                 eEnumStateValue : E_State;
+                sPlcVersion : STRING(10) := '21.08.30.0';
+	            sUtf7String : STRING(6) := 'ÄÖö@Ü7';
+	            wsUnicodeString : WSTRING(6) := "ÄÖö@Ü8";
             END_STRUCT
             END_TYPE
 
@@ -55,15 +58,17 @@ namespace Mbc.Ads.Mapper.Test
             var tcAdsSymbol5Fake = A.Fake<ITcAdsSymbol5>();
             var subItemListFake_ST_Test = new List<ITcAdsSubItem>();
 
+            int streamSize = 122;
+
             A.CallTo(() => tcAdsSymbol5Fake.Category).Returns(DataTypeCategory.Struct);
             A.CallTo(() => tcAdsSymbol5Fake.Name).Returns("PCS_Status.aPcsTestPlace[1].stTest");
-            A.CallTo(() => tcAdsSymbol5Fake.Size).Returns(90);
+            A.CallTo(() => tcAdsSymbol5Fake.Size).Returns(streamSize);
             A.CallTo(() => tcAdsSymbol5Fake.DataType.Category).Returns(DataTypeCategory.Struct);
             A.CallTo(() => tcAdsSymbol5Fake.DataType.HasSubItemInfo).Returns(true);
             A.CallTo(() => tcAdsSymbol5Fake.DataType.SubItems).Returns(new ReadOnlySubItemCollection(subItemListFake_ST_Test));
 
             IAdsSymbolInfo fakeSymbolInfo = A.Fake<IAdsSymbolInfo>();
-            A.CallTo(() => fakeSymbolInfo.SymbolsSize).Returns(90);
+            A.CallTo(() => fakeSymbolInfo.SymbolsSize).Returns(streamSize);
             A.CallTo(() => fakeSymbolInfo.SymbolPath).Returns("PCS_Status.aPcsTestPlace[1].stTest");
             A.CallTo(() => fakeSymbolInfo.Symbol).Returns(tcAdsSymbol5Fake);
 
@@ -344,6 +349,57 @@ namespace Mbc.Ads.Mapper.Test
             A.CallTo(() => subItemFake_eEnumStateValue.BaseType.BaseType.Size).Returns(2);
             subItemListFake_ST_Test.Add(subItemFake_eEnumStateValue);
 
+            var subItemFake_sPlcVersion = A.Fake<ITcAdsSubItem>();
+            A.CallTo(() => subItemFake_sPlcVersion.SubItemName).Returns("sPlcVersion");
+            A.CallTo(() => subItemFake_sPlcVersion.Name).Returns("STRING(6)");
+            A.CallTo(() => subItemFake_sPlcVersion.Offset).Returns(82);
+            A.CallTo(() => subItemFake_sPlcVersion.Size).Returns(11);
+            A.CallTo(() => subItemFake_sPlcVersion.Category).Returns(DataTypeCategory.Alias);
+            A.CallTo(() => subItemFake_sPlcVersion.BaseType.DataTypeId).Returns(AdsDatatypeId.ADST_STRING);
+            A.CallTo(() => subItemFake_sPlcVersion.BaseType.ByteSize).Returns(11);
+            A.CallTo(() => subItemFake_sPlcVersion.BaseType.Category).Returns(DataTypeCategory.String);
+            A.CallTo(() => subItemFake_sPlcVersion.BaseType.IsPrimitive).Returns(true);
+            A.CallTo(() => subItemFake_sPlcVersion.BaseType.IsString).Returns(true);
+            A.CallTo(() => subItemFake_sPlcVersion.BaseType.ManagedType).Returns(typeof(System.String));
+            A.CallTo(() => subItemFake_sPlcVersion.BaseType.HasSubItemInfo).Returns(false);
+            A.CallTo(() => subItemFake_sPlcVersion.BaseType.HasArrayInfo).Returns(false);
+            A.CallTo(() => subItemFake_sPlcVersion.BaseType.HasEnumInfo).Returns(false);
+            subItemListFake_ST_Test.Add(subItemFake_sPlcVersion);
+
+            var subItemFake_sUtf7String = A.Fake<ITcAdsSubItem>();
+            A.CallTo(() => subItemFake_sUtf7String.SubItemName).Returns("sUtf7String");
+            A.CallTo(() => subItemFake_sUtf7String.Name).Returns("STRING(6)");
+            A.CallTo(() => subItemFake_sUtf7String.Offset).Returns(93);
+            A.CallTo(() => subItemFake_sUtf7String.Size).Returns(7);
+            A.CallTo(() => subItemFake_sUtf7String.Category).Returns(DataTypeCategory.Alias);
+            A.CallTo(() => subItemFake_sUtf7String.BaseType.DataTypeId).Returns(AdsDatatypeId.ADST_STRING);
+            A.CallTo(() => subItemFake_sUtf7String.BaseType.ByteSize).Returns(7);
+            A.CallTo(() => subItemFake_sUtf7String.BaseType.Category).Returns(DataTypeCategory.String);
+            A.CallTo(() => subItemFake_sUtf7String.BaseType.IsPrimitive).Returns(true);
+            A.CallTo(() => subItemFake_sUtf7String.BaseType.IsString).Returns(true);
+            A.CallTo(() => subItemFake_sUtf7String.BaseType.ManagedType).Returns(typeof(System.String));
+            A.CallTo(() => subItemFake_sUtf7String.BaseType.HasSubItemInfo).Returns(false);
+            A.CallTo(() => subItemFake_sUtf7String.BaseType.HasArrayInfo).Returns(false);
+            A.CallTo(() => subItemFake_sUtf7String.BaseType.HasEnumInfo).Returns(false);
+            subItemListFake_ST_Test.Add(subItemFake_sUtf7String);
+
+            var subItemFake_wsUnicodeString = A.Fake<ITcAdsSubItem>();
+            A.CallTo(() => subItemFake_wsUnicodeString.SubItemName).Returns("wsUnicodeString");
+            A.CallTo(() => subItemFake_wsUnicodeString.Name).Returns("WSTRING(6)");
+            A.CallTo(() => subItemFake_wsUnicodeString.Offset).Returns(100);
+            A.CallTo(() => subItemFake_wsUnicodeString.Size).Returns(14);
+            A.CallTo(() => subItemFake_wsUnicodeString.Category).Returns(DataTypeCategory.Alias);
+            A.CallTo(() => subItemFake_wsUnicodeString.BaseType.DataTypeId).Returns(AdsDatatypeId.ADST_WSTRING);
+            A.CallTo(() => subItemFake_wsUnicodeString.BaseType.ByteSize).Returns(14);
+            A.CallTo(() => subItemFake_wsUnicodeString.BaseType.Category).Returns(DataTypeCategory.String);
+            A.CallTo(() => subItemFake_wsUnicodeString.BaseType.IsPrimitive).Returns(false);
+            A.CallTo(() => subItemFake_wsUnicodeString.BaseType.IsString).Returns(false);
+            A.CallTo(() => subItemFake_wsUnicodeString.BaseType.ManagedType).Returns(typeof(System.String));
+            A.CallTo(() => subItemFake_wsUnicodeString.BaseType.HasSubItemInfo).Returns(false);
+            A.CallTo(() => subItemFake_wsUnicodeString.BaseType.HasArrayInfo).Returns(false);
+            A.CallTo(() => subItemFake_wsUnicodeString.BaseType.HasEnumInfo).Returns(false);
+            subItemListFake_ST_Test.Add(subItemFake_wsUnicodeString);
+
             return fakeSymbolInfo;
         }
 
@@ -378,8 +434,13 @@ namespace Mbc.Ads.Mapper.Test
             // Write enum
             adsWriter.Write((ushort)2);            // offset 80 (Enum of type INT16)
 
+            // Write string
+            adsWriter.WritePlcAnsiStringFixedLength("21.08.30.0", 11);  // offset 82
+            adsWriter.WritePlcAnsiStringFixedLength("ÄÖö@Ü7", 7);      // offset 93
+            adsWriter.WritePlcUnicodeStringFixedLength("ÄÖö@Ü8", 14);   // offset 100
+
             // Write Motor Object
-            adsWriter.Write(double.MaxValue);      // offset 82
+            adsWriter.Write(double.MaxValue);      // offset 114
 
             adsStream.Position = 0;
             return adsStream;
