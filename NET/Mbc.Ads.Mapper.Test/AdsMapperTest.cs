@@ -28,7 +28,7 @@ namespace Mbc.Ads.Mapper.Test
         {
             // Arrange
             AdsMapperConfiguration<DestinationDataObject> config = new AdsMapperConfiguration<DestinationDataObject>(
-                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix('f', 'n', 'b', 'a', 'e'))
+                cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "b", "a", "e", "t", "d", "dt", "s"))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.MapFrom("fdoublevalue4"))
                   .ForMember(dest => dest.DoubleValue4MappedName, opt => opt.ConvertFromSourceUsing(value => ((double)value) / 2)));
 

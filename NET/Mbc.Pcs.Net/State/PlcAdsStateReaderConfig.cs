@@ -20,8 +20,14 @@ namespace Mbc.Pcs.Net.State
 
         public AdsMapperConfiguration<TStatus> AdsMapperConfiguration { get; set; }
 
+        /// <summary>
+        /// Cycle time the ADS Server notifies for new plc data
+        /// </summary>
         public TimeSpan CycleTime { get; set; }
 
+        /// <summary>
+        /// Repporting Intervall of the <see cref="PlcAdsStateReader{TStatus}"/>. A Reportings contains a list of data in the time of <see cref="CycleTime"/>
+        /// </summary>
         public TimeSpan MaxDelay { get; set; }
     }
 }
