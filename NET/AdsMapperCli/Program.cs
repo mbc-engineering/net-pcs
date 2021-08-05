@@ -26,7 +26,7 @@ namespace AdsMapperCli
                 {
                     VariablePath = $"PCS_Status.stTest",
                     AdsMapperConfiguration = new AdsMapperConfiguration<DestinationDataObject>(
-                        cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "b", "a", "e", "t", "d", "dt", "s"))),
+                        cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "b", "a", "e", "t", "d", "dt", "s", "ws"))),
                     CycleTime = TimeSpan.FromMilliseconds(2),
                     MaxDelay = TimeSpan.FromMilliseconds(500),
                 };
@@ -89,7 +89,7 @@ namespace AdsMapperCli
 
         private static void OnPlcStatesChange(object source, PlcMultiStateChangedEventArgs<DestinationDataObject> testPlaceStatusEvent)
         {
-            var config = new System.Text.Json.JsonSerializerOptions() { WriteIndented = true };
+            var config = new System.Text.Json.JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
             config.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
 
             _logger.Info("New State");
