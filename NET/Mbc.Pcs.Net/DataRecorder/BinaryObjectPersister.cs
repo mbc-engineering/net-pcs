@@ -80,6 +80,11 @@ namespace Mbc.Pcs.Net.DataRecorder
                 return WriteDispatchUInt;
             }
 
+            if (type == typeof(string))
+            {
+                return WriteDispatchString;
+            }
+
             if (type.IsEnum)
             {
                 return GetWriteDispatcher(type.GetEnumUnderlyingType());
@@ -121,6 +126,18 @@ namespace Mbc.Pcs.Net.DataRecorder
         private static void WriteDispatchUInt(object value, BinaryWriter writer)
         {
             writer.Write((uint)value);
+        }
+
+        /// <summary>
+        /// Prefix the binary stream with the size 4-byte long.
+        /// </summary>
+        private static void WriteDispatchString(object value, BinaryWriter writer)
+        {
+            string text = (string)value;
+            byte[] bytes = System.Text.Encoding.ASCII.GetBytes(text);
+            Int32 size = text.Length;
+            writer.Write(size);
+            writer.Write(bytes);
         }
 
         private static void WriteDispatchArray(Action<object, BinaryWriter> elementDispatcher, object value, BinaryWriter writer)
@@ -188,6 +205,11 @@ namespace Mbc.Pcs.Net.DataRecorder
                 return (BinaryReader r) => ReadDispatchEnum(primitivReadDispatch, type, r);
             }
 
+            if (type == typeof(string))
+            {
+                return ReadDispatchString;
+            }
+
             throw new InvalidOperationException($"Unsupported type {type}.");
         }
 
@@ -224,6 +246,16 @@ namespace Mbc.Pcs.Net.DataRecorder
         private static object ReadDispatchUInt(BinaryReader reader)
         {
             return reader.ReadUInt32();
+        }
+
+        /// <summary>
+        /// the binary stream must be prefixed with the size 4-byte long.
+        /// </summary>
+        private static object ReadDispatchString(BinaryReader reader)
+        {
+            var size = reader.ReadInt32();
+            var bytes = reader.ReadBytes(size);
+            return System.Text.Encoding.ASCII.GetString(bytes);
         }
 
         private static object ReadDispatchEnum(Func<BinaryReader, object> primitivReadDispatch, Type type, BinaryReader reader)
