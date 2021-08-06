@@ -133,7 +133,7 @@ namespace Mbc.Pcs.Net.DataRecorder
         /// </summary>
         private static void WriteDispatchString(object value, BinaryWriter writer)
         {
-            string text = (string)value;
+            string text = (string)value ?? string.Empty;
             byte[] bytes = System.Text.Encoding.ASCII.GetBytes(text);
             Int32 size = text.Length;
             writer.Write(size);
