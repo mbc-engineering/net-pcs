@@ -2,14 +2,14 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
     <TargetFramework>net471</TargetFramework>
-    <Version>3.1.1</Version>
+    <Version>3.1.2</Version>
     
     <Product>Mbc.Pcs.Net</Product>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
     <PackageReference Include="Mbc.AsyncUtils" Version="0.4.0" />
-    <PackageReference Include="Mbc.Common" Version="0.5.0" />
+    <PackageReference Include="Mbc.Common" Version="0.5.2" />
     <PackageReference Include="Mbc.Common.Interface" Version="0.3.0" />
     <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
     <PackageReference Include="NLog" Version="4.6.8" />
