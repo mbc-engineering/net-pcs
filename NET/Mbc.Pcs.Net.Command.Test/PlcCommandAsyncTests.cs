@@ -354,7 +354,7 @@ namespace Mbc.Pcs.Net.Test
             await Task.WhenAll(tasks);
 
             // Assert
-            lastCommand.Should().Be(2);
+            lastCommand.Should().BeCloseTo(2, 1);
         }
 
         [Fact]

@@ -7,6 +7,7 @@ using EnsureThat;
 using System;
 using TwinCAT.Ads;
 using TwinCAT.PlcOpen;
+using TwinCAT.TypeSystem;
 
 namespace Mbc.Ads.Mapper
 {
@@ -20,8 +21,9 @@ namespace Mbc.Ads.Mapper
         /// </summary>
         /// <param name="managedType">The .NET type to read</param>
         /// <param name="streamByteOffset">The offset of the subitem in bytes</param>
+        /// <param name="sourceDatatype">Source Datatype information of the source ITcAdsDataType</param>
         /// <returns>A function to read a primitive value from the given ADS reader (not <c>null</c>).</returns>
-        public static Func<AdsBinaryReader, object> CreatePrimitiveTypeReadFunction(Type managedType, int streamByteOffset)
+        public static Func<AdsBinaryReader, object> CreatePrimitiveTypeReadFunction(Type managedType, int streamByteOffset, ITcAdsDataType sourceDatatype)
         {
             // Guards
             Ensure.Any.IsNotNull(managedType, optsFn: opts => opts.WithMessage("Could not create AdsStreamMappingDelegate for a PrimitiveType because the managedType is null."));
@@ -94,6 +96,18 @@ namespace Mbc.Ads.Mapper
                 return (adsReader) => Position(adsReader, streamByteOffset).ReadPlcTIME();
             }
 
+            if (managedType == typeof(string) && sourceDatatype.DataTypeId == AdsDatatypeId.ADST_STRING)
+            {
+                // Example: byteSize = 81; // Size of 80 ANSI chars + /0 (STRING[80])
+                return (adsReader) => Position(adsReader, streamByteOffset).ReadPlcString(sourceDatatype.ByteSize, System.Text.Encoding.UTF7);
+            }
+
+            if (managedType == typeof(string) && sourceDatatype.DataTypeId == AdsDatatypeId.ADST_WSTRING)
+            {
+                // Example: byteSize = 2 * 81; // Size of 80 UNICODE chars + /0 (WSTRING[80])
+                return (adsReader) => Position(adsReader, streamByteOffset).ReadPlcString(sourceDatatype.ByteSize, System.Text.Encoding.Unicode);
+            }
+
             throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");
         }
 
@@ -108,8 +122,9 @@ namespace Mbc.Ads.Mapper
         /// </summary>
         /// <param name="managedType">The ADS managed type to write.</param>
         /// <param name="streamByteOffset">The offset of the subtime in bytes.</param>
+        /// <param name="sourceDatatype">Size information of the source ITcAdsDataType</param>
         /// <returns>A function (=Action) to write a primitive value to a given ADS writer (not <c>null</c>).</returns>
-        public static Action<AdsBinaryWriter, object> CreatePrimitiveTypeWriteFunction(Type managedType, int streamByteOffset)
+        public static Action<AdsBinaryWriter, object> CreatePrimitiveTypeWriteFunction(Type managedType, int streamByteOffset, ITcAdsDataType sourceDatatype)
         {
             // Guards
             Ensure.Any.IsNotNull(managedType, optsFn: opts => opts.WithMessage("Could not create AdsStreamMappingDelegate for a PrimitiveType because the managedType is null."));
@@ -180,6 +195,28 @@ namespace Mbc.Ads.Mapper
             if (managedType == typeof(TOD))
             {
                 return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcType(new TOD((TimeSpan)value).Time);
+            }
+
+            if (managedType == typeof(string) && sourceDatatype.DataTypeId == AdsDatatypeId.ADST_STRING)
+            {
+                if (sourceDatatype.ByteSize <= 1)
+                {
+                    throw new NotSupportedException($"AdsStreamMappingDelegate execution not possible for the ManagedType '{managedType?.ToString()}' with a total ByteSize of '{sourceDatatype.ByteSize}'.");
+                }
+
+                // Writing the string without the termination of /0
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcAnsiStringFixedLength((string)value, sourceDatatype.ByteSize);
+            }
+
+            if (managedType == typeof(string) && sourceDatatype.DataTypeId == AdsDatatypeId.ADST_WSTRING)
+            {
+                if (sourceDatatype.ByteSize <= 2)
+                {
+                    throw new NotSupportedException($"AdsStreamMappingDelegate execution not possible for the ManagedType '{managedType?.ToString()}' with a total ByteSize of '{sourceDatatype.ByteSize}'.");
+                }
+
+                // Writing the string with the termination of /0
+                return (adsWriter, value) => Position(adsWriter, streamByteOffset).WritePlcUnicodeStringFixedLength((string)value, sourceDatatype.ByteSize);
             }
 
             throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");
