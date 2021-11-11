@@ -3,7 +3,7 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
     <TargetFramework>net471</TargetFramework>
-    <Version>0.5.1</Version>
+    <Version>0.5.2</Version>
 
     <Product>Mbc.Ads.Utils</Product>
     
