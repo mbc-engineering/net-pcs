@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFramework>net471</TargetFramework>
+    <TargetFrameworks>net471;net6.0-windows</TargetFrameworks>
     <Version>0.4.3</Version>
 
     <Product>Mbc.Ads.Mapper</Product>

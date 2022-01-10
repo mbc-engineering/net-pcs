@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFramework>net471</TargetFramework>
+    <TargetFrameworks>net471;net6.0-windows</TargetFrameworks>
     <Product>Mbc.Utils.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
