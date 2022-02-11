@@ -16,7 +16,8 @@ namespace Mbc.Pcs.Net.Connection
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly AdsSession _session;
+        private readonly AmsAddress _amsAddr;
+        private readonly AdsClient _client;
         private bool _wasConnected;
         private IAdsConnection _connection;
 
@@ -24,14 +25,15 @@ namespace Mbc.Pcs.Net.Connection
 
         internal PlcAdsConnectionProvider(string adsNetId, int adsPort)
         {
-            var amsNetId = new AmsNetId(adsNetId);
-            var settings = new SessionSettings(1000);
+            _amsAddr = new AmsAddress(adsNetId, adsPort);
 
-            _session = new AdsSession(amsNetId, adsPort, settings);
-            _session.ConnectionStateChanged += (s, e) =>
+            var settings = new AdsClientSettings(1000);
+            _client = new AdsClient(settings);
+
+            _client.ConnectionStateChanged += (s, e) =>
             {
                 // Log some statistic
-                _logger.Debug("Ads Communication Statistics: {@statistics}", _session.Statistics);
+                _logger.Debug("ADS connection state changed from {oldState} to {newState}, reason {reason}.", e.OldState, e.NewState, e.Reason);
 
                 OnConnectionStateChanged(e);
             };
@@ -39,7 +41,7 @@ namespace Mbc.Pcs.Net.Connection
 
         public void Dispose()
         {
-            _session.Dispose();
+            _client.Dispose();
         }
 
         internal virtual Option<IAdsConnection> Connection => _connection.SomeNotNull<IAdsConnection>();
@@ -48,18 +50,17 @@ namespace Mbc.Pcs.Net.Connection
         {
             try
             {
-                _logger.Info("Trying to connect to plc at {plc_ams_address}.", _session.Address);
+                _logger.Info("Trying to connect to plc at {plc_ams_address}.", _amsAddr);
 
-                var oldConnectionState = _session?.Connection?.ConnectionState ?? ConnectionState.Unknown;
+                _client.Connect(_amsAddr);
 
-                _session.Connect().Connect();
-                if (_session.Connection.ConnectionState == ConnectionState.Connected)
+                if (_client.IsConnected)
                 {
-                    _connection = ConnectionSynchronization.MakeSynchronized(_session.Connection);
+                    _connection = ConnectionSynchronization.MakeSynchronized(_client);
                     _connection.AdsNotificationError += OnAdsNotificationError;
 
                     OnConnectionStateChanged(new ConnectionStateChangedEventArgs(
-                        ConnectionStateChangedReason.Established, ConnectionState.Connected, oldConnectionState));
+                        ConnectionStateChangedReason.Established, ConnectionState.Connected, ConnectionState.Disconnected));
                 }
                 else
                 {
@@ -68,15 +69,15 @@ namespace Mbc.Pcs.Net.Connection
             }
             catch (Exception ex)
             {
-                throw new PlcAdsException(string.Format(ConnectionResources.PlcAdsConnectingFailed, _session.Address.NetId, _session.Port), ex);
+                throw new PlcAdsException(string.Format(ConnectionResources.PlcAdsConnectingFailed, _amsAddr.NetId, _amsAddr.Port), ex);
             }
         }
 
         internal void Disconnect()
         {
-            _logger.Info("Disconnect from plc at {plc_ams_address}.", _session.Address);
+            _logger.Info("Disconnect from plc at {plc_ams_address}.", _amsAddr);
             ConnectionStateChanged?.Invoke(this, new PlcConnectionChangeArgs(false, _connection));
-            _session.Disconnect();
+            _client.Disconnect();
             _connection = null;
         }
 

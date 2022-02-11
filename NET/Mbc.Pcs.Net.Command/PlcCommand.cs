@@ -117,7 +117,7 @@ namespace Mbc.Pcs.Net.Command
                     using (var cancellationRegistration = cancellationToken.Register(ResetExecuteFlag))
                     {
                         DataExchange<CommandChangeData> handshakeExchange;
-                        int cmdHandle;
+                        uint cmdHandle;
 
                         /*
                          * Workaround für ADS-Problem, bei dem nach dem Registrieren einer DeviceNotification
@@ -133,9 +133,7 @@ namespace Mbc.Pcs.Net.Command
                             Logger.Trace("Before adding device notification of command '{command}'.", _adsCommandFbPath);
                             cmdHandle = _adsConnection.AddDeviceNotificationEx(
                                 $"{_adsCommandFbPath}.stHandshake",
-                                AdsTransMode.OnChange,
-                                (int)Configuration.OnChangeCycleTime.TotalMilliseconds,
-                                (int)Configuration.OnChangeMaxDelay.TotalMilliseconds,
+                                new NotificationSettings(AdsTransMode.OnChange, (int)Configuration.OnChangeCycleTime.TotalMilliseconds, (int)Configuration.OnChangeMaxDelay.TotalMilliseconds),
                                 Tuple.Create(this, handshakeExchange),
                                 typeof(CommandHandshakeStruct));
 
@@ -294,7 +292,7 @@ namespace Mbc.Pcs.Net.Command
                 return;
             }
 
-            var timeStamp = DateTime.FromFileTime(e.TimeStamp);
+            var timeStamp = e.TimeStamp.UtcDateTime;
 
             userDataTuple.Item2.Set(new CommandChangeData(timeStamp, (CommandHandshakeStruct)e.Value));
         }

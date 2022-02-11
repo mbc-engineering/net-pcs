@@ -21,16 +21,16 @@ namespace Mbc.Pcs.Net.Command
         public override void ReadOutputData(IAdsConnection adsConnection, string adsCommandFbPath, ICommandOutput output)
         {
             // read symbols with attribute flags for output data
-            IDictionary<string, ITcAdsSubItem> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandOutput, PlcAttributeNames.PlcCommandOutputOptional });
-            IDictionary<string, ITcAdsSubItem> requiredfbItems = fbItems
+            IDictionary<string, IMember> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandOutput, PlcAttributeNames.PlcCommandOutputOptional });
+            IDictionary<string, IMember> requiredfbItems = fbItems
                 .Where(x => x.Value.Attributes.Any(a => string.Equals(a.Name, PlcAttributeNames.PlcCommandOutput, StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(x => x.Key, x => x.Value);
 
             var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
-            foreach (var item in fbItems.Values)
+            foreach (IMember item in fbItems.Values)
             {
-                if (!validTypeCategories.Contains(item.BaseType.Category))
-                    throw new PlcCommandException(string.Format("Output variable {0} has invalid category {1}.", item.SubItemName, item.Category));
+                if (!validTypeCategories.Contains(item.DataType.Category))
+                    throw new PlcCommandException(string.Format("Output variable {0} has invalid category {1}.", item.InstanceName, item.DataType.Category));
             }
 
             // ToList => deterministische Reihenfolge notwendig
@@ -50,11 +50,11 @@ namespace Mbc.Pcs.Net.Command
 
             var symbols = new List<string>();
             var types = new List<Type>();
-            foreach (var name in outputNames)
+            foreach (string name in outputNames)
             {
-                var item = fbItems[name];
-                symbols.Add(adsCommandFbPath + "." + item.SubItemName);
-                types.Add(GetManagedTypeForSubItem(item));
+                IMember item = fbItems[name];
+                symbols.Add(adsCommandFbPath + "." + item.InstanceName);
+                types.Add(GetManagedTypeForSubItem(item.DataType));
             }
 
             var handleCreator = new SumCreateHandles(adsConnection, symbols);
@@ -79,16 +79,16 @@ namespace Mbc.Pcs.Net.Command
         public override void WriteInputData(IAdsConnection adsConnection, string adsCommandFbPath, ICommandInput input)
         {
             // read symbols with attribute flags for input data
-            IDictionary<string, ITcAdsSubItem> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandInput, PlcAttributeNames.PlcCommandInputOptional });
-            IDictionary<string, ITcAdsSubItem> requiredfbItems = fbItems
+            IDictionary<string, IMember> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandInput, PlcAttributeNames.PlcCommandInputOptional });
+            IDictionary<string, IMember> requiredfbItems = fbItems
                 .Where(x => x.Value.Attributes.Any(a => string.Equals(a.Name, PlcAttributeNames.PlcCommandInput, StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(x => x.Key, x => x.Value);
 
             var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
             foreach (var item in fbItems.Values)
             {
-                if (!validTypeCategories.Contains(item.BaseType.Category))
-                    throw new PlcCommandException(string.Format("Input variable {0} has invalid data type category {1}.", item.SubItemName, item.Category));
+                if (!validTypeCategories.Contains(item.DataType.Category))
+                    throw new PlcCommandException(string.Format("Input variable {0} has invalid data type category {1}.", item.InstanceName, item.DataType.Category));
             }
 
             IDictionary<string, object> inputData = input.GetInputData();
@@ -111,11 +111,11 @@ namespace Mbc.Pcs.Net.Command
             var types = new List<Type>();
             var values = new List<object>();
             // Based on fbItems, write the values from  ICommandInput data to fb
-            foreach (var fbItem in fbItems)
+            foreach (KeyValuePair<string, IMember> fbItem in fbItems)
             {
-                var item = fbItem.Value;
-                var type = GetManagedTypeForSubItem(item);
-                symbols.Add(adsCommandFbPath + "." + item.SubItemName);
+                IMember item = fbItem.Value;
+                Type type = GetManagedTypeForSubItem(item.DataType);
+                symbols.Add(adsCommandFbPath + "." + item.InstanceName);
                 types.Add(type);
 
                 if (inputData.TryGetValue(fbItem.Key, out object value))

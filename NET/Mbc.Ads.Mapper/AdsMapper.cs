@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using TwinCAT.Ads;
 
 namespace Mbc.Ads.Mapper
 {
@@ -25,45 +24,15 @@ namespace Mbc.Ads.Mapper
             _streamMappingDefinition.Add(mappingDefinition);
         }
 
-        public TDataObject MapStream(AdsStream adsStream)
-        {
-            TDataObject filledData = ReadStream(adsStream);
-            return filledData;
-        }
-
-        public AdsStream MapDataObject(TDataObject dataObject)
-        {
-            var adsStream = new AdsStream(_size);
-            var writer = new AdsBinaryWriter(adsStream);
-            foreach (var def in _streamMappingDefinition)
-            {
-                try
-                {
-                    object value = def.DataObjectValueGetter(dataObject);
-                    object convertedValue = def.ConvertFromDestinationToSource(value);
-                    def.StreamWriterFunction(writer, convertedValue);
-                }
-                catch (Exception e) when (!(e is AdsMapperException))
-                {
-                    throw new AdsMapperException($"Error mapping from source '{def.DestinationMemberConfiguration.Member.Name}'.", e);
-                }
-            }
-
-            writer.Flush();
-
-            return adsStream;
-        }
-
-        private TDataObject ReadStream(AdsStream adsStream)
+        public TDataObject MapData(ReadOnlySpan<byte> buffer)
         {
             var dataObject = new TDataObject();
 
-            var reader = new AdsBinaryReader(adsStream);
             foreach (var def in _streamMappingDefinition)
             {
                 try
                 {
-                    object value = def.StreamReadFunction(reader);
+                    object value = def.AdsDataReader.Read(buffer);
                     object convertedValue = def.ConvertFromSourceToDestination(value);
                     def.DataObjectValueSetter(dataObject, convertedValue);
                 }
@@ -74,6 +43,30 @@ namespace Mbc.Ads.Mapper
             }
 
             return dataObject;
+        }
+
+        public void MapDataObject(Span<byte> buffer, TDataObject dataObject)
+        {
+            foreach (var def in _streamMappingDefinition)
+            {
+                try
+                {
+                    object value = def.DataObjectValueGetter(dataObject);
+                    object convertedValue = def.ConvertFromDestinationToSource(value);
+                    def.AdsDataWriter.Write(convertedValue, buffer);
+                }
+                catch (Exception e) when (!(e is AdsMapperException))
+                {
+                    throw new AdsMapperException($"Error mapping from source '{def.DestinationMemberConfiguration.Member.Name}'.", e);
+                }
+            }
+        }
+
+        public ReadOnlyMemory<byte> MapDataObject(TDataObject dataObject)
+        {
+            var buffer = new byte[_size];
+            MapDataObject(buffer, dataObject);
+            return buffer;
         }
     }
 }

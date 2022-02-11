@@ -15,11 +15,11 @@ namespace Mbc.Pcs.Net.Test.Command
 {
     public class CommandWithMapperArgsTest : IDisposable
     {
-        private readonly TcAdsClient _connection;
+        private readonly AdsClient _connection;
 
         public CommandWithMapperArgsTest()
         {
-            _connection = new TcAdsClient();
+            _connection = new AdsClient();
             _connection.Connect(851);
         }
 
@@ -74,7 +74,7 @@ namespace Mbc.Pcs.Net.Test.Command
 
                     command.Execute(input: input, output: output);
 
-                    outputData = mapperOutput.MapStream(output.GetOutputData<AdsStream>("stOutputArgs"));
+                    outputData = mapperOutput.MapData(output.GetOutputData<ReadOnlyMemory<byte>>("stOutputArgs").Span);
                     outputDataFloat = output.GetOutputData<double>("fFloat");
                 });
 

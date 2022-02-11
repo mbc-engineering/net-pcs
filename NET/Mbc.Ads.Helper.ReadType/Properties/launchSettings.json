@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Mbc.Ads.Helper.ReadType": {
+      "commandName": "Project",
+      "commandLineArgs": "204.35.225.246.1.1 GVL.stTest"
+    }
+  }
+}

@@ -2,14 +2,14 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
     <TargetFramework>net471</TargetFramework>
-    <Version>2.1.1</Version>
+    <Version>3.0.0</Version>
 
     <Product>Mbc.Pcs.Net</Product>
 
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="5.0.528" />
     <PackageReference Include="FakeItEasy" Version="6.2.1" />
   </ItemGroup>
 

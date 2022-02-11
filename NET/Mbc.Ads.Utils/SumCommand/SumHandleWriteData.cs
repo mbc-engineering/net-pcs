@@ -6,7 +6,6 @@
 using EnsureThat;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using TwinCAT.Ads;
 using TwinCAT.Ads.SumCommand;
@@ -15,39 +14,49 @@ namespace Mbc.Ads.Utils.SumCommand
 {
     /// <summary>
     /// Provides a implementation of <see cref="SumWrite"/> similar to
-    /// <see cref="SumHandleWrite"/> which expecteds <see cref="AdsStream"/>
+    /// <see cref="SumHandleWrite"/> which expecteds <see cref="ReadOnlyMemory{T}"/>
     /// as data for each handle.
     /// </summary>
-    [Obsolete("AdsStream is deprecated")]
-    public class SumHandleWriteStream : SumWrite
+    public class SumHandleWriteData : SumWrite
     {
         private readonly uint[] _handles;
 
-        public SumHandleWriteStream(IAdsConnection connection, uint[] handles)
+        public SumHandleWriteData(IAdsConnection connection, uint[] handles)
             : base(connection, SumAccessMode.ValueByHandle)
         {
             _handles = handles.ToArray();
         }
 
-        [Obsolete("AdsStream is deprecated")]
-        public AdsErrorCode TryWrite(IEnumerable<AdsStream> streams, out AdsErrorCode[] returnCodes)
+        public AdsErrorCode TryWrite(IEnumerable<ReadOnlyMemory<byte>> data, out AdsErrorCode[] returnCodes)
         {
-            var writeData = streams.Select(x => x.ToArray()).ToList();
-            Ensure.That(writeData.Count, nameof(streams), (opt) => opt.WithMessage("Size must match handles.")).Is(_handles.Length);
+            var writeData = data.Select(x => x.ToArray()).ToList();
+            Ensure.That(writeData.Count, nameof(data), (opt) => opt.WithMessage("Size must match handles.")).Is(_handles.Length);
 
-            sumEntities = new List<SumDataEntity>();
-            foreach (var entity in _handles.Zip(writeData, (h, d) => new HandleSumStreamEntity(h, d.Length)))
+            sumEntities = _handles.Zip(writeData, (h, d) => new HandleSumDataEntity(h, d.Length)).Cast<SumDataEntity>().ToList();
+
+            // SumWrite expects data in continous memory (unlike SumRead)
+            var size = writeData.Select(x => x.Length).Sum();
+            var buffer = new byte[size];
+            int offset = 0;
+            foreach (var w in writeData)
             {
-                sumEntities.Add(entity);
+                w.CopyTo(buffer, offset);
+                offset += w.Length;
             }
 
-            return TryWriteRaw(new ReadOnlyMemory<byte>(writeData.SelectMany(x => x).ToArray()), out returnCodes);
+            return TryWriteRaw(new ReadOnlyMemory<byte>(buffer), out returnCodes);
         }
 
-        [Obsolete("AdsStream is deprecated")]
-        public void Write(IEnumerable<AdsStream> streams)
+        public void Write(IEnumerable<ReadOnlyMemory<byte>> data)
         {
-            TryWrite(streams, out AdsErrorCode[] returnCodes);
+            TryWrite(data, out AdsErrorCode[] returnCodes);
+            if (Failed)
+                throw new AdsSumCommandException("SumHandleWriteStream failed", this);
+        }
+
+        public void Write(ReadOnlyMemory<byte> data)
+        {
+            TryWriteRaw(data, out AdsErrorCode[] returnCodes);
             if (Failed)
                 throw new AdsSumCommandException("SumHandleWriteStream failed", this);
         }
@@ -59,16 +68,16 @@ namespace Mbc.Ads.Utils.SumCommand
 
             if (mode == SumAccessMode.ValueByHandle)
             {
-                HandleSumStreamEntity sumStreamEntity = (HandleSumStreamEntity)entity;
+                HandleSumDataEntity sumStreamEntity = (HandleSumDataEntity)entity;
                 return MarshalSumWriteHeader((uint)AdsReservedIndexGroup.SymbolValueByHandle, sumStreamEntity.Handle, sumStreamEntity.WriteLength, writer);
             }
 
             throw new NotSupportedException($"Mode {mode} not supported.");
         }
 
-        internal class HandleSumStreamEntity : SumDataEntity
+        internal class HandleSumDataEntity : SumDataEntity
         {
-            public HandleSumStreamEntity(uint handle, int writeLength)
+            public HandleSumDataEntity(uint handle, int writeLength)
                 : base(0, writeLength)
             {
                 Handle = handle;

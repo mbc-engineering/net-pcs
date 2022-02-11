@@ -5,7 +5,6 @@
 
 using System;
 using System.Linq;
-using TwinCAT.Ads;
 using TwinCAT.PlcOpen;
 using TwinCAT.TypeSystem;
 
@@ -13,31 +12,19 @@ namespace Mbc.Ads.Mapper
 {
     internal class AdsMappingDefinition<TDestination>
     {
-        internal AdsMappingDefinition(ITcAdsDataType sourceType)
+        internal AdsMappingDefinition(IDataType sourceType, Type sourceElementType)
         {
             SourceType = sourceType;
-
-            if (sourceType.BaseType.Category == DataTypeCategory.Array)
-            {
-                SourceElementType = sourceType.BaseType.BaseType.ManagedType;
-            }
-            else if (sourceType.BaseType.Category == DataTypeCategory.Enum)
-            {
-                SourceElementType = sourceType.BaseType.BaseType.ManagedType;
-            }
-            else
-            {
-                SourceElementType = sourceType.BaseType.ManagedType;
-            }
+            SourceElementType = sourceElementType;
         }
 
-        internal ITcAdsDataType SourceType { get; }
+        internal IDataType SourceType { get; }
 
         internal Type SourceElementType { get; }
 
-        internal Func<AdsBinaryReader, object> StreamReadFunction { get; set; }
+        internal IAdsDataReader AdsDataReader { get; set; }
 
-        internal Action<AdsBinaryWriter, object> StreamWriterFunction { get; set; }
+        internal IAdsDataWriter AdsDataWriter { get; set; }
 
         internal Action<TDestination, object> DataObjectValueSetter { get; set; }
 
@@ -90,7 +77,7 @@ namespace Mbc.Ads.Mapper
                     return value;
                 }
 
-                return new DATE(Convert.ToInt64(value)).Date;
+                return new DATE(Convert.ToUInt32(value)).Date;
             }
             else if (SourceElementType == typeof(DT))
             {
@@ -99,7 +86,7 @@ namespace Mbc.Ads.Mapper
                     return value;
                 }
 
-                return new DT(Convert.ToInt64(value)).Date;
+                return new DT(Convert.ToUInt32(value)).DateTime;
             }
             else if (SourceElementType == typeof(TOD))
             {
@@ -125,7 +112,7 @@ namespace Mbc.Ads.Mapper
         {
             try
             {
-                var plcEnumName = SourceType.BaseType.EnumValues
+                var plcEnumName = ((IEnumType)SourceType).EnumValues
                     .Where(x => object.Equals(x.Primitive, sourceValue))
                     .Select(x => x.Name)
                     .FirstOrDefault();
@@ -154,7 +141,7 @@ namespace Mbc.Ads.Mapper
                 var name = Enum.GetName(DestinationMemberConfiguration.MemberElementType, sourceValue);
 
                 // TODO konfigurierbares Mapping #26
-                var plcPrimitiveValue = SourceType.BaseType.EnumValues
+                var plcPrimitiveValue = ((IEnumType)SourceType).EnumValues
                     .Where(x => x.Name.TrimStart('e') == name)
                     .Select(x => x.Primitive)
                     .FirstOrDefault();

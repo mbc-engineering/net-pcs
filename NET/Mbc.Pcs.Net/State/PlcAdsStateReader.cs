@@ -25,7 +25,7 @@ namespace Mbc.Pcs.Net.State
         private List<TStatus> _notificationBlockBuffer;
         private AsyncSerializedTaskExecutor _notificationExecutor;
         private IAdsSymbolInfo _adsSymbolInfo;
-        private int _statusNotificationHandle;
+        private uint _statusNotificationHandle;
         private AdsMapper<TStatus> _adsMapper;
         private bool _queueOverflowLogging;
         private int _maxOverflow;
@@ -76,6 +76,8 @@ namespace Mbc.Pcs.Net.State
             };
 
             _notificationBlockBuffer.Clear();
+
+            // TODO use _adsConnectionService.Connection.AdsSumNotification
             _adsConnectionService.Connection.AdsNotification += OnAdsNotification;
             _adsConnectionService.Connection.AdsNotificationError += OnAdsNotificationError;
 
@@ -83,13 +85,13 @@ namespace Mbc.Pcs.Net.State
 
             _adsMapper = _config.AdsMapperConfiguration.CreateAdsMapper(_adsSymbolInfo);
 
+            // TODO maybe use CycleInContext with ContextMask
             _statusNotificationHandle = _adsConnectionService.Connection.AddDeviceNotification(
                 _config.VariablePath,
-                new AdsStream(_adsSymbolInfo.SymbolsSize),
-                AdsTransMode.Cyclic,
-                (int)_config.CycleTime.TotalMilliseconds,  // if TimeSpan.Zero sampled by the shortest PLC Task
-                (int)_config.MaxDelay.TotalMilliseconds,
-                this);
+                _adsSymbolInfo.Symbol.ByteSize,
+                new NotificationSettings(AdsTransMode.Cyclic, (int)_config.CycleTime.TotalMilliseconds, (int)_config.MaxDelay.TotalMilliseconds),
+                this
+            );
 
             SamplingActive = true;
 
@@ -148,9 +150,10 @@ namespace Mbc.Pcs.Net.State
 
             try
             {
-                TStatus status = _adsMapper.MapStream(e.DataStream);
-                var timestamp = DateTime.FromFileTime(e.TimeStamp);
-                status.PlcTimeStamp = timestamp;
+                ReadOnlyMemory<byte> data = e.Data;
+                TStatus status = _adsMapper.MapData(data.Span);
+                DateTimeOffset timestamp = e.TimeStamp;
+                status.PlcTimeStamp = timestamp.UtcDateTime;
                 var currentSampleTime = new SampleTime(status.PlcTimeStamp, SampleRate);
 
                 // Bei bestimmten Situationen können verluste an Samples auftreten (z.B. Breakpoints) -> wird hier geloggt

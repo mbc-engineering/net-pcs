@@ -1,6 +1,5 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
-using Mbc.Ads.Mapper;
 using TwinCAT.Ads;
 using Xunit;
 
@@ -14,7 +13,8 @@ namespace Mbc.Ads.Mapper.Test
             // Arrange
             var connection = A.Fake<IAdsSymbolicAccess>();
             string variablePath = "PLC.VariablesStruct";
-            A.CallTo(() => connection.ReadSymbolInfo(A<string>.That.Matches(s => s == variablePath)))
+
+            A.CallTo(() => connection.ReadSymbol(A<string>.That.Matches(s => s == variablePath)))
                 .Returns(null);
 
             // Act

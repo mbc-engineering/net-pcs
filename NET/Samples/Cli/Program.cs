@@ -12,12 +12,8 @@ namespace Cli
     {
         static async Task Main(string[] a)
         {
-            var client = new TcAdsClient()
-            {
-                Synchronize = false
-            };
+            var client = new AdsClient();
             client.Connect("172.16.23.2.1.1", 851);
-
 
             var input = new Dictionary<string, object>
             {
