@@ -17,14 +17,14 @@ namespace AdsMapperCli
             SetupNLog();
             try
             {
-                string amsnetid = "172.28.85.92.1.1";
+                string amsnetid = "204.35.225.246.1.1";
                 _logger.Info("Setup & Connect to TwinCat on {0}", amsnetid);
                 _adsConnectionService = new PlcAdsConnectionService(amsnetid, 851);
                 _adsConnectionService.ConnectionStateChanged += OnConnectionStateChanged;
 
                 var testPlaceStatusConfig = new PlcAdsStateReaderConfig<DestinationDataObject>
                 {
-                    VariablePath = $"PCS_Status.stTest",
+                    VariablePath = $"GVL.stTest",
                     AdsMapperConfiguration = new AdsMapperConfiguration<DestinationDataObject>(
                         cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "b", "a", "e", "t", "d", "dt", "s", "ws"))),
                     CycleTime = TimeSpan.FromMilliseconds(2),

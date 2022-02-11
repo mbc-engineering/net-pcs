@@ -20,7 +20,7 @@ namespace Mbc.Pcs.Net.Test.Command
         public CommandWithMapperArgsTest()
         {
             _connection = new AdsClient();
-            _connection.Connect(851);
+            _connection.Connect("204.35.225.246.1.1", 851);
         }
 
         public void Dispose()

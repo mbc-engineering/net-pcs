@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29102.190
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli", "Samples\Cli\Cli.csproj", "{08056A54-605C-4ACC-ADD7-3DB109298C28}"
 EndProject
@@ -57,7 +57,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profiling", "Profiling\Prof
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdsMapperCli", "AdsMapperCli\AdsMapperCli.csproj", "{6C610A13-BD3D-4B55-A134-E5D5416B8569}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mbc.Ads.Helper.ReadType", "Mbc.Ads.Helper.ReadType\Mbc.Ads.Helper.ReadType.csproj", "{C1F08399-B1F2-4691-B483-DCEE779DD0D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Ads.Helper.ReadType", "Mbc.Ads.Helper.ReadType\Mbc.Ads.Helper.ReadType.csproj", "{C1F08399-B1F2-4691-B483-DCEE779DD0D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,6 +147,7 @@ Global
 		{9E261388-7847-46BD-8D2F-7E928279AB89} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
 		{6718F565-F3E0-4F0A-8A0B-FE85F9355E10} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
 		{6C610A13-BD3D-4B55-A134-E5D5416B8569} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
+		{C1F08399-B1F2-4691-B483-DCEE779DD0D9} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {41EBCC31-1BB3-4F43-BB31-8BD9166775A7}

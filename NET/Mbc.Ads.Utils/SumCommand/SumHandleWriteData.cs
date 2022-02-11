@@ -51,14 +51,16 @@ namespace Mbc.Ads.Utils.SumCommand
         {
             TryWrite(data, out AdsErrorCode[] returnCodes);
             if (Failed)
-                throw new AdsSumCommandException("SumHandleWriteStream failed", this);
+                throw new AdsSumCommandException("SumHandleWriteData failed", this);
         }
 
-        public void Write(ReadOnlyMemory<byte> data)
+        public void Write(ReadOnlyMemory<byte> data, IEnumerable<int> writeSizes)
         {
+            sumEntities = _handles.Zip(writeSizes, (h, d) => new HandleSumDataEntity(h, d)).Cast<SumDataEntity>().ToList();
+
             TryWriteRaw(data, out AdsErrorCode[] returnCodes);
             if (Failed)
-                throw new AdsSumCommandException("SumHandleWriteStream failed", this);
+                throw new AdsSumCommandException("SumHandleWriteData failed", this);
         }
 
         protected override int OnWriteSumEntityData(SumDataEntity entity, Span<byte> writer)

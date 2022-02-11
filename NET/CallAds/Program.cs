@@ -14,7 +14,6 @@ namespace CallAds
     {
         static void Main(string[] args)
         {
-            // TODO bridge to NLog to ILogger
             var client = new AdsClient();
             client.Connect(851);
 #if true

@@ -152,7 +152,7 @@ namespace Mbc.Pcs.Net.Command
             try
             {
                 var sumWriter = new SumHandleWriteData(adsConnection, handles);
-                sumWriter.Write(writeData);
+                sumWriter.Write(writeData, fbItems.Values.Select(x => x.ByteSize));
             }
             finally
             {

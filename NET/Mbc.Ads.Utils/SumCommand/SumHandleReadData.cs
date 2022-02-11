@@ -39,7 +39,7 @@ namespace Mbc.Ads.Utils.SumCommand
         {
             TryRead(out IList<ReadOnlyMemory<byte>> data, out AdsErrorCode[] returnCodes);
             if (Failed)
-                throw new AdsSumCommandException("SumHandleRead failed.", this);
+                throw new AdsSumCommandException("SumHandleReadData failed.", this);
 
             return data;
         }

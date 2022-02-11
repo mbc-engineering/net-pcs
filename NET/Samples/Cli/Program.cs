@@ -13,24 +13,23 @@ namespace Cli
         static async Task Main(string[] a)
         {
             var client = new AdsClient();
-            client.Connect("172.16.23.2.1.1", 851);
+            client.Connect("204.35.225.246.1.1", 851);
 
             var input = new Dictionary<string, object>
             {
-                { "eInverter", 1 },
-                { "sInverterErrorFilePath", "c:/Foo" },
+                { "Val1", 1.7 },
+                { "Val2", 2.5 },
             };
 
             var output = new Dictionary<string, object>
             {
-                { "Result", null }
+                { "Result", null },
             };
 
             var count = 0;
             while (true)
             {
-                //var command = new PlcCommand(client, "Commands.fbAddCommand1");
-                var command = new PlcCommand(client, "GVL_UIData.stUiCommands.fbRequestAutomaticModeCommand");
+                var command = new PlcCommand(client, "Commands.fbAddCommand1");
                 command.Timeout = TimeSpan.FromSeconds(60);
                 command.StateChanged += (sender, args) => PrintProgress(args.Progress, args.SubTask);
                 CancellationTokenSource cancellationToken = new CancellationTokenSource();
@@ -49,18 +48,21 @@ namespace Cli
                 try
                 {
                     Console.WriteLine(" press q + ENTER to cancel");
-                    await command.ExecuteAsync(cancellationToken.Token, input: CommandInputBuilder.FromDictionary(input));
+                    await command.ExecuteAsync(
+                        cancellationToken.Token, 
+                        input: CommandInputBuilder.FromDictionary(input),
+                        output: CommandOutputBuilder.FromDictionary(output));
                 }
                 catch
                 {
                     Console.WriteLine(" canceled by user.");
                 }
-                
+
                 Console.WriteLine(" => " + output["Result"]);
                 Console.WriteLine(" press key to continue ");
                 Console.ReadLine();
                 count++;
-            }            
+            }
         }
 
         private static void PrintProgress(int progress, int subTask)
