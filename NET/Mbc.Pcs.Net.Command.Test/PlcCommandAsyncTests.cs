@@ -420,7 +420,9 @@ namespace Mbc.Pcs.Net.Test
                     // connection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>.With(connection, eventArgs);
                 })
                 .Returns(80u);
-            IPlcCommand subject = new PlcCommand(connection, "cmd");
+            PlcCommand subject = new PlcCommand(connection, "cmd");
+            subject.Configuration.UseCyclicNotifications = false;
+            subject.Configuration.MaxRetriesForInitialEvent = 3;
 
             // Act
             var ex = Record.Exception(() => subject.Execute());
