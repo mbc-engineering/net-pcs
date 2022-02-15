@@ -8,6 +8,7 @@ using Mbc.Pcs.Net.Command;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using TwinCAT.Ads;
@@ -89,14 +90,25 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                 // Sum-Variable Handle in SumCommandBase
                 // TODO muss noch fertig implementiert werden
                 int readBytes;
-                A.CallTo(() => _adsConnection.TryReadWrite(A<uint>.Ignored, A<uint>.Ignored, A<Memory<byte>>.Ignored, A<ReadOnlyMemory<byte>>.Ignored, out readBytes))
+                A.CallTo(() => _adsConnection.TryReadWrite(0xF082U, A<uint>.Ignored, A<Memory<byte>>.Ignored, A<ReadOnlyMemory<byte>>.Ignored, out readBytes))
                     .Invokes(param =>
                     {
-                        // 0 = 61570
-                        // 1 = 2
+                        // 0 = 61570    (Sum Read/Write)
+                        // 1 = 2        (Number of sum sub-commands)
                         // 2 = 24 bytes
                         // 3 = Sum-Request
-                        Console.WriteLine(param);
+
+                        uint numberSubCmds = (uint)param.Arguments[1];
+                        ReadOnlyMemory<byte> writeBuffer = (ReadOnlyMemory<byte>)param.Arguments[3];
+                        var reader = new BinaryReader(new MemoryStream(writeBuffer.ToArray()));
+
+                        for (int i = 0; i < numberSubCmds; i++)
+                        {
+                            var indexGroup = reader.ReadUInt32();
+                            var indexOffset = reader.ReadUInt32();
+                        }
+
+
                     })
                     .Returns(AdsErrorCode.Succeeded)
                     .AssignsOutAndRefParameters(10);
