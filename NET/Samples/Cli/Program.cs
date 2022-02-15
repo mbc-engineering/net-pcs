@@ -8,9 +8,9 @@ using TwinCAT.Ads;
 
 namespace Cli
 {
-    class Program
+    public class Program
     {
-        static async Task Main(string[] a)
+        public static async Task Main(string[] a)
         {
             var client = new AdsClient();
             client.Connect("204.35.225.246.1.1", 851);
@@ -43,13 +43,14 @@ namespace Cli
                          {
                              cancellationToken.Cancel();
                          }
-                     } while (!quit);
+                     }
+                     while (!quit);
                  });
                 try
                 {
                     Console.WriteLine(" press q + ENTER to cancel");
                     await command.ExecuteAsync(
-                        cancellationToken.Token, 
+                        cancellationToken.Token,
                         input: CommandInputBuilder.FromDictionary(input),
                         output: CommandOutputBuilder.FromDictionary(output));
                 }

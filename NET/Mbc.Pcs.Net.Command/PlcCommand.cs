@@ -93,6 +93,8 @@ namespace Mbc.Pcs.Net.Command
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> which allows to
         /// cancel the running command. The cancel request is sent to the PLC and the
         /// execution will still wait for the PLC to end to command.</param>
+        /// <param name="input">Optional command input arguments.</param>
+        /// <param name="output">Optiona command output arguments.</param>
         /// <exception cref="InvalidOperationException">The ADS-Client given at construction
         /// time is not connected.</exception>
         protected DateTime Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
@@ -124,7 +126,7 @@ namespace Mbc.Pcs.Net.Command
                          * kein Initial-Event gesendet wird. Der Workaround prüft ob ein Initialevent spätestens
                          * 1s nach der Registrierung eintrifft. Wenn nicht, wir deregistriert und erneut versucht
                          * zu registrieren.
-                         * 
+                         *
                          * Alternativ kann auch Cyclic statt on Change verwendet werden.
                          */
                         int registerRepeatCount = 0;

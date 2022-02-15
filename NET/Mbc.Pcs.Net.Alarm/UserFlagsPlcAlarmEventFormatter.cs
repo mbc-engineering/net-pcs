@@ -31,7 +31,6 @@ namespace Mbc.Pcs.Net.Alarm
         protected (bool change, string message) CleanUpMessage(PlcAlarmEvent plcAlarmEvent)
         {
             if (!string.IsNullOrWhiteSpace(plcAlarmEvent.Message) &&
-                plcAlarmEvent.UserData != null &&
                 (plcAlarmEvent.UserData & (int)AlarmUserFlags.IncludeSerialNo) != 0)
             {
                 if (plcAlarmEvent.ArgumentData != null && plcAlarmEvent.ArgumentData.Count >= 1)

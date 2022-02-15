@@ -437,7 +437,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 
         private void ReadChannelInternal(string channelName, long startSampleIndex, Array values, int offset, int count, int stride)
         {
-            // alle Argumente wurden beim Aufruf vorgängig bereinigt
+            /* alle Argumente wurden beim Aufruf vorgängig bereinigt */
 
             var dataSet = _dataSets[channelName];
 

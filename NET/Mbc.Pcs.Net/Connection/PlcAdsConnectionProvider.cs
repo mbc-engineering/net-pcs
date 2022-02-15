@@ -15,9 +15,8 @@ namespace Mbc.Pcs.Net.Connection
 {
     internal class PlcAdsConnectionProvider : IDisposable
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private AsyncSerializedTaskExecutor _notificationExecutor = new AsyncSerializedTaskExecutor();
         private readonly AmsAddress _amsAddr;
         private readonly AdsClient _client;
         private bool _wasConnected;
@@ -47,19 +46,18 @@ namespace Mbc.Pcs.Net.Connection
         {
             try
             {
-                _logger.Info("Trying to connect to plc at {plc_ams_address}.", _amsAddr);
+                Logger.Info("Trying to connect to plc at {plc_ams_address}.", _amsAddr);
                 _client.Connect(_amsAddr);
             }
             catch (Exception ex)
             {
                 throw new PlcAdsException("Error starting ADS connection. (See inner exception for details.)", ex);
             }
-
         }
 
         internal void Disconnect()
         {
-            _logger.Info("Disconnect from plc at {plc_ams_address}.", _amsAddr);
+            Logger.Info("Disconnect from plc at {plc_ams_address}.", _amsAddr);
             _client.Disconnect();
         }
 
@@ -75,18 +73,18 @@ namespace Mbc.Pcs.Net.Connection
                 _connection = null;
             }
 
-            _logger.Info("ADS Connection State Change {old_state} -> {new_state} because of {reason}.", e.OldState, e.NewState, e.Reason);
+            Logger.Info("ADS Connection State Change {old_state} -> {new_state} because of {reason}.", e.OldState, e.NewState, e.Reason);
 
             if (e.Exception != null)
             {
-                _logger.Error(e.Exception, "ADS Connection State Changed to {new_state} Exception", e.NewState);
+                Logger.Error(e.Exception, "ADS Connection State Changed to {new_state} Exception", e.NewState);
             }
 
             var connected = e.NewState == ConnectionState.Connected;
             if (_wasConnected != connected)
             {
                 _wasConnected = connected;
-                _logger.Info("Notify Listener about connection state change to {state}.", e.NewState);
+                Logger.Info("Notify Listener about connection state change to {state}.", e.NewState);
 
                 try
                 {
@@ -94,14 +92,14 @@ namespace Mbc.Pcs.Net.Connection
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Listener throws error: {error}", ex.Message);
+                    Logger.Error(ex, "Listener throws error: {error}", ex.Message);
                 }
             }
         }
 
         private void OnAdsNotificationError(object sender, AdsNotificationErrorEventArgs e)
         {
-            _logger.Error(e.Exception, "ADS Notification Error.");
+            Logger.Error(e.Exception, "ADS Notification Error.");
         }
 
         internal virtual IAdsConnection GetConnectedConnection()

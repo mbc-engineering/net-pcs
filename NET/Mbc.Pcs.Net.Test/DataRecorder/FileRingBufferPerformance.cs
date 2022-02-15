@@ -29,7 +29,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
                 {
                     bufferPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
                     Directory.CreateDirectory(bufferPath);
-                    //buffer = new FileRingBuffer(bufferPath, 100000, 2, persister: new BinaryObjectPersister<ValueHolder>());
+                    // buffer = new FileRingBuffer(bufferPath, 100000, 2, persister: new BinaryObjectPersister<ValueHolder>());
                     buffer = new FileRingBuffer(bufferPath, 100000, 2, persister: new CustomObjectPersister());
                 });
 

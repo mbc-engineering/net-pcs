@@ -6,9 +6,9 @@ using Mbc.Ads.Utils;
 
 namespace Mbc.Ads.Helper.ReadType
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             using var client = new AdsClient();
             client.Connect(args[0], 851);

@@ -20,7 +20,7 @@ namespace Mbc.Pcs.Net
         private const ulong RawMaxSampleCount = 100000000000000000;
 
         private static readonly long RawFileTimeBase = new DateTime(2010, 1, 1, 0, 0, 0).ToFileTime();
-        private static readonly SortedList<uint, uint> _sampleRateMapping;
+        private static readonly SortedList<uint, uint> SampleRateMapping;
 
         private readonly long _sampleNumber;
 
@@ -33,15 +33,15 @@ namespace Mbc.Pcs.Net
                     divisors.Add(i, i);
             }
 
-            _sampleRateMapping = divisors;
+            SampleRateMapping = divisors;
         }
 
         public static SampleTime FromFileTime(long fileTime, uint sampleRate) => new SampleTime(fileTime / GetSampleFileTime(sampleRate), sampleRate);
 
         public static SampleTime FromRawValue(ulong rawValue)
         {
-            var sampleRate = _sampleRateMapping.Values[(int)(rawValue / RawMaxSampleCount)];
-            return new SampleTime(RawFileTimeBase / GetSampleFileTime(sampleRate) + (long)(rawValue % RawMaxSampleCount), sampleRate);
+            var sampleRate = SampleRateMapping.Values[(int)(rawValue / RawMaxSampleCount)];
+            return new SampleTime((RawFileTimeBase / GetSampleFileTime(sampleRate)) + (long)(rawValue % RawMaxSampleCount), sampleRate);
         }
 
         public SampleTime(DateTime timeStamp, uint sampleRate)
@@ -122,11 +122,11 @@ namespace Mbc.Pcs.Net
 
         public SampleTime Subtract(long minuend) => new SampleTime(_sampleNumber - minuend, SampleRate);
 
-        public SampleTime Subtract(TimeSpan minuend) => new SampleTime(_sampleNumber - minuend.Ticks * SampleRate / TimeSpan.TicksPerSecond, SampleRate);
+        public SampleTime Subtract(TimeSpan minuend) => new SampleTime(_sampleNumber - (minuend.Ticks * SampleRate / TimeSpan.TicksPerSecond), SampleRate);
 
         public SampleTime Add(long summand) => new SampleTime(_sampleNumber + summand, SampleRate);
 
-        public SampleTime Add(TimeSpan summand) => new SampleTime(_sampleNumber + summand.Ticks * SampleRate / TimeSpan.TicksPerSecond, SampleRate);
+        public SampleTime Add(TimeSpan summand) => new SampleTime(_sampleNumber + (summand.Ticks * SampleRate / TimeSpan.TicksPerSecond), SampleRate);
 
         public SampleTime Next() => new SampleTime(_sampleNumber + 1, SampleRate);
 
@@ -136,9 +136,9 @@ namespace Mbc.Pcs.Net
 
         public ulong ToRawValue()
         {
-            var divisor = (uint)_sampleRateMapping.IndexOfKey(SampleRate);
+            var divisor = (uint)SampleRateMapping.IndexOfKey(SampleRate);
 
-            return (ulong)(_sampleNumber - RawFileTimeBase / GetSampleFileTime(SampleRate)) + divisor * RawMaxSampleCount;
+            return (ulong)(_sampleNumber - (RawFileTimeBase / GetSampleFileTime(SampleRate))) + (divisor * RawMaxSampleCount);
         }
 
         public override string ToString() => $"{_sampleNumber}@{SampleRate}|{ToDateTime()}";

@@ -17,7 +17,7 @@ namespace Mbc.Pcs.Net.State
     public class PlcAdsStateReader<TStatus> : IPlcStateSampler<TStatus>, IDisposable
         where TStatus : IPlcState, new()
     {
-        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly IPlcAdsConnectionService _adsConnectionService;
         private readonly PlcAdsStateReaderConfig<TStatus> _config;
@@ -72,7 +72,7 @@ namespace Mbc.Pcs.Net.State
             _notificationExecutor = new AsyncSerializedTaskExecutor();
             _notificationExecutor.UnhandledException = (s, e) =>
             {
-                _logger.Error(e, "Error in notification event handler.");
+                Logger.Error(e, "Error in notification event handler.");
             };
 
             _notificationBlockBuffer.Clear();
@@ -90,12 +90,11 @@ namespace Mbc.Pcs.Net.State
                 _config.VariablePath,
                 _adsSymbolInfo.Symbol.ByteSize,
                 new NotificationSettings(AdsTransMode.Cyclic, (int)_config.CycleTime.TotalMilliseconds, (int)_config.MaxDelay.TotalMilliseconds),
-                this
-            );
+                this);
 
             SamplingActive = true;
 
-            _logger.Info("Registered Device Notification for '{variable_path}'.", _config.VariablePath);
+            Logger.Info("Registered Device Notification for '{variable_path}'.", _config.VariablePath);
         }
 
         public void StopSampling()
@@ -119,7 +118,7 @@ namespace Mbc.Pcs.Net.State
 
             SamplingActive = false;
 
-            _logger.Info("Deregistered Device Notification for '{variable_path}'.", _config.VariablePath);
+            Logger.Info("Deregistered Device Notification for '{variable_path}'.", _config.VariablePath);
         }
 
         protected virtual void ReadAdsSymbolInfo(IAdsConnection connection)
@@ -129,7 +128,7 @@ namespace Mbc.Pcs.Net.State
 
         private void OnAdsNotificationError(object sender, AdsNotificationErrorEventArgs e)
         {
-            _logger.Error(e.Exception, "ADS Notification error.");
+            Logger.Error(e.Exception, "ADS Notification error.");
 
             // Error: Neues Sample erstellen mit letzten Wert
             CurrentSample.PlcDataQuality = PlcDataQuality.Lost;
@@ -172,7 +171,7 @@ namespace Mbc.Pcs.Net.State
 
                     if (missingSample)
                     {
-                        _logger.Warn("Missing sample between last sample on {lastTimeStamp} and new sample at {currentTimeStamp}", _lastSampleTime.ToString(), currentSampleTime.ToString());
+                        Logger.Warn("Missing sample between last sample on {lastTimeStamp} and new sample at {currentTimeStamp}", _lastSampleTime.ToString(), currentSampleTime.ToString());
                     }
                 }
 
@@ -192,7 +191,7 @@ namespace Mbc.Pcs.Net.State
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Error in notification event handler.");
+                Logger.Error(ex, "Error in notification event handler.");
             }
         }
 
@@ -213,12 +212,12 @@ namespace Mbc.Pcs.Net.State
             _maxOverflow = Math.Max(_notificationExecutor.ExecutionQueueLength, _maxOverflow);
             if (_notificationExecutor.ExecutionQueueLength > (_config.MaxDelay.TotalMilliseconds / _config.CycleTime.TotalMilliseconds * 2) && !_queueOverflowLogging)
             {
-                _logger.Trace("ADS Notification queue started to overflow.");
+                Logger.Trace("ADS Notification queue started to overflow.");
                 _queueOverflowLogging = true;
             }
             else if (_notificationExecutor.ExecutionQueueLength == 0 && _queueOverflowLogging)
             {
-                _logger.Warn("Ads Notification queue overflow max {maxOverflow}.", _maxOverflow);
+                Logger.Warn("Ads Notification queue overflow max {maxOverflow}.", _maxOverflow);
                 _queueOverflowLogging = false;
                 _maxOverflow = 0;
             }

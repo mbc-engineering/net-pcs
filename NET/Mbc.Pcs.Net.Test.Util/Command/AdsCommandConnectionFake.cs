@@ -20,7 +20,8 @@ namespace Mbc.Pcs.Net.Test.Util.Command
 {
     public class AdsCommandConnectionFake
     {
-        private static IAdsConnection _systemTestAdsConnection = null;
+        private static IAdsConnection systemTestAdsConnection = null;
+
         private readonly IAdsConnection _adsConnection = A.Fake<IAdsConnection>();
         private readonly IAdsSymbol _adsSymbols = A.Fake<IAdsSymbol>(x => x.Implements<IStructInstance>());
         private readonly List<IMember> _fakedVariables = new List<IMember>();
@@ -93,10 +94,12 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                 A.CallTo(() => _adsConnection.TryReadWrite(0xF082U, A<uint>.Ignored, A<Memory<byte>>.Ignored, A<ReadOnlyMemory<byte>>.Ignored, out readBytes))
                     .Invokes(param =>
                     {
-                        // 0 = 61570    (Sum Read/Write)
-                        // 1 = 2        (Number of sum sub-commands)
-                        // 2 = 24 bytes
-                        // 3 = Sum-Request
+                        /*
+                            0 = 61570    (Sum Read/Write)
+                            1 = 2        (Number of sum sub-commands)
+                            2 = 24 bytes
+                            3 = Sum-Request
+                        */
 
                         uint numberSubCmds = (uint)param.Arguments[1];
                         ReadOnlyMemory<byte> writeBuffer = (ReadOnlyMemory<byte>)param.Arguments[3];
@@ -107,8 +110,6 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                             var indexGroup = reader.ReadUInt32();
                             var indexOffset = reader.ReadUInt32();
                         }
-
-
                     })
                     .Returns(AdsErrorCode.Succeeded)
                     .AssignsOutAndRefParameters(10);
@@ -223,7 +224,7 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         {
             get
             {
-                return _systemTestAdsConnection ?? _adsConnection;
+                return systemTestAdsConnection ?? _adsConnection;
             }
         }
 
@@ -232,7 +233,7 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         /// </summary>
         public static void SetSystemTestConnection(IAdsConnection adsConnection)
         {
-            _systemTestAdsConnection = adsConnection;
+            systemTestAdsConnection = adsConnection;
         }
 
         public void AddAdsSubItem(string itemName, Type managedType, bool input)

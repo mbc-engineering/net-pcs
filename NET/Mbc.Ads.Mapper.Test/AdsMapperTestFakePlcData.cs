@@ -45,8 +45,8 @@ namespace Mbc.Ads.Mapper.Test
                 aIntArrayValue : ARRAY[0..2] OF DINT;
                 eEnumStateValue : E_State;
                 sPlcVersion : STRING(10) := '21.08.30.0';
-	            sUtf7String : STRING(6) := 'ÄÖö@Ü7';
-	            wsUnicodeString : WSTRING(6) := "ÄÖö@Ü8";
+                sUtf7String : STRING(6) := 'ÄÖö@Ü7';
+                wsUnicodeString : WSTRING(6) := "ÄÖö@Ü8";
             END_STRUCT
             END_TYPE
 

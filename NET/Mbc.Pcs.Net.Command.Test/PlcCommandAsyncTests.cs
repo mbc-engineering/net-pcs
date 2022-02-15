@@ -16,7 +16,7 @@ namespace Mbc.Pcs.Net.Test
     /// If a real PLC is used for system tests, the following is importend!
     /// This system test requires the the test project "Mbc.Tc3.Pcs.Samples".
     /// This TwinCat 3 PLC Project must be activated and loaded into the local Runtime.
-    /// All thest sho
+    /// </summary>
     public class PlcCommandAsyncTests : MbcPlcCommandTestBase
     {
         /// <summary>

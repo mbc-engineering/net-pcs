@@ -33,7 +33,6 @@ namespace Mbc.Ads.Mapper
             IAdsSymbol symbol = symbolInfo.Symbol;
 
             return CreateAdsMapper(symbol);
-
         }
 
         public AdsMapper<TDataObject> CreateAdsMapper(IAdsSymbol symbol)
@@ -79,6 +78,7 @@ namespace Mbc.Ads.Mapper
                         default:
                             throw new NotSupportedException($"This Category type '{arrayType.ElementType.Category}' used for the Array PLC Varialbe {name} is not supported.");
                     }
+
                     break;
                 case DataTypeCategory.String:
                     AddStringSymbolsMapping((IStringType)item.DataType, offset, name, mapper);
@@ -86,7 +86,7 @@ namespace Mbc.Ads.Mapper
                 case DataTypeCategory.Struct:
                     throw new NotImplementedException($"This Category type '{item.DataType.Category}' used for PLC Varialbe {name} is yet not implemented.");
                 // TODO
-                //case DataTypeCategory.Alias:
+                // case DataTypeCategory.Alias:
                 //    // If alias call it recursive to find underlying primitive
                 //    IAliasType aliasType = (IAliasType)item.DataType;
                 //    AddSymbolsMappingRecursive(aliasType.BaseType, offset, name, mapper);

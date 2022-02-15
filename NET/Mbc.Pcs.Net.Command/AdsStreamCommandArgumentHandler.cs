@@ -129,7 +129,7 @@ namespace Mbc.Pcs.Net.Command
                     {
                         stream.ToArray().CopyTo(new Span<byte>(writeData, offset, item.ByteSize));
                     }
-                    if (value is ReadOnlyMemory<byte> data)
+                    else if (value is ReadOnlyMemory<byte> data)
                     {
                         data.Span.CopyTo(new Span<byte>(writeData, offset, item.ByteSize));
                     }

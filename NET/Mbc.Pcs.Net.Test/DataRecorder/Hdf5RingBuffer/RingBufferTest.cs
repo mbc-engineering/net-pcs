@@ -251,6 +251,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
                 ringBuffer.LastSampleIndex.Should().Be(300);
             }
         }
+
         [Fact]
         public void ReadSimple()
         {

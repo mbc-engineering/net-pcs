@@ -1,17 +1,14 @@
 ﻿using Mbc.Pcs.Net.DataRecorder;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Profiling
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             string bufferPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(bufferPath);
@@ -31,7 +28,6 @@ namespace Profiling
             Console.ReadKey();
         }
 
-
         internal class ValueHolder
         {
             public int Value1 { get; set; }
@@ -40,7 +36,6 @@ namespace Profiling
             public int[] Value4 { get; set; } = new int[20];
             public float[] Value5 { get; set; } = new float[100];
         }
-
 
         internal class CustomObjectPersister : IObjectPersister
         {
@@ -63,7 +58,6 @@ namespace Profiling
                     vh.Value5[i] = reader.ReadSingle();
                 }
 
-                
                 return vh;
             }
 
@@ -89,6 +83,5 @@ namespace Profiling
                 writer.Flush();
             }
         }
-
     }
 }

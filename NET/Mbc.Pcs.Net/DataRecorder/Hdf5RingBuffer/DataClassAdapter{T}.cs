@@ -12,13 +12,14 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
     /// Adaptiert einen Datenklasse (Klasse mit get/set-Properties) für
     /// die Benutzung mit einen RingBuffer.
     /// </summary>
+    /// <typeparam name="T">Der Typ der Datenklasse.</typeparam>
     public class DataClassAdapter<T>
         where T : new()
     {
         /// <summary>
         /// Converter für spezielle Datentypen, die HDF5 nicht direkt unterstützt.
         /// </summary>
-        private static IReadOnlyDictionary<Type, (Type Type, Func<object, object> Converter)> _typeConverter = new Dictionary<Type, (Type Type, Func<object, object> Converter)>
+        private static readonly IReadOnlyDictionary<Type, (Type Type, Func<object, object> Converter)> TypeConverter = new Dictionary<Type, (Type Type, Func<object, object> Converter)>
         {
             [typeof(DateTime)] = (typeof(long), x => ((DateTime)x).ToFileTime()),
             [typeof(bool)] = (typeof(byte), x => ((bool)x) ? (byte)1 : (byte)0),
@@ -57,9 +58,9 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                             throw new InvalidOperationException($"Property {x.Name} should return a array because it is a multi channel.");
 
                         channelType = x.PropertyType.GetElementType();
-                        if (_typeConverter.ContainsKey(channelType))
+                        if (TypeConverter.ContainsKey(channelType))
                         {
-                            var converterEntry = _typeConverter[channelType];
+                            var converterEntry = TypeConverter[channelType];
                             converter = converterEntry.Converter;
                             channelType = converterEntry.Type;
                         }
@@ -85,10 +86,10 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                     }
                     else
                     {
-                        if (_typeConverter.ContainsKey(x.PropertyType))
+                        if (TypeConverter.ContainsKey(x.PropertyType))
                         {
-                            channelType = _typeConverter[x.PropertyType].Type;
-                            converter = _typeConverter[x.PropertyType].Converter;
+                            channelType = TypeConverter[x.PropertyType].Type;
+                            converter = TypeConverter[x.PropertyType].Converter;
                         }
                         else if (x.PropertyType.IsEnum)
                         {
@@ -276,7 +277,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         }
 
         /// <summary>
-        /// Definiert einen Multikanal. Bei diesen liefert der getter/setter keinen einzelen Wert, 
+        /// Definiert einen Multikanal. Bei diesen liefert der getter/setter keinen einzelen Wert,
         /// sondern ein Array, bei dem jeder Index einen Kanal zugeordnet ist.
         /// </summary>
         private class MultiChannelData : ChannelData

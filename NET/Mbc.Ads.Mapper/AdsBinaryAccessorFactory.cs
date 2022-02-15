@@ -105,7 +105,6 @@ namespace Mbc.Ads.Mapper
             throw new NotSupportedException($"AdsStreamMappingDelegate execution not supported for the ManagedType '{managedType?.ToString()}'.");
         }
 
-
         /// <summary>
         /// Create a function for writing primitive data type to an ADS writer.
         /// </summary>
@@ -642,6 +641,5 @@ namespace Mbc.Ads.Mapper
                 }
             }
         }
-
     }
 }

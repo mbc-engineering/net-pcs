@@ -8,9 +8,9 @@ namespace AdsMapperCli
 {
     public static class Program
     {
-        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private static PlcAdsConnectionService _adsConnectionService;
-        private static PlcAdsStateReader<DestinationDataObject> _plcAdsTestPlaceStatus;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static PlcAdsConnectionService adsConnectionService;
+        private static PlcAdsStateReader<DestinationDataObject> plcAdsTestPlaceStatus;
 
         public static void Main(string[] args)
         {
@@ -18,9 +18,9 @@ namespace AdsMapperCli
             try
             {
                 string amsnetid = "204.35.225.246.1.1";
-                _logger.Info("Setup & Connect to TwinCat on {0}", amsnetid);
-                _adsConnectionService = new PlcAdsConnectionService(amsnetid, 851);
-                _adsConnectionService.ConnectionStateChanged += OnConnectionStateChanged;
+                Logger.Info("Setup & Connect to TwinCat on {0}", amsnetid);
+                adsConnectionService = new PlcAdsConnectionService(amsnetid, 851);
+                adsConnectionService.ConnectionStateChanged += OnConnectionStateChanged;
 
                 var testPlaceStatusConfig = new PlcAdsStateReaderConfig<DestinationDataObject>
                 {
@@ -32,33 +32,36 @@ namespace AdsMapperCli
                 };
 
                 // Setup state Reader
-                _plcAdsTestPlaceStatus = new PlcAdsStateReader<DestinationDataObject>(_adsConnectionService, testPlaceStatusConfig);
-                _plcAdsTestPlaceStatus.StatesChanged += OnPlcStatesChange;
+                plcAdsTestPlaceStatus = new PlcAdsStateReader<DestinationDataObject>(adsConnectionService, testPlaceStatusConfig);
+                plcAdsTestPlaceStatus.StatesChanged += OnPlcStatesChange;
 
                 // RocknRoll
-                _adsConnectionService.Start();
+                adsConnectionService.Start();
 
                 // Wait for termination
                 var keepRunning = true;
-                Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e) 
+                Console.CancelKeyPress += (sender, e) =>
                 {
                     e.Cancel = true;
                     keepRunning = false;
                 };
 
-                while (keepRunning) { }
+                while (keepRunning)
+                {
+                    // endless
+                }
 
-                _logger.Info("stopping output");
-                _plcAdsTestPlaceStatus.StopSampling();
+                Logger.Info("stopping output");
+                plcAdsTestPlaceStatus.StopSampling();
             }
             catch (Exception ex)
             {
-                _logger.Info(ex, "houston we have a problem: {0}", ex.Message);
+                Logger.Info(ex, "houston we have a problem: {0}", ex.Message);
             }
             finally
             {
-                _plcAdsTestPlaceStatus?.Dispose();
-                _adsConnectionService?.Dispose();
+                plcAdsTestPlaceStatus?.Dispose();
+                adsConnectionService?.Dispose();
             }
         }
 
@@ -77,13 +80,13 @@ namespace AdsMapperCli
         {
             if (e.Connected)
             {
-                _logger.Info("Connected to TwinCat");
-                _plcAdsTestPlaceStatus.StartSampling();
+                Logger.Info("Connected to TwinCat");
+                plcAdsTestPlaceStatus.StartSampling();
             }
             else
             {
                 Console.WriteLine("Disconnected to TwinCat");
-                _plcAdsTestPlaceStatus.StopSampling();
+                plcAdsTestPlaceStatus.StopSampling();
             }
         }
 
@@ -92,8 +95,8 @@ namespace AdsMapperCli
             var config = new System.Text.Json.JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
             config.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
 
-            _logger.Info("New State");
-            _logger.Info(System.Text.Json.JsonSerializer.Serialize(testPlaceStatusEvent.State, config));
+            Logger.Info("New State");
+            Logger.Info(System.Text.Json.JsonSerializer.Serialize(testPlaceStatusEvent.State, config));
         }
     }
 }
