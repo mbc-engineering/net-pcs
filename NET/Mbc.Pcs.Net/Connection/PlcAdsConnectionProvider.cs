@@ -88,9 +88,9 @@ namespace Mbc.Pcs.Net.Connection
                 _wasConnected = connected;
                 _logger.Info("Notify Listener about connection state change to {state}.", e.NewState);
 
-                ConnectionStateChanged?.Invoke(this, new PlcConnectionChangeArgs(connected, _connection));
                 try
                 {
+                    ConnectionStateChanged?.Invoke(this, new PlcConnectionChangeArgs(connected, _connection));
                 }
                 catch (Exception ex)
                 {
