@@ -42,7 +42,7 @@ namespace Mbc.Pcs.Net.Command
         /// <summary>
         /// Detail configuration of PLC commands.
         /// </summary>
-        public PlcCommandConfiguration Configuration { get; } = new PlcCommandConfiguration();
+        public PlcCommandConfiguration Configuration { get; } = PlcCommandConfiguration.CreateDefaultCyclic();
 
         /// <summary>
         /// Maximale time to wait for command completion.
@@ -124,20 +124,27 @@ namespace Mbc.Pcs.Net.Command
                          * kein Initial-Event gesendet wird. Der Workaround prüft ob ein Initialevent spätestens
                          * 1s nach der Registrierung eintrifft. Wenn nicht, wir deregistriert und erneut versucht
                          * zu registrieren.
+                         * 
+                         * Alternativ kann auch Cyclic statt on Change verwendet werden.
                          */
                         int registerRepeatCount = 0;
                         while (true)
                         {
                             handshakeExchange = new DataExchange<CommandChangeData>();
 
+                            var notificationSettings = new NotificationSettings(
+                                Configuration.UseCyclicNotifications ? AdsTransMode.Cyclic : AdsTransMode.OnChange,
+                                (int)Configuration.OnChangeCycleTime.TotalMilliseconds,
+                                (int)Configuration.OnChangeMaxDelay.TotalMilliseconds);
+
                             Logger.Trace("Before adding device notification of command '{command}'.", _adsCommandFbPath);
                             cmdHandle = _adsConnection.AddDeviceNotificationEx(
                                 $"{_adsCommandFbPath}.stHandshake",
-                                new NotificationSettings(AdsTransMode.OnChange, (int)Configuration.OnChangeCycleTime.TotalMilliseconds, (int)Configuration.OnChangeMaxDelay.TotalMilliseconds),
+                                notificationSettings,
                                 Tuple.Create(this, handshakeExchange),
                                 typeof(CommandHandshakeStruct));
 
-                            if (handshakeExchange.Wait(Configuration.MaxWaitForInitialEvent))
+                            if (Configuration.UseCyclicNotifications || handshakeExchange.Wait(Configuration.MaxWaitForInitialEvent))
                             {
                                 break;
                             }

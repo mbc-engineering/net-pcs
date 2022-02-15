@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
     <TargetFramework>net471</TargetFramework>
-    <Version>3.0.0.3</Version>
+    <Version>3.0.0.5</Version>
 
     <Product>Mbc.Pcs.Net.Command</Product>
 
