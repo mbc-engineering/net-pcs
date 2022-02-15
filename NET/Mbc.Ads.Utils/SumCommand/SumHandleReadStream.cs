@@ -32,7 +32,6 @@ namespace Mbc.Ads.Utils.SumCommand
         [Obsolete("AdsStream is deprecated")]
         public AdsErrorCode TryRead(out IList<AdsStream> streams, out AdsErrorCode[] returnCodes)
         {
-            // TODO is the following loopo necessary (unsued?)
             sumEntities = new List<SumDataEntity>();
             foreach (var entity in _handles.Zip(_readSize, (h, rs) => new HandleSumStreamEntity(h, rs)))
             {

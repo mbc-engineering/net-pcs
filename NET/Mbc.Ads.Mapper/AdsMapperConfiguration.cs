@@ -43,9 +43,6 @@ namespace Mbc.Ads.Mapper
                 throw new NotSupportedException("Can create only Ads Mappings for Structs");
             }
 
-            // TODO this is a workaround because `structType.Members.[x].Category` contains zero otherwise
-            _ = ((IStructInstance)symbol).MemberInstances;
-
             var mapper = new AdsMapper<TDataObject>(symbol.ByteSize);
 
             foreach (IMember subItem in structType.Members)
@@ -101,9 +98,6 @@ namespace Mbc.Ads.Mapper
             // Handle supitems if exists
             if (item.DataType is IStructType structType)
             {
-                // TODO this is a workaround because `structType.Members.[x].Category` contains zero otherwise
-                _ = ((IStructInstance)item).MemberInstances;
-
                 foreach (IMember member in structType.Members)
                 {
                     AddSymbolsMappingRecursive(member, member.Offset, member.InstanceName, mapper);

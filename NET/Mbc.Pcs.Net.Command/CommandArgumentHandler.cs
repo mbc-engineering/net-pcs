@@ -50,9 +50,6 @@ namespace Mbc.Pcs.Net.Command
                 throw new PlcCommandException(adsCommandFbPath, $"Variable '{adsCommandFbPath}' is not of type struct.");
             }
 
-            // TODO this is a workaround because `structType.Members.[x].Category` contains zero otherwise
-            _ = structInstance.MemberInstances;
-
             return ((IStructType)structInstance.DataType)
                 .Members
                 .Where(x => x.Attributes.Any(y => attributeNames.Contains(y.Name, StringComparer.OrdinalIgnoreCase)))
