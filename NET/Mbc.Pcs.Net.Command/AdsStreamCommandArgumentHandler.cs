@@ -3,9 +3,11 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using Mbc.Ads.Utils;
 using Mbc.Ads.Utils.SumCommand;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TwinCAT.Ads;
 using TwinCAT.Ads.SumCommand;
@@ -123,9 +125,9 @@ namespace Mbc.Pcs.Net.Command
 
                 if (inputData.TryGetValue(fbItem.Key, out object value))
                 {
-                    if (value is AdsStream adsStream)
+                    if (value is MemoryStream stream)
                     {
-                        adsStream.ToArray().CopyTo(new Span<byte>(writeData, offset, item.ByteSize));
+                        stream.ToArray().CopyTo(new Span<byte>(writeData, offset, item.ByteSize));
                     }
                     if (value is ReadOnlyMemory<byte> data)
                     {
@@ -139,7 +141,7 @@ namespace Mbc.Pcs.Net.Command
                 else
                 {
                     // Set it to default Value
-                    var type = GetManagedTypeForSubItem(item.DataType);
+                    var type = item.DataType.GetManagedType();
 
                     PrimitiveTypeMarshaler.Default.Marshal(item.DataType, item.ValueEncoding, type.GetDefaultValue(), new Span<byte>(writeData, offset, item.ByteSize));
                 }

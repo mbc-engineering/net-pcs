@@ -60,11 +60,5 @@ namespace Mbc.Pcs.Net.Command
                     x => x.InstanceName,
                     x => x);
         }
-
-        protected static Type GetManagedTypeForSubItem(IDataType subitem)
-        {
-            // TODO maybe factor out in utils
-            return ((IManagedMappableType)subitem).ManagedType;
-        }
     }
 }

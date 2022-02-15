@@ -9,4 +9,8 @@
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="5.0.528" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Mbc.Ads.Utils\Mbc.Ads.Utils.csproj" />
+  </ItemGroup>
+
 </Project>

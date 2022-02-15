@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using Mbc.Ads.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +55,7 @@ namespace Mbc.Pcs.Net.Command
             {
                 IMember item = fbItems[name];
                 symbols.Add(adsCommandFbPath + "." + item.InstanceName);
-                types.Add(GetManagedTypeForSubItem(item.DataType));
+                types.Add(item.DataType.GetManagedType());
             }
 
             var handleCreator = new SumCreateHandles(adsConnection, symbols);
@@ -114,7 +115,7 @@ namespace Mbc.Pcs.Net.Command
             foreach (KeyValuePair<string, IMember> fbItem in fbItems)
             {
                 IMember item = fbItem.Value;
-                Type type = GetManagedTypeForSubItem(item.DataType);
+                Type type = item.DataType.GetManagedType();
                 symbols.Add(adsCommandFbPath + "." + item.InstanceName);
                 types.Add(type);
 

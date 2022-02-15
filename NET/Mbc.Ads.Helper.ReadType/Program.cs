@@ -2,6 +2,7 @@
 using TwinCAT.Ads;
 using TwinCAT.Ads.TypeSystem;
 using TwinCAT.TypeSystem;
+using Mbc.Ads.Utils;
 
 namespace Mbc.Ads.Helper.ReadType
 {
@@ -56,27 +57,22 @@ namespace Mbc.Ads.Helper.ReadType
 
         private static void DumpString(IStringType stringType, string prefix)
         {
-            Console.WriteLine($"{prefix}ManagedType={GetManagedType(stringType)} Length={stringType.Length} ByteSize={stringType.ByteSize} Encoding={stringType.Encoding}");
+            Console.WriteLine($"{prefix}ManagedType={stringType.GetManagedType()} Length={stringType.Length} ByteSize={stringType.ByteSize} Encoding={stringType.Encoding}");
         }
 
         private static void DumpArray(IArrayType arrayType, string prefix)
         {
-            Console.WriteLine($"{prefix}ElementType.Category={arrayType.ElementType.Category} ElementType.ManagedType={GetManagedType(arrayType.ElementType)} Dimensions.ElementCount={arrayType.Dimensions.ElementCount}");
+            Console.WriteLine($"{prefix}ElementType.Category={arrayType.ElementType.Category} ElementType.ManagedType={arrayType.ElementType.GetManagedType()} Dimensions.ElementCount={arrayType.Dimensions.ElementCount}");
         }
 
         private static void DumpEnum(IEnumType enumType, string prefix)
         {
-            Console.WriteLine($"{prefix} BaseType.ManagedType={GetManagedType(enumType.BaseType)}");
+            Console.WriteLine($"{prefix} BaseType.ManagedType={enumType.BaseType.GetManagedType()}");
         }
 
         private static void DumpPrimitive(IPrimitiveType primitiveType, string prefix)
         {
-            Console.WriteLine($"{prefix} ManagedType={GetManagedType(primitiveType)}");
-        }
-
-        private static Type GetManagedType(IDataType dataType)
-        {
-            return ((IManagedMappableType)dataType).ManagedType;
+            Console.WriteLine($"{prefix} ManagedType={primitiveType.GetManagedType()}");
         }
     }
 }

@@ -20,4 +20,7 @@
     <PackageReference Include="NLog" Version="4.6.8" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mbc.Ads.Utils\Mbc.Ads.Utils.csproj" />
+  </ItemGroup>
 </Project>

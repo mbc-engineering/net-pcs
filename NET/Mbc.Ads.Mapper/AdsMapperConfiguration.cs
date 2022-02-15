@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using Mbc.Ads.Utils;
 using System;
 using TwinCAT.Ads.TypeSystem;
 using TwinCAT.TypeSystem;
@@ -115,7 +116,7 @@ namespace Mbc.Ads.Mapper
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
             memberMappingConfiguration.Destination.MatchSome(dest =>
             {
-                var primitiveManagedType = ((IManagedMappableType)primitiveType).ManagedType;
+                var primitiveManagedType = primitiveType.GetManagedType();
 
                 var definition = new AdsMappingDefinition<TDataObject>(primitiveType, primitiveManagedType);
                 definition.DestinationMemberConfiguration = dest;
@@ -143,7 +144,7 @@ namespace Mbc.Ads.Mapper
 
             memberMappingConfiguration.Destination.MatchSome(dest =>
             {
-                Type baseManagedType = ((IManagedMappableType)adsDataType.BaseType).ManagedType;
+                Type baseManagedType = adsDataType.BaseType.GetManagedType();
 
                 var definition = new AdsMappingDefinition<TDataObject>(adsDataType, baseManagedType);
                 definition.DestinationMemberConfiguration = dest;
@@ -161,7 +162,7 @@ namespace Mbc.Ads.Mapper
         private void AddArraySymbolsMapping(IArrayType arrayType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
             IDataType arrayValueType = arrayType.ElementType;
-            Type baseManagedType = ((IManagedMappableType)arrayValueType).ManagedType;
+            Type baseManagedType = arrayValueType.GetManagedType();
             int valuesInArray = arrayType.Dimensions.ElementCount;
 
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
@@ -188,7 +189,7 @@ namespace Mbc.Ads.Mapper
 
         private void AddStringSymbolsMapping(IStringType stringType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
-            Type managedType = ((IManagedMappableType)stringType).ManagedType;
+            Type managedType = stringType.GetManagedType();
 
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
 
