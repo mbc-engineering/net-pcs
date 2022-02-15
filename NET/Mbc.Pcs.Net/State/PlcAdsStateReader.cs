@@ -24,7 +24,6 @@ namespace Mbc.Pcs.Net.State
         private readonly int _notificationBlockSize;
         private List<TStatus> _notificationBlockBuffer;
         private AsyncSerializedTaskExecutor _notificationExecutor;
-        private IAdsSymbolInfo _adsSymbolInfo;
         private uint _statusNotificationHandle;
         private AdsMapper<TStatus> _adsMapper;
         private bool _queueOverflowLogging;
@@ -32,6 +31,7 @@ namespace Mbc.Pcs.Net.State
         private SampleTime _lastSampleTime;
         private bool _firstNotificationSample = true;
 
+        [Obsolete(message: "Use StatesChanged")]
         public event EventHandler<PlcStateChangedEventArgs<TStatus>> StateChanged;
 
         public event EventHandler<PlcMultiStateChangedEventArgs<TStatus>> StatesChanged;
@@ -77,18 +77,16 @@ namespace Mbc.Pcs.Net.State
 
             _notificationBlockBuffer.Clear();
 
-            // TODO use _adsConnectionService.Connection.AdsSumNotification
             _adsConnectionService.Connection.AdsNotification += OnAdsNotification;
             _adsConnectionService.Connection.AdsNotificationError += OnAdsNotificationError;
 
-            ReadAdsSymbolInfo(_adsConnectionService.Connection);
+            IAdsSymbolInfo adsSymbolInfo = ReadAdsSymbolInfo(_adsConnectionService.Connection);
 
-            _adsMapper = _config.AdsMapperConfiguration.CreateAdsMapper(_adsSymbolInfo);
+            _adsMapper = _config.AdsMapperConfiguration.CreateAdsMapper(adsSymbolInfo);
 
-            // TODO maybe use CycleInContext with ContextMask
             _statusNotificationHandle = _adsConnectionService.Connection.AddDeviceNotification(
                 _config.VariablePath,
-                _adsSymbolInfo.Symbol.ByteSize,
+                adsSymbolInfo.Symbol.ByteSize,
                 new NotificationSettings(AdsTransMode.Cyclic, (int)_config.CycleTime.TotalMilliseconds, (int)_config.MaxDelay.TotalMilliseconds),
                 this);
 
@@ -121,10 +119,7 @@ namespace Mbc.Pcs.Net.State
             Logger.Info("Deregistered Device Notification for '{variable_path}'.", _config.VariablePath);
         }
 
-        protected virtual void ReadAdsSymbolInfo(IAdsConnection connection)
-        {
-            _adsSymbolInfo = AdsSymbolReader.Read(connection, _config.VariablePath);
-        }
+        protected virtual IAdsSymbolInfo ReadAdsSymbolInfo(IAdsConnection connection) => AdsSymbolReader.Read(connection, _config.VariablePath);
 
         private void OnAdsNotificationError(object sender, AdsNotificationErrorEventArgs e)
         {
@@ -135,8 +130,8 @@ namespace Mbc.Pcs.Net.State
             _notificationBlockBuffer.Add(CurrentSample);
 
             // Event auf jedenfall auslösen
-            OnStateChanged(CurrentSample);
-            OnStatesChanged(_notificationBlockBuffer);
+            NotifyStateChanged(CurrentSample);
+            NotifyStatesChanged(_notificationBlockBuffer);
             _notificationBlockBuffer = new List<TStatus>(_notificationBlockSize);
         }
 
@@ -149,13 +144,10 @@ namespace Mbc.Pcs.Net.State
 
             try
             {
-                ReadOnlyMemory<byte> data = e.Data;
-                TStatus status = _adsMapper.MapData(data.Span);
-                DateTimeOffset timestamp = e.TimeStamp;
-                status.PlcTimeStamp = timestamp.UtcDateTime;
+                TStatus status = _adsMapper.MapData(e.Data.Span);
+                status.PlcTimeStamp = e.TimeStamp.UtcDateTime;
                 var currentSampleTime = new SampleTime(status.PlcTimeStamp, SampleRate);
 
-                // Bei bestimmten Situationen können verluste an Samples auftreten (z.B. Breakpoints) -> wird hier geloggt
                 if (_firstNotificationSample)
                 {
                     _firstNotificationSample = false;
@@ -165,6 +157,7 @@ namespace Mbc.Pcs.Net.State
                 }
                 else
                 {
+                    // Bei bestimmten Situationen können Verluste an Samples auftreten (z.B. Breakpoints) -> wird hier geloggt
                     bool missingSample = currentSampleTime - _lastSampleTime > 1;
 
                     status.PlcDataQuality = missingSample ? PlcDataQuality.Skipped : PlcDataQuality.Good;
@@ -181,11 +174,11 @@ namespace Mbc.Pcs.Net.State
 
                 _notificationBlockBuffer.Add(status);
 
-                OnStateChanged(status);
+                NotifyStateChanged(status);
 
                 if (_notificationBlockBuffer.Count == _notificationBlockSize)
                 {
-                    OnStatesChanged(_notificationBlockBuffer);
+                    NotifyStatesChanged(_notificationBlockBuffer);
                     _notificationBlockBuffer = new List<TStatus>(_notificationBlockSize);
                 }
             }
@@ -195,13 +188,16 @@ namespace Mbc.Pcs.Net.State
             }
         }
 
-        protected virtual void OnStateChanged(TStatus status)
+        protected virtual void NotifyStateChanged(TStatus status)
         {
-            var args = new PlcStateChangedEventArgs<TStatus>(status);
-            _notificationExecutor.ExecuteAsync(() => StateChanged?.Invoke(this, args));
+            if (StateChanged != null)
+            {
+                var args = new PlcStateChangedEventArgs<TStatus>(status);
+                _notificationExecutor.ExecuteAsync(() => StateChanged?.Invoke(this, args));
+            }
         }
 
-        protected virtual void OnStatesChanged(List<TStatus> statusBlockBuffer)
+        protected virtual void NotifyStatesChanged(List<TStatus> statusBlockBuffer)
         {
             var args = new PlcMultiStateChangedEventArgs<TStatus>(statusBlockBuffer);
             _notificationExecutor.ExecuteAsync(() => StatesChanged?.Invoke(this, args));
