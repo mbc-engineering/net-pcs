@@ -68,11 +68,6 @@ namespace Mbc.Pcs.Net.Connection
                 _connection = ConnectionSynchronization.MakeSynchronized(_client);
             }
 
-            if (e.NewState == ConnectionState.Disconnected)
-            {
-                _connection = null;
-            }
-
             Logger.Info("ADS Connection State Change {old_state} -> {new_state} because of {reason}.", e.OldState, e.NewState, e.Reason);
 
             if (e.Exception != null)
@@ -94,6 +89,12 @@ namespace Mbc.Pcs.Net.Connection
                 {
                     Logger.Error(ex, "Listener throws error: {error}", ex.Message);
                 }
+            }
+
+            if (e.NewState == ConnectionState.Disconnected)
+            {
+                // remove connection after all listener are notified
+                _connection = null;
             }
         }
 
