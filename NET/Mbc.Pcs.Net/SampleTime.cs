@@ -141,7 +141,7 @@ namespace Mbc.Pcs.Net
             return (ulong)(_sampleNumber - (RawFileTimeBase / GetSampleFileTime(SampleRate))) + (divisor * RawMaxSampleCount);
         }
 
-        public override string ToString() => $"{_sampleNumber}@{SampleRate}|{ToDateTime()}";
+        public override string ToString() => $"{_sampleNumber}@{SampleRate}|{ToDateTime():O}";
 
         public static bool operator ==(SampleTime left, SampleTime right)
         {

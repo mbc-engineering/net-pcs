@@ -152,7 +152,7 @@ namespace Mbc.Pcs.Net.Test.State
         }
 
         [Fact]
-        public async Task HearDiedEventDoesTriggerWhenConnectionLost()
+        public async Task HeartDiedEventDoesTriggerWhenConnectionLost()
         {
             // Arrange
             _testee.TimeUntilDie = TimeSpan.FromMilliseconds(100);

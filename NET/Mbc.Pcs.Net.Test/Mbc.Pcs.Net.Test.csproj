@@ -5,10 +5,13 @@
     <Product>Mbc.Pcs.Net.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="5.0.528" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="FakeItEasy" Version="6.2.1" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="HDF.PInvoke" Version="1.10.6.1" />
