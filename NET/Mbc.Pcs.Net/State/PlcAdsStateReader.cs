@@ -28,8 +28,11 @@ namespace Mbc.Pcs.Net.State
         private AdsMapper<TStatus> _adsMapper;
         private bool _queueOverflowLogging;
         private int _maxOverflow;
-        private SampleTime _lastSampleTime;
         private bool _firstNotificationSample = true;
+
+        /* Contains the timestamp of the last sample in different representations. */
+        private SampleTime _lastSampleTime;
+        private DateTimeOffset _lastSampleTimestamp;
 
         [Obsolete(message: "Use StatesChanged")]
         public event EventHandler<PlcStateChangedEventArgs<TStatus>> StateChanged;
@@ -164,11 +167,17 @@ namespace Mbc.Pcs.Net.State
 
                     if (missingSample)
                     {
-                        Logger.Warn("Missing sample between last sample on {lastTimeStamp} and new sample at {currentTimeStamp}", _lastSampleTime.ToString(), currentSampleTime.ToString());
+                        Logger.Warn(
+                            "Missing sample between last sample on {lastSample} and new sample at {currentSample}. Timestamps last={lastTimestamp}, current={currentTimestamp}",
+                            _lastSampleTime.ToString(),
+                            currentSampleTime.ToString(),
+                            _lastSampleTimestamp.ToString("O"),
+                            e.TimeStamp.ToString("O"));
                     }
                 }
 
                 _lastSampleTime = currentSampleTime;
+                _lastSampleTimestamp = e.TimeStamp;
 
                 CurrentSample = status;
 

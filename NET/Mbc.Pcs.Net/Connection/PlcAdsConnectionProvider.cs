@@ -4,12 +4,12 @@
 //-----------------------------------------------------------------------------
 
 using Mbc.Ads.Utils.Connection;
-using Mbc.AsyncUtils;
 using NLog;
 using Optional;
 using System;
 using TwinCAT;
 using TwinCAT.Ads;
+using ExtLogging = Microsoft.Extensions.Logging;
 
 namespace Mbc.Pcs.Net.Connection
 {
@@ -24,12 +24,12 @@ namespace Mbc.Pcs.Net.Connection
 
         internal event EventHandler<PlcConnectionChangeArgs> ConnectionStateChanged;
 
-        internal PlcAdsConnectionProvider(string adsNetId, int adsPort)
+        internal PlcAdsConnectionProvider(string adsNetId, int adsPort, ExtLogging.ILogger adsLogger = null)
         {
             _amsAddr = new AmsAddress(adsNetId, adsPort);
 
             var settings = new AdsClientSettings(1000);
-            _client = new AdsClient(settings);
+            _client = new AdsClient(null, settings, adsLogger);
 
             _client.AdsNotificationError += OnAdsNotificationError;
             _client.ConnectionStateChanged += OnConnectionStateChanged;
