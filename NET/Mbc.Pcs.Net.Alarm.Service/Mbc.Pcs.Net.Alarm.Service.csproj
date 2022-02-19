@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFramework>net471</TargetFramework>
+    <TargetFrameworks>net471;net6.0-windows</TargetFrameworks>
     <Version>2.0.0.2</Version>
 
     <Product>Mbc.Pcs.Net.Alarm.Service</Product>
@@ -12,10 +12,11 @@
 
   <ItemGroup>
     <!-- Include Mbc.Pcs.Net.Alarm.Mediator files into the package-->
-    <Content Include="$(OutDir)\Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="build" Visible="false" />
-    <Content Include="Mbc.Pcs.Net.Alarm.Service.targets" PackagePath="build" />
+    <!-- $(TargetPlatformIdentifier) == windows; $(TargetPlatformVersion) == 7.0-->
+    <Content Include="$(OutputPath)net471/Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="lib/net471" Visible="false" />
+    <Content Include="$(OutputPath)net6.0-windows/Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="lib/net6.0-windows7.0" Visible="false" />
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="5.0.528" />
-    <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
+    <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.1" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
   </ItemGroup>
 
