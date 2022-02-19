@@ -21,6 +21,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+
+    <!--Requires the HDF package reference to find the hdf5.dll-->
+    <PackageReference Include="HDF.PInvoke" Version="1.10.6.1" Condition="'$(TargetFramework)' == 'net471' OR '$(TargetFramework)' == 'net48'" />
+    <PackageReference Include="HDF.PInvoke.1.10" Version="1.10.610" Condition="'$(TargetFramework)' == 'netstandard2.0' "/>
   </ItemGroup>
 
   <ItemGroup>
