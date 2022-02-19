@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Xbehave;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Mbc.Pcs.Net.Test.DataRecorder
@@ -18,52 +18,37 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
             _output = output;
         }
 
-        [Scenario]
+        [Fact]
         public void WriteAndRead()
         {
             FileRingBuffer buffer = null;
             string bufferPath = null;
 
-            "Given a new empty file ring buffer"
-                .x(() =>
-                {
-                    bufferPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-                    Directory.CreateDirectory(bufferPath);
-                    // buffer = new FileRingBuffer(bufferPath, 100000, 2, persister: new BinaryObjectPersister<ValueHolder>());
-                    buffer = new FileRingBuffer(bufferPath, 100000, 2, persister: new CustomObjectPersister());
-                });
+            // "Given a new empty file ring buffer"
+            bufferPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(bufferPath);
+            // buffer = new FileRingBuffer(bufferPath, 100000, 2, persister: new BinaryObjectPersister<ValueHolder>());
+            buffer = new FileRingBuffer(bufferPath, 100000, 2, persister: new CustomObjectPersister());
 
-            "When I add some data"
-                .x(() =>
-                {
-                    for (int i = 0; i < 100000; i++)
-                    {
-                        buffer.AppendData(new ValueHolder());
-                    }
-                });
+            // "When I add some data"
+            for (int i = 0; i < 100000; i++)
+            {
+                buffer.AppendData(new ValueHolder());
+            }
 
-            "Close it and open it again"
-                .x(() =>
-                {
-                    buffer.Dispose();
-                    buffer = new FileRingBuffer(bufferPath, 100000, 2, persister: new CustomObjectPersister());
-                });
+            // "Close it and open it again"
+            buffer.Dispose();
+            buffer = new FileRingBuffer(bufferPath, 100000, 2, persister: new CustomObjectPersister());
 
-            "Then one file should be created"
-                .x(() =>
-                {
-                    Directory.EnumerateFiles(bufferPath).Should().HaveCount(1);
-                });
+            // "Then one file should be created"
+            Directory.EnumerateFiles(bufferPath).Should().HaveCount(1);
 
-            "And I could retriev it again"
-                .x(() =>
-                {
-                    var stopWatch = Stopwatch.StartNew();
-                    var bufferedData = buffer.ReadData(0).ToList();
-                    stopWatch.Stop();
-                    _output.WriteLine($"{stopWatch.Elapsed}");
-                    bufferedData.Should().HaveCount(100000);
-                });
+            // "And I could retriev it again"
+            var stopWatch = Stopwatch.StartNew();
+            var bufferedData = buffer.ReadData(0).ToList();
+            stopWatch.Stop();
+            _output.WriteLine($"{stopWatch.Elapsed}");
+            bufferedData.Should().HaveCount(100000);
         }
 
         internal class ValueHolder

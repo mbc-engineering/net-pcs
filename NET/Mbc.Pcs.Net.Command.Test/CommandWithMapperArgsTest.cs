@@ -9,7 +9,7 @@ using Mbc.Pcs.Net.Command;
 using System;
 using System.Collections.Generic;
 using TwinCAT.Ads;
-using Xbehave;
+using Xunit;
 
 namespace Mbc.Pcs.Net.Test.Command
 {
@@ -29,7 +29,7 @@ namespace Mbc.Pcs.Net.Test.Command
             _connection.Dispose();
         }
 
-        [Scenario(Skip = "Nur mit SPS möglich")]
+        [Fact(Skip = "Nur mit SPS möglich")]
         public void ExecuteCommandWithStructArgument()
         {
             AdsMapperConfiguration<CommandArgs> mapperConfig = null;
@@ -40,52 +40,43 @@ namespace Mbc.Pcs.Net.Test.Command
             CommandArgs outputData = null;
             double outputDataFloat = double.NaN;
 
-            "Given a ADS mapper configuration"
-                .x(() => mapperConfig = new AdsMapperConfiguration<CommandArgs>(cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "e"))));
+            // "Given a ADS mapper configuration"
+            mapperConfig = new AdsMapperConfiguration<CommandArgs>(cfg => cfg.ForAllSourceMember(opt => opt.RemovePrefix("f", "n", "e")));
 
-            "And a ADS mapper from the configuration"
-                .x(() =>
-                {
-                    mapperInput = mapperConfig.CreateAdsMapper(AdsSymbolReader.Read(_connection, "Commands.fbStructCommand.stInputArgs"));
-                    mapperOutput = mapperConfig.CreateAdsMapper(AdsSymbolReader.Read(_connection, "Commands.fbStructCommand.stInputArgs"));
-                });
+            // "And a ADS mapper from the configuration"
+            mapperInput = mapperConfig.CreateAdsMapper(AdsSymbolReader.Read(_connection, "Commands.fbStructCommand.stInputArgs"));
+            mapperOutput = mapperConfig.CreateAdsMapper(AdsSymbolReader.Read(_connection, "Commands.fbStructCommand.stInputArgs"));
 
-            "And a command with an ADS stream argument handler"
-                .x(() => command = new PlcCommand(_connection, "Commands.fbStructCommand", commandArgumentHandler: new AdsStreamCommandArgumentHandler()));
+            // "And a command with an ADS stream argument handler"
+            command = new PlcCommand(_connection, "Commands.fbStructCommand", commandArgumentHandler: new AdsStreamCommandArgumentHandler());
 
-            "And the given input arguments"
-                .x(() => inputData = new CommandArgs { Number = 42, Float = 0.42f, Enum = EnumType.Value1 });
+            // "And the given input arguments"
+            inputData = new CommandArgs { Number = 42, Float = 0.42f, Enum = EnumType.Value1 };
 
-            "When the command is executed with the input class data"
-                .x(() =>
-                {
-                    var input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>
-                    {
-                        ["stInputArgs"] = mapperInput.MapDataObject(inputData),
-                        ["nNumber"] = 420,
-                        ["eEnum"] = EnumType.Value2,
-                    });
+            //"When the command is executed with the input class data"
+            var input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>
+            {
+                ["stInputArgs"] = mapperInput.MapDataObject(inputData),
+                ["nNumber"] = 420,
+                ["eEnum"] = EnumType.Value2,
+            });
 
-                    var output = CommandOutputBuilder.FromDictionary(new Dictionary<string, object>
-                    {
-                        ["stOutputArgs"] = null,
-                        ["fFloat"] = AdsStreamCommandArgumentHandler.ReadAsPrimitiveMarker,
-                    });
+            var output = CommandOutputBuilder.FromDictionary(new Dictionary<string, object>
+            {
+                ["stOutputArgs"] = null,
+                ["fFloat"] = AdsStreamCommandArgumentHandler.ReadAsPrimitiveMarker,
+            });
 
-                    command.Execute(input: input, output: output);
+            command.Execute(input: input, output: output);
 
-                    outputData = mapperOutput.MapData(output.GetOutputData<ReadOnlyMemory<byte>>("stOutputArgs").Span);
-                    outputDataFloat = output.GetOutputData<double>("fFloat");
-                });
+            outputData = mapperOutput.MapData(output.GetOutputData<ReadOnlyMemory<byte>>("stOutputArgs").Span);
+            outputDataFloat = output.GetOutputData<double>("fFloat");
 
-            "Then the output must match the input."
-                .x(() =>
-                {
-                    outputData.Number.Should().Be(42);
-                    outputData.Float.Should().Be(0.42f);
-                    outputData.Enum.Should().Be(EnumType.Value1);
-                    outputDataFloat.Should().Be(0.42f);
-                });
+            // "Then the output must match the input."
+            outputData.Number.Should().Be(42);
+            outputData.Float.Should().Be(0.42f);
+            outputData.Enum.Should().Be(EnumType.Value1);
+            outputDataFloat.Should().Be(0.42f);
         }
 
 #pragma warning disable CA1034 // Nested types should not be visible
