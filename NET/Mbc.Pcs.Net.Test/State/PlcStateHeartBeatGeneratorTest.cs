@@ -20,6 +20,8 @@ namespace Mbc.Pcs.Net.Test.State
         {
             _adsConnection = A.Fake<IPlcAdsConnectionService>();
             _plcStateSampler = A.Fake<IPlcStateSampler<PlcStateDummy>>();
+            A.CallTo(() => _plcStateSampler.SampleRate)
+                .Returns(500u);
 
             _testee = new PlcStateHeartBeatGenerator<PlcStateDummy>(TimeSpan.FromSeconds(1), _adsConnection, _plcStateSampler);
         }
@@ -177,7 +179,7 @@ namespace Mbc.Pcs.Net.Test.State
                 monitoredTestee
                     .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied))
                     .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.FromFileTime(10))
-                    .WithArgs<HeartBeatDiedEventArgs>(args => args.DiedTime == DateTime.FromFileTime(10));
+                    .WithArgs<HeartBeatDiedEventArgs>(args => args.DiedTime.Date == DateTime.Now.Date); // It is enouth when it match with today
             }
         }
 
