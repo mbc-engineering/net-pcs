@@ -87,10 +87,13 @@ namespace Mbc.Pcs.Net.State
 
             _adsMapper = _config.AdsMapperConfiguration.CreateAdsMapper(adsSymbolInfo);
 
+            // XXX Faktor 10000: ADS-V5 multipliziert intern cycleTime mit 10000, maxDelay aber nicht. Es ist unklar
+            // welche Einheit die richtige ist, aber ohne Faktor bei MaxDelay werden nur Notifications mit einem
+            // Event erzeugt, mit Faktor 2 Notifications pro Event.
             _statusNotificationHandle = _adsConnectionService.Connection.AddDeviceNotification(
                 _config.VariablePath,
                 adsSymbolInfo.Symbol.ByteSize,
-                new NotificationSettings(AdsTransMode.Cyclic, (int)_config.CycleTime.TotalMilliseconds, (int)_config.MaxDelay.TotalMilliseconds),
+                new NotificationSettings(AdsTransMode.Cyclic, (int)_config.CycleTime.TotalMilliseconds, (int)_config.MaxDelay.TotalMilliseconds * 10000 /* see above */),
                 this);
 
             SamplingActive = true;
