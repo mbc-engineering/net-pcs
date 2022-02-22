@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TwinCAT.Ads;
+using TwinCAT.Ads.TypeSystem;
 using TwinCAT.TypeSystem;
 
 namespace Mbc.Pcs.Net.Command
@@ -24,7 +25,7 @@ namespace Mbc.Pcs.Net.Command
         /// Reads all symbols in the same hierarchy as the function block they are flaged with the Attribute
         /// named in <para>attributeName</para>.
         /// </summary>
-        protected static IDictionary<string, ITcAdsSubItem> ReadFbSymbols(IAdsConnection adsConnection, string adsCommandFbPath, string attributeName)
+        protected static IDictionary<string, IMember> ReadFbSymbols(IAdsConnection adsConnection, string adsCommandFbPath, string attributeName)
         {
             return ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { attributeName });
         }
@@ -33,9 +34,9 @@ namespace Mbc.Pcs.Net.Command
         /// Reads all symbols in the same hierarchy as the function block they are flaged with one of the Attribute
         /// named in <para>attributeNames</para>.
         /// </summary>
-        protected static IDictionary<string, ITcAdsSubItem> ReadFbSymbols(IAdsConnection adsConnection, string adsCommandFbPath, IEnumerable<string> attributeNames)
+        protected static IDictionary<string, IMember> ReadFbSymbols(IAdsConnection adsConnection, string adsCommandFbPath, IEnumerable<string> attributeNames)
         {
-            ITcAdsSymbol commandSymbol = adsConnection.ReadSymbolInfo(adsCommandFbPath);
+            IAdsSymbol commandSymbol = adsConnection.ReadSymbol(adsCommandFbPath);
             if (commandSymbol == null)
             {
                 // command Symbol not found
@@ -43,20 +44,18 @@ namespace Mbc.Pcs.Net.Command
             }
 
             var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
-            return ((ITcAdsSymbol5)commandSymbol)
-                .DataType.SubItems
-                .Where(item => item.Attributes.Any(a => attributeNames.Contains(a.Name, StringComparer.OrdinalIgnoreCase)))
+
+            if (!(commandSymbol is IStructInstance structInstance))
+            {
+                throw new PlcCommandException(adsCommandFbPath, $"Variable '{adsCommandFbPath}' is not of type struct.");
+            }
+
+            return ((IStructType)structInstance.DataType)
+                .Members
+                .Where(x => x.Attributes.Any(y => attributeNames.Contains(y.Name, StringComparer.OrdinalIgnoreCase)))
                 .ToDictionary(
-                    item => item.SubItemName,
-                    item => item);
-        }
-
-        protected static Type GetManagedTypeForSubItem(ITcAdsSubItem subitem)
-        {
-            if (subitem.BaseType.ManagedType != null)
-                return subitem.BaseType.ManagedType;
-
-            return subitem.BaseType.BaseType.ManagedType;
+                    x => x.InstanceName,
+                    x => x);
         }
     }
 }

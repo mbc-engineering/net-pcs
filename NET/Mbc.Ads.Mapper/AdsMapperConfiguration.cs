@@ -3,9 +3,9 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using EnsureThat;
+using Mbc.Ads.Utils;
 using System;
-using TwinCAT.Ads;
+using TwinCAT.Ads.TypeSystem;
 using TwinCAT.TypeSystem;
 
 namespace Mbc.Ads.Mapper
@@ -30,106 +30,95 @@ namespace Mbc.Ads.Mapper
         /// <returns>A <see cref="AdsMapper{TDataObject}"/> for the given symbol</returns>
         public AdsMapper<TDataObject> CreateAdsMapper(IAdsSymbolInfo symbolInfo)
         {
-            var mapper = new AdsMapper<TDataObject>(symbolInfo.SymbolsSize);
+            IAdsSymbol symbol = symbolInfo.Symbol;
 
-            // ToDo: @MiHe can call directly AddSymbolsMappingRecursive ensteed of looping subitems when structs are supported
-            if (symbolInfo.Symbol.Category != DataTypeCategory.Struct)
-            {
-                throw new NotSupportedException("Can create only Ads Mappings for Structs");
-            }
-
-            Ensure.Bool.IsTrue(symbolInfo.Symbol.DataType.HasSubItemInfo);
-
-            foreach (var subItem in symbolInfo.Symbol.DataType.SubItems)
-            {
-                AddSymbolsMappingRecursive(subItem, subItem.Offset, subItem.SubItemName, mapper);
-            }
-
-            return mapper;
+            return CreateAdsMapper(symbol);
         }
 
-        public AdsMapper<TDataObject> CreateAdsMapper(ITcAdsDataType dataType)
+        public AdsMapper<TDataObject> CreateAdsMapper(IAdsSymbol symbol)
         {
-            if (dataType.Category != DataTypeCategory.Struct)
+            if (!(symbol.DataType is IStructType structType))
             {
                 throw new NotSupportedException("Can create only Ads Mappings for Structs");
             }
 
-            Ensure.Bool.IsTrue(dataType.HasSubItemInfo);
+            var mapper = new AdsMapper<TDataObject>(symbol.ByteSize);
 
-            var mapper = new AdsMapper<TDataObject>(dataType.ByteSize);
-            foreach (var subItem in dataType.SubItems)
+            foreach (IMember subItem in structType.Members)
             {
-                AddSymbolsMappingRecursive(subItem, subItem.Offset, subItem.SubItemName, mapper);
+                AddSymbolsMappingRecursive(subItem, subItem.Offset, subItem.InstanceName, mapper);
             }
 
             return mapper;
         }
 
-        private void AddSymbolsMappingRecursive(ITcAdsDataType item, int offset, string name, AdsMapper<TDataObject> mapper)
+        private void AddSymbolsMappingRecursive(IMember item, int offset, string name, AdsMapper<TDataObject> mapper)
         {
             // Check for the right item type
             // -----------------------------
-            switch (item.BaseType.Category)
+            switch (item.DataType.Category)
             {
                 case DataTypeCategory.Primitive:
-                    AddPrimitiveSymbolsMapping(item, offset, name, mapper);
+                    AddPrimitiveSymbolsMapping((IPrimitiveType)item.DataType, offset, name, mapper);
                     break;
                 case DataTypeCategory.Enum:
-                    AddEnumSymbolsMapping(item, offset, name, mapper);
+                    AddEnumSymbolsMapping((IEnumType)item.DataType, offset, name, mapper);
                     break;
                 case DataTypeCategory.Array:
-                    switch (item.BaseType.BaseType.Category)
+                    IArrayType arrayType = (IArrayType)item.DataType;
+                    switch (arrayType.ElementType.Category)
                     {
                         case DataTypeCategory.Primitive:
-                            AddArraySymbolsMapping(item, offset, name, mapper);
+                            AddArraySymbolsMapping(arrayType, offset, name, mapper);
                             break;
                         case DataTypeCategory.Enum:
                         case DataTypeCategory.Struct:
                         case DataTypeCategory.String:
-                            throw new NotImplementedException($"This Category type '{item.BaseType.BaseType.Category}' used for the Array PLC Varialbe {name} is yet not implemented.");
+                            throw new NotImplementedException($"This Category type '{arrayType.ElementType.Category}' used for the Array PLC Varialbe {name} is yet not implemented.");
                         default:
-                            throw new NotSupportedException($"This Category type '{item.BaseType.BaseType.Category}' used for the Array PLC Varialbe {name} is not supported.");
+                            throw new NotSupportedException($"This Category type '{arrayType.ElementType.Category}' used for the Array PLC Varialbe {name} is not supported.");
                     }
 
                     break;
                 case DataTypeCategory.String:
-                    AddStringSymbolsMapping(item, offset, name, mapper);
+                    AddStringSymbolsMapping((IStringType)item.DataType, offset, name, mapper);
                     break;
                 case DataTypeCategory.Struct:
-                    throw new NotImplementedException($"This Category type '{item.BaseType.Category}' used for PLC Varialbe {name} is yet not implemented.");
-                case DataTypeCategory.Alias:
-                    // If alias call it recursive to find underlying primitive
-                    AddSymbolsMappingRecursive(item.BaseType, offset, name, mapper);
-                    break;
+                    throw new NotImplementedException($"This Category type '{item.DataType.Category}' used for PLC Varialbe {name} is yet not implemented.");
+                // TODO
+                // case DataTypeCategory.Alias:
+                //    // If alias call it recursive to find underlying primitive
+                //    IAliasType aliasType = (IAliasType)item.DataType;
+                //    AddSymbolsMappingRecursive(aliasType.BaseType, offset, name, mapper);
+                //    break;
                 default:
-                    throw new NotSupportedException($"This Category type '{item.BaseType.Category}' used for PLC Varialbe {name} is not supported.");
+                    throw new NotSupportedException($"This Category type '{item.DataType.Category}' used for PLC Varialbe {name} is not supported.");
             }
 
             // Handle supitems if exists
-            if (item.HasSubItemInfo)
+            if (item.DataType is IStructType structType)
             {
-                foreach (ITcAdsSubItem subItem in item.SubItems)
+                foreach (IMember member in structType.Members)
                 {
-                    AddSymbolsMappingRecursive(subItem, subItem.Offset, subItem.SubItemName, mapper);
+                    AddSymbolsMappingRecursive(member, member.Offset, member.InstanceName, mapper);
                 }
             }
         }
 
-        private void AddPrimitiveSymbolsMapping(ITcAdsDataType adsDataType, int offset, string name, AdsMapper<TDataObject> mapper)
+        private void AddPrimitiveSymbolsMapping(IPrimitiveType primitiveType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
             memberMappingConfiguration.Destination.MatchSome(dest =>
             {
-                var primitiveManagedType = adsDataType.BaseType.ManagedType;
+                var primitiveManagedType = primitiveType.GetManagedType();
 
-                var definition = new AdsMappingDefinition<TDataObject>(adsDataType);
+                var definition = new AdsMappingDefinition<TDataObject>(primitiveType, primitiveManagedType);
                 definition.DestinationMemberConfiguration = dest;
 
-                definition.StreamReadFunction = AdsStreamAccessor.CreatePrimitiveTypeReadFunction(primitiveManagedType, offset, adsDataType.BaseType);
+                definition.AdsDataReader = AdsBinaryAccessorFactory.CreatePrimitiveTypeReadFunction(primitiveManagedType, offset, primitiveType);
                 definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest.Member);
 
-                definition.StreamWriterFunction = AdsStreamAccessor.CreatePrimitiveTypeWriteFunction(primitiveManagedType, offset, adsDataType.BaseType);
+                definition.AdsDataWriter = AdsBinaryAccessorFactory.CreatePrimitiveTypeWriteFunction(primitiveManagedType, offset, primitiveType);
                 definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest.Member);
 
                 mapper.AddStreamMapping(definition);
@@ -143,45 +132,48 @@ namespace Mbc.Ads.Mapper
         /// <param name="offset">the byte offset of the item in the data stream</param>
         /// <param name="name">the name of the symbol</param>
         /// <param name="mapper">the ADS mapper</param>
-        private void AddEnumSymbolsMapping(ITcAdsDataType adsDataType, int offset, string name, AdsMapper<TDataObject> mapper)
+        private void AddEnumSymbolsMapping(IEnumType adsDataType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
-            var memberMappingConfiguration = FindAdsMappingDefinition(name);
+            MemberMappingConfiguration memberMappingConfiguration = FindAdsMappingDefinition(name);
 
             memberMappingConfiguration.Destination.MatchSome(dest =>
             {
-                var definition = new AdsMappingDefinition<TDataObject>(adsDataType);
+                Type baseManagedType = adsDataType.BaseType.GetManagedType();
+
+                var definition = new AdsMappingDefinition<TDataObject>(adsDataType, baseManagedType);
                 definition.DestinationMemberConfiguration = dest;
 
-                definition.StreamReadFunction = AdsStreamAccessor.CreatePrimitiveTypeReadFunction(adsDataType.BaseType.BaseType.ManagedType, offset, adsDataType.BaseType.BaseType);
+                definition.AdsDataReader = AdsBinaryAccessorFactory.CreatePrimitiveTypeReadFunction(baseManagedType, offset, adsDataType.BaseType);
                 definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest.Member);
 
-                definition.StreamWriterFunction = AdsStreamAccessor.CreatePrimitiveTypeWriteFunction(adsDataType.BaseType.BaseType.ManagedType, offset, adsDataType.BaseType.BaseType);
+                definition.AdsDataWriter = AdsBinaryAccessorFactory.CreatePrimitiveTypeWriteFunction(baseManagedType, offset, adsDataType.BaseType);
                 definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest.Member);
 
                 mapper.AddStreamMapping(definition);
             });
         }
 
-        private void AddArraySymbolsMapping(ITcAdsDataType adsDataType, int offset, string name, AdsMapper<TDataObject> mapper)
+        private void AddArraySymbolsMapping(IArrayType arrayType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
-            ITcAdsDataType arrayValueType = adsDataType.BaseType.BaseType;
-            int valuesInArray = adsDataType.BaseType.Dimensions.ElementCount;
+            IDataType arrayValueType = arrayType.ElementType;
+            Type baseManagedType = arrayValueType.GetManagedType();
+            int valuesInArray = arrayType.Dimensions.ElementCount;
 
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
             memberMappingConfiguration.Destination.MatchSome(dest =>
             {
                 for (int idx = 0; idx < valuesInArray; idx++)
                 {
-                    var definition = new AdsMappingDefinition<TDataObject>(adsDataType);
+                    var definition = new AdsMappingDefinition<TDataObject>(arrayType, baseManagedType);
                     definition.DestinationMemberConfiguration = dest;
 
-                    int actStreamOffset = offset + (idx * arrayValueType.Size);
+                    int actStreamOffset = offset + (idx * arrayValueType.ByteSize);
                     var capturedIdx = idx;
 
-                    definition.StreamReadFunction = AdsStreamAccessor.CreatePrimitiveTypeReadFunction(arrayValueType.ManagedType, actStreamOffset, arrayValueType);
+                    definition.AdsDataReader = AdsBinaryAccessorFactory.CreatePrimitiveTypeReadFunction(baseManagedType, actStreamOffset, arrayValueType);
                     definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest.Member, arrayIndex: capturedIdx);
 
-                    definition.StreamWriterFunction = AdsStreamAccessor.CreatePrimitiveTypeWriteFunction(arrayValueType.ManagedType, actStreamOffset, arrayValueType);
+                    definition.AdsDataWriter = AdsBinaryAccessorFactory.CreatePrimitiveTypeWriteFunction(baseManagedType, actStreamOffset, arrayValueType);
                     definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest.Member, arrayIndex: capturedIdx);
 
                     mapper.AddStreamMapping(definition);
@@ -189,19 +181,21 @@ namespace Mbc.Ads.Mapper
             });
         }
 
-        private void AddStringSymbolsMapping(ITcAdsDataType adsDataType, int offset, string name, AdsMapper<TDataObject> mapper)
+        private void AddStringSymbolsMapping(IStringType stringType, int offset, string name, AdsMapper<TDataObject> mapper)
         {
+            Type managedType = stringType.GetManagedType();
+
             var memberMappingConfiguration = FindAdsMappingDefinition(name);
 
             memberMappingConfiguration.Destination.MatchSome(dest =>
             {
-                var definition = new AdsMappingDefinition<TDataObject>(adsDataType);
+                var definition = new AdsMappingDefinition<TDataObject>(stringType, managedType);
                 definition.DestinationMemberConfiguration = dest;
 
-                definition.StreamReadFunction = AdsStreamAccessor.CreatePrimitiveTypeReadFunction(adsDataType.BaseType.ManagedType, offset, adsDataType.BaseType);
+                definition.AdsDataReader = AdsBinaryAccessorFactory.CreatePrimitiveTypeReadFunction(managedType, offset, stringType);
                 definition.DataObjectValueSetter = DataObjectAccessor.CreateValueSetter<TDataObject>(dest.Member);
 
-                definition.StreamWriterFunction = AdsStreamAccessor.CreatePrimitiveTypeWriteFunction(adsDataType.BaseType.ManagedType, offset, adsDataType.BaseType);
+                definition.AdsDataWriter = AdsBinaryAccessorFactory.CreatePrimitiveTypeWriteFunction(managedType, offset, stringType);
                 definition.DataObjectValueGetter = DataObjectAccessor.CreateValueGetter<TDataObject>(dest.Member);
 
                 mapper.AddStreamMapping(definition);

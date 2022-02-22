@@ -76,16 +76,6 @@ limitations under the License.
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.*">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="3.*">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-
-    <PackageReference Include="Microsoft.NetFramework.Analyzers" Version="3.*" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-
-    <PackageReference Include="Microsoft.NetCore.Analyzers" Version="3.*" Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0" />
   </ItemGroup>
 </Project>

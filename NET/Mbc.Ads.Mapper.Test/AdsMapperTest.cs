@@ -6,7 +6,6 @@
 using FluentAssertions;
 using System;
 using System.Diagnostics;
-using TwinCAT.Ads;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -34,7 +33,9 @@ namespace Mbc.Ads.Mapper.Test
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
-            DestinationDataObject mappedResult = mapper.MapStream(_fakePlcData.AdsStream);
+
+            var buffer = new ReadOnlySpan<byte>(_fakePlcData.Data);
+            DestinationDataObject mappedResult = mapper.MapData(buffer);
 
             // Assert
             mappedResult.Should().NotBeNull();
@@ -76,10 +77,10 @@ namespace Mbc.Ads.Mapper.Test
 
             // Act
             var stopwatch = Stopwatch.StartNew();
+            var buffer = new ReadOnlySpan<byte>(_fakePlcData.Data);
             for (int i = 0; i < 50000; i++)
             {
-                _fakePlcData.AdsStream.Position = 0;
-                mapper.MapStream(_fakePlcData.AdsStream);
+                DestinationDataObject mappedResult = mapper.MapData(buffer);
             }
 
             stopwatch.Stop();
@@ -101,7 +102,8 @@ namespace Mbc.Ads.Mapper.Test
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
-            DestinationDataObject mappedResult = mapper.MapStream(_fakePlcData.AdsStream);
+            var buffer = new ReadOnlySpan<byte>(_fakePlcData.Data);
+            DestinationDataObject mappedResult = mapper.MapData(buffer);
 
             // Assert
             throw new NotImplementedException("Required fields not yet implemented");
@@ -120,7 +122,8 @@ namespace Mbc.Ads.Mapper.Test
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
-            DestinationDataObject mappedResult = mapper.MapStream(_fakePlcData.AdsStream);
+            var buffer = new ReadOnlySpan<byte>(_fakePlcData.Data);
+            DestinationDataObject mappedResult = mapper.MapData(buffer);
 
             // Assert
             throw new NotImplementedException("Ignored fields not yet implemented");
@@ -135,7 +138,8 @@ namespace Mbc.Ads.Mapper.Test
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
-            DestinationDataObject mappedResult = mapper.MapStream(_fakePlcData.AdsStream);
+            var buffer = new ReadOnlySpan<byte>(_fakePlcData.Data);
+            DestinationDataObject mappedResult = mapper.MapData(buffer);
 
             // Assert
             mappedResult.Should().NotBeNull();
@@ -153,7 +157,8 @@ namespace Mbc.Ads.Mapper.Test
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
-            DestinationDataObject mappedResult = mapper.MapStream(_fakePlcData.AdsStream);
+            var buffer = new ReadOnlySpan<byte>(_fakePlcData.Data);
+            DestinationDataObject mappedResult = mapper.MapData(buffer);
 
             // Assert
             mappedResult.MotorObject.Should().NotBeNull();
@@ -191,16 +196,17 @@ namespace Mbc.Ads.Mapper.Test
                 Utf7String = "ÄÖö@Ü7",
                 UnicodeString = "ÄÖö@Ü8",
             };
-            byte[] expectedData = _fakePlcData.AdsStream.ToArray();
+            byte[] expectedData = _fakePlcData.Data;
             Array.Clear(expectedData, 114, 8); // nested MotorObject
+
+            var buffer = new byte[expectedData.Length];
 
             // Act
             AdsMapper<DestinationDataObject> mapper = config.CreateAdsMapper(_fakePlcData.AdsSymbolInfo);
-            AdsStream stream = mapper.MapDataObject(dataObject);
+            mapper.MapDataObject(new Span<byte>(buffer), dataObject);
 
             // Assert
-            stream.Should().NotBeNull();
-            stream.ToArray().Should().BeEquivalentTo(expectedData);
+            buffer.Should().BeEquivalentTo(expectedData);
         }
 
         #region " Test Data "

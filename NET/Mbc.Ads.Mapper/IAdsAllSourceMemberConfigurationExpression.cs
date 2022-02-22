@@ -6,7 +6,7 @@
 namespace Mbc.Ads.Mapper
 {
     /// <summary>
-    /// Source Member configuration options who is valid vor all sources with the type <see cref="TwinCAT.Ads.ITcAdsSymbol5"/>
+    /// Source Member configuration options who is valid vor all sources with the type <see cref="TwinCAT.TypeSystem.IStructType"/>
     /// </summary>
     public interface IAdsAllSourceMemberConfigurationExpression
     {

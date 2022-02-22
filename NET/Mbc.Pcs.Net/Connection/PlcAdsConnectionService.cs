@@ -4,6 +4,7 @@
 //-----------------------------------------------------------------------------
 
 using Mbc.Common.Interface;
+using Microsoft.Extensions.Logging;
 using System;
 using TwinCAT.Ads;
 
@@ -44,9 +45,9 @@ namespace Mbc.Pcs.Net.Connection
             }
         }
 
-        public PlcAdsConnectionService(string plcAdsHost, int plcAdsPort)
+        public PlcAdsConnectionService(string plcAdsHost, int plcAdsPort, ILogger adsLogger = null)
         {
-            _plcConnection = new PlcAdsConnectionProvider(plcAdsHost, plcAdsPort);
+            _plcConnection = new PlcAdsConnectionProvider(plcAdsHost, plcAdsPort, adsLogger);
             _plcConnection.ConnectionStateChanged += OnConnectionStateChanged;
         }
 

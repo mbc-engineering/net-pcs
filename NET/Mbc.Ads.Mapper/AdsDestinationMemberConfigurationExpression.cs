@@ -12,6 +12,8 @@ namespace Mbc.Ads.Mapper
     /// which saves the configuration in an <see cref="AdsDestinationMemberConfiguration{TDestination}"/>
     /// instance.
     /// </summary>
+    /// <typeparam name="TDestination">The destination type for this member.</typeparam>
+    /// <typeparam name="TMember">The type of the member to configure.</typeparam>
     internal class AdsDestinationMemberConfigurationExpression<TDestination, TMember>
         : IAdsDestinationMemberConfigurationExpression<TDestination, TMember>
     {

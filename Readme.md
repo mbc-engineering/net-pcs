@@ -7,7 +7,7 @@
 ## Build
 ### Requirements
 - .Net Framework >= 4.7.1
-- Visual Studio 2019
+- Visual Studio 2022
 - TwinCat 3.1
 
 ### Build Steps

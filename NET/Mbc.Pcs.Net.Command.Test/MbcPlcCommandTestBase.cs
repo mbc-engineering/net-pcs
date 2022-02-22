@@ -14,7 +14,7 @@ namespace Mbc.Pcs.Net.Test
             bool realPlc = false;
             if (realPlc)
             {
-                TcAdsClient adsClient = new TcAdsClient();
+                var adsClient = new AdsClient();
                 adsClient.Connect(_plcAmsNetId, _plcAmsPort);
 
                 AdsCommandConnectionFake.SetSystemTestConnection(adsClient);

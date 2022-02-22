@@ -18,6 +18,7 @@ namespace Mbc.Ads.Utils.SumCommand
     /// <see cref="SumHandleWrite"/> which expecteds <see cref="AdsStream"/>
     /// as data for each handle.
     /// </summary>
+    [Obsolete("AdsStream is deprecated")]
     public class SumHandleWriteStream : SumWrite
     {
         private readonly uint[] _handles;
@@ -28,6 +29,7 @@ namespace Mbc.Ads.Utils.SumCommand
             _handles = handles.ToArray();
         }
 
+        [Obsolete("AdsStream is deprecated")]
         public AdsErrorCode TryWrite(IEnumerable<AdsStream> streams, out AdsErrorCode[] returnCodes)
         {
             var writeData = streams.Select(x => x.ToArray()).ToList();
@@ -39,9 +41,10 @@ namespace Mbc.Ads.Utils.SumCommand
                 sumEntities.Add(entity);
             }
 
-            return TryWriteRaw(writeData, out returnCodes);
+            return TryWriteRaw(new ReadOnlyMemory<byte>(writeData.SelectMany(x => x).ToArray()), out returnCodes);
         }
 
+        [Obsolete("AdsStream is deprecated")]
         public void Write(IEnumerable<AdsStream> streams)
         {
             TryWrite(streams, out AdsErrorCode[] returnCodes);
@@ -49,7 +52,7 @@ namespace Mbc.Ads.Utils.SumCommand
                 throw new AdsSumCommandException("SumHandleWriteStream failed", this);
         }
 
-        protected override int OnWriteSumEntityData(SumDataEntity entity, BinaryWriter writer)
+        protected override int OnWriteSumEntityData(SumDataEntity entity, Span<byte> writer)
         {
             /* Muss überschrieben werden, da die Basisimplementierung eine interne Klasse
              * von SumDataEntity erwartet.*/
@@ -57,23 +60,21 @@ namespace Mbc.Ads.Utils.SumCommand
             if (mode == SumAccessMode.ValueByHandle)
             {
                 HandleSumStreamEntity sumStreamEntity = (HandleSumStreamEntity)entity;
-                return MarshalSumWriteHeader((uint)AdsReservedIndexGroups.SymbolValueByHandle, sumStreamEntity.Handle, sumStreamEntity.WriteLength, writer);
+                return MarshalSumWriteHeader((uint)AdsReservedIndexGroup.SymbolValueByHandle, sumStreamEntity.Handle, sumStreamEntity.WriteLength, writer);
             }
 
             throw new NotSupportedException($"Mode {mode} not supported.");
         }
-    }
 
-#pragma warning disable SA1402 // File may only contain a single type
-    internal class HandleSumStreamEntity : SumDataEntity
-    {
-        public HandleSumStreamEntity(uint handle, int writeLength)
-            : base(0, writeLength)
+        internal class HandleSumStreamEntity : SumDataEntity
         {
-            Handle = handle;
-        }
+            public HandleSumStreamEntity(uint handle, int writeLength)
+                : base(0, writeLength)
+            {
+                Handle = handle;
+            }
 
-        public uint Handle { get; }
+            public uint Handle { get; }
+        }
     }
-#pragma warning restore SA1402 // File may only contain a single type
 }

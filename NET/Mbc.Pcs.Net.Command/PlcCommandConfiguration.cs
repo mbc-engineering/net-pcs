@@ -12,6 +12,30 @@ namespace Mbc.Pcs.Net.Command
     /// </summary>
     public class PlcCommandConfiguration
     {
+        public static PlcCommandConfiguration CreateDefaultOnChange()
+            => new PlcCommandConfiguration
+            {
+                UseCyclicNotifications = false,
+                OnChangeCycleTime = TimeSpan.FromMilliseconds(50),
+                OnChangeMaxDelay = TimeSpan.Zero,
+                MaxWaitForInitialEvent = TimeSpan.FromSeconds(1),
+                MaxRetriesForInitialEvent = 3,
+            };
+
+        public static PlcCommandConfiguration CreateDefaultCyclic()
+            => new PlcCommandConfiguration
+            {
+                UseCyclicNotifications = true,
+                OnChangeCycleTime = TimeSpan.FromMilliseconds(50),
+                OnChangeMaxDelay = TimeSpan.Zero,
+            };
+
+        /// <summary>
+        /// If <c>true</c> cyclic notifications are used instead of
+        /// on change.
+        /// </summary>
+        public bool UseCyclicNotifications { get; set; }
+
         /// <summary>
         /// Parameter <c>cycleTime</c> for registration of an ADS device
         /// notification for command callbacks. Default: 50ms.

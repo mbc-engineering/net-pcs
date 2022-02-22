@@ -38,7 +38,7 @@ namespace Mbc.Pcs.Net.Test.Command
             var value = builder.GetOutputData<DateTime>("dt");
 
             // Assert
-            value.Should().Be(new DateTime(2019, 02, 15, 12, 43, 00));
+            value.Should().Be(new DateTime(2019, 02, 15));
         }
     }
 }

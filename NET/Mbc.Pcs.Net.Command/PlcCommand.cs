@@ -42,7 +42,7 @@ namespace Mbc.Pcs.Net.Command
         /// <summary>
         /// Detail configuration of PLC commands.
         /// </summary>
-        public PlcCommandConfiguration Configuration { get; } = new PlcCommandConfiguration();
+        public PlcCommandConfiguration Configuration { get; } = PlcCommandConfiguration.CreateDefaultCyclic();
 
         /// <summary>
         /// Maximale time to wait for command completion.
@@ -93,6 +93,8 @@ namespace Mbc.Pcs.Net.Command
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> which allows to
         /// cancel the running command. The cancel request is sent to the PLC and the
         /// execution will still wait for the PLC to end to command.</param>
+        /// <param name="input">Optional command input arguments.</param>
+        /// <param name="output">Optiona command output arguments.</param>
         /// <exception cref="InvalidOperationException">The ADS-Client given at construction
         /// time is not connected.</exception>
         protected DateTime Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
@@ -117,29 +119,34 @@ namespace Mbc.Pcs.Net.Command
                     using (var cancellationRegistration = cancellationToken.Register(ResetExecuteFlag))
                     {
                         DataExchange<CommandChangeData> handshakeExchange;
-                        int cmdHandle;
+                        uint cmdHandle;
 
                         /*
                          * Workaround für ADS-Problem, bei dem nach dem Registrieren einer DeviceNotification
                          * kein Initial-Event gesendet wird. Der Workaround prüft ob ein Initialevent spätestens
                          * 1s nach der Registrierung eintrifft. Wenn nicht, wir deregistriert und erneut versucht
                          * zu registrieren.
+                         *
+                         * Alternativ kann auch Cyclic statt on Change verwendet werden.
                          */
                         int registerRepeatCount = 0;
                         while (true)
                         {
                             handshakeExchange = new DataExchange<CommandChangeData>();
 
+                            var notificationSettings = new NotificationSettings(
+                                Configuration.UseCyclicNotifications ? AdsTransMode.Cyclic : AdsTransMode.OnChange,
+                                (int)Configuration.OnChangeCycleTime.TotalMilliseconds,
+                                (int)Configuration.OnChangeMaxDelay.TotalMilliseconds);
+
                             Logger.Trace("Before adding device notification of command '{command}'.", _adsCommandFbPath);
                             cmdHandle = _adsConnection.AddDeviceNotificationEx(
                                 $"{_adsCommandFbPath}.stHandshake",
-                                AdsTransMode.OnChange,
-                                (int)Configuration.OnChangeCycleTime.TotalMilliseconds,
-                                (int)Configuration.OnChangeMaxDelay.TotalMilliseconds,
+                                notificationSettings,
                                 Tuple.Create(this, handshakeExchange),
                                 typeof(CommandHandshakeStruct));
 
-                            if (handshakeExchange.Wait(Configuration.MaxWaitForInitialEvent))
+                            if (Configuration.UseCyclicNotifications || handshakeExchange.Wait(Configuration.MaxWaitForInitialEvent))
                             {
                                 break;
                             }
@@ -294,7 +301,7 @@ namespace Mbc.Pcs.Net.Command
                 return;
             }
 
-            var timeStamp = DateTime.FromFileTime(e.TimeStamp);
+            var timeStamp = e.TimeStamp.UtcDateTime;
 
             userDataTuple.Item2.Set(new CommandChangeData(timeStamp, (CommandHandshakeStruct)e.Value));
         }

@@ -21,7 +21,7 @@ namespace Mbc.Pcs.Net.State
         event EventHandler<PlcMultiStateChangedEventArgs<TState>> StatesChanged;
 
         /// <summary>
-        /// Gets the sample rate of the <see cref="StateChanged"/> event
+        /// Gets the sample rate of the <see cref="StatesChanged"/> event
         /// in [Hz].
         /// </summary>
         uint SampleRate { get; }

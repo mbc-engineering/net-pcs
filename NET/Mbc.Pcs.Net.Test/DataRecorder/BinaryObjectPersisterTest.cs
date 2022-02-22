@@ -23,7 +23,12 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
                 UInt = 0xFEFFFFFF,
                 Enum = EnumTest.Value2,
                 FloatArray = new float[] { 10, 11 },
-                Float2Array = new float[,] { { 1, 2 }, { 3, 4 }, { 5, 6 } },
+                Float2Array = new float[,]
+                {
+                    { 1, 2 },
+                    { 3, 4 },
+                    { 5, 6 },
+                },
                 String = "Hallo Welt",
             };
             var persister = new BinaryObjectPersister<Values>();
@@ -83,7 +88,12 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
             value.UInt.Should().Be(0xFEFFFFFF);
             value.Enum.Should().Be(EnumTest.Value2);
             value.FloatArray.Should().BeEquivalentTo(10, 11);
-            value.Float2Array.Should().BeEquivalentTo(new float[,] { { 1, 2 }, { 3, 4 }, { 5, 6 } });
+            value.Float2Array.Should().BeEquivalentTo(new float[,]
+            {
+                { 1, 2 },
+                { 3, 4 },
+                { 5, 6 },
+            });
             value.String.Should().Be("Hallo Welt");
         }
 
@@ -102,7 +112,12 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
                 UInt = 0xFEFFFFFF,
                 Enum = EnumTest.Value2,
                 FloatArray = new float[] { 10, 11 },
-                Float2Array = new float[,] { { 1, 2 }, { 3, 4 }, { 5, 6 } },
+                Float2Array = new float[,]
+                {
+                    { 1, 2 },
+                    { 3, 4 },
+                    { 5, 6 },
+                },
                 String = null,
             };
             var persister = new BinaryObjectPersister<Values>();
@@ -162,7 +177,12 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
             value.UInt.Should().Be(0xFEFFFFFF);
             value.Enum.Should().Be(EnumTest.Value2);
             value.FloatArray.Should().BeEquivalentTo(10, 11);
-            value.Float2Array.Should().BeEquivalentTo(new float[,] { { 1, 2 }, { 3, 4 }, { 5, 6 } });
+            value.Float2Array.Should().BeEquivalentTo(new float[,]
+            {
+                { 1, 2 },
+                { 3, 4 },
+                { 5, 6 },
+            });
             value.String.Should().Be(string.Empty);
         }
 

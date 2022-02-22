@@ -12,5 +12,7 @@ namespace Mbc.Pcs.Net
         public DateTime LastHeartBeat { get; set; }
 
         public DateTime DiedTime { get; set; }
+
+        public SampleTime LastSampleTime { get; set; }
     }
 }

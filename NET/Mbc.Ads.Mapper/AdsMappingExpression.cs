@@ -61,7 +61,7 @@ namespace Mbc.Ads.Mapper
         /// It returns the mapping between source and destintion with all configured characteristics
         /// </summary>
         /// <param name="sourceSymbolName">the ADS symbol name</param>
-        /// <returns>a <see cref="MemberMappingConfiguration{TDestination}"/></returns>
+        /// <returns>A <see cref="MemberMappingConfiguration"/> instance</returns>
         internal MemberMappingConfiguration GetMappingFromSource(string sourceSymbolName)
         {
             AdsSourceMemberConfigurationExpression sourceExpression = GetOrCreateSourceExpression(sourceSymbolName);
