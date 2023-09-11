@@ -1,19 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net471;net6.0</TargetFrameworks>
     <Version>4.0.0.10</Version>
     
     <Product>Mbc.Pcs.Net</Product>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="5.0.528" />
     <PackageReference Include="Mbc.AsyncUtils" Version="0.4.0" />
-    <PackageReference Include="Mbc.Common" Version="0.5.2" />
-    <PackageReference Include="Mbc.Common.Interface" Version="0.3.0" />
     <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
-    <PackageReference Include="NLog" Version="4.6.8" />
-    <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Ads.Mapper\Mbc.Ads.Mapper.csproj" />

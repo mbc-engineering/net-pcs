@@ -76,6 +76,6 @@ limitations under the License.
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.*">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.*" />
   </ItemGroup>
 </Project>

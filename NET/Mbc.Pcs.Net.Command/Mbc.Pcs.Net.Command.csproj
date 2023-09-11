@@ -1,14 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net471;net6.0</TargetFrameworks>
     <Version>3.0.0.6</Version>
 
     <Product>Mbc.Pcs.Net.Command</Product>
 
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="5.0.528" />
     <PackageReference Include="NLog" Version="4.6.8" />
   </ItemGroup>
   <ItemGroup>

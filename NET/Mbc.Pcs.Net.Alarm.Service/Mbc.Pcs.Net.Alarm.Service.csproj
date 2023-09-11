@@ -15,7 +15,6 @@
     <!-- $(TargetPlatformIdentifier) == windows; $(TargetPlatformVersion) == 7.0-->
     <Content Include="$(OutputPath)net471/Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="lib/net471" Visible="false" />
     <Content Include="$(OutputPath)net6.0-windows/Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="lib/net6.0-windows7.0" Visible="false" />
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="5.0.528" />
     <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.1" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
   </ItemGroup>
