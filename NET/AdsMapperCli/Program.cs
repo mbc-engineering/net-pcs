@@ -1,14 +1,15 @@
 ﻿using Mbc.Ads.Mapper;
 using Mbc.Pcs.Net.Connection;
 using Mbc.Pcs.Net.State;
-using NLog;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using System;
 
 namespace AdsMapperCli
 {
     public static class Program
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static ILogger Logger;
         private static PlcAdsConnectionService adsConnectionService;
         private static PlcAdsStateReader<DestinationDataObject> plcAdsTestPlaceStatus;
 
@@ -18,7 +19,7 @@ namespace AdsMapperCli
             try
             {
                 string amsnetid = "204.35.225.246.1.1";
-                Logger.Info("Setup & Connect to TwinCat on {0}", amsnetid);
+                Logger.LogInformation("Setup & Connect to TwinCat on {0}", amsnetid);
                 adsConnectionService = new PlcAdsConnectionService(amsnetid, 851);
                 adsConnectionService.ConnectionStateChanged += OnConnectionStateChanged;
 
@@ -32,7 +33,7 @@ namespace AdsMapperCli
                 };
 
                 // Setup state Reader
-                plcAdsTestPlaceStatus = new PlcAdsStateReader<DestinationDataObject>(adsConnectionService, testPlaceStatusConfig);
+                plcAdsTestPlaceStatus = new PlcAdsStateReader<DestinationDataObject>(adsConnectionService, testPlaceStatusConfig, Logger);
                 plcAdsTestPlaceStatus.StatesChanged += OnPlcStatesChange;
 
                 // RocknRoll
@@ -51,12 +52,12 @@ namespace AdsMapperCli
                     // endless
                 }
 
-                Logger.Info("stopping output");
+                Logger.LogInformation("stopping output");
                 plcAdsTestPlaceStatus.StopSampling();
             }
             catch (Exception ex)
             {
-                Logger.Info(ex, "houston we have a problem: {0}", ex.Message);
+                Logger.LogInformation(ex, "houston we have a problem: {0}", ex.Message);
             }
             finally
             {
@@ -71,16 +72,18 @@ namespace AdsMapperCli
             // Targets where to log to: Console
             var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
             // Rules for mapping loggers to targets
-            config.AddRule(LogLevel.Info, LogLevel.Fatal, logconsole);
+            config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logconsole);
             // Apply config
             NLog.LogManager.Configuration = config;
+
+            Logger = LoggerFactory.Create(builder => builder.AddNLog()).CreateLogger("AdsMapperCli");
         }
 
         private static void OnConnectionStateChanged(object sender, PlcConnectionChangeArgs e)
         {
             if (e.Connected)
             {
-                Logger.Info("Connected to TwinCat");
+                Logger.LogInformation("Connected to TwinCat");
                 plcAdsTestPlaceStatus.StartSampling();
             }
             else
@@ -95,8 +98,8 @@ namespace AdsMapperCli
             var config = new System.Text.Json.JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
             config.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
 
-            Logger.Info("New State");
-            Logger.Info(System.Text.Json.JsonSerializer.Serialize(testPlaceStatusEvent.State, config));
+            Logger.LogInformation("New State");
+            Logger.LogInformation(System.Text.Json.JsonSerializer.Serialize(testPlaceStatusEvent.State, config));
         }
     }
 }

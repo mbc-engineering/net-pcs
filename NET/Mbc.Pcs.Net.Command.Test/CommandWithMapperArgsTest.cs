@@ -6,6 +6,8 @@
 using FluentAssertions;
 using Mbc.Ads.Mapper;
 using Mbc.Pcs.Net.Command;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using TwinCAT.Ads;
@@ -15,10 +17,13 @@ namespace Mbc.Pcs.Net.Test.Command
 {
     public class CommandWithMapperArgsTest : IDisposable
     {
+        private readonly ILogger _logger;
         private readonly AdsClient _connection;
 
         public CommandWithMapperArgsTest()
         {
+            _logger = NullLogger<CommandWithMapperArgsTest>.Instance;
+
             _connection = new AdsClient();
             _connection.Connect("204.35.225.246.1.1", 851);
         }
@@ -48,7 +53,7 @@ namespace Mbc.Pcs.Net.Test.Command
             mapperOutput = mapperConfig.CreateAdsMapper(AdsSymbolReader.Read(_connection, "Commands.fbStructCommand.stInputArgs"));
 
             // "And a command with an ADS stream argument handler"
-            command = new PlcCommand(_connection, "Commands.fbStructCommand", commandArgumentHandler: new AdsStreamCommandArgumentHandler());
+            command = new PlcCommand(_connection, "Commands.fbStructCommand", _logger, commandArgumentHandler: new AdsStreamCommandArgumentHandler());
 
             // "And the given input arguments"
             inputData = new CommandArgs { Number = 42, Float = 0.42f, Enum = EnumType.Value1 };

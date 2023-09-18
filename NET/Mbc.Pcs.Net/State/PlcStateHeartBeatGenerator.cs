@@ -5,7 +5,6 @@
 
 using EnsureThat;
 using Mbc.Pcs.Net.Connection;
-using NLog;
 using System;
 using System.Threading;
 
@@ -23,7 +22,6 @@ namespace Mbc.Pcs.Net.State
     public class PlcStateHeartBeatGenerator<TState> : IHeartBeat, IDisposable
         where TState : IPlcState
     {
-        public static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IPlcAdsConnectionService _adsConnection;
         private readonly IPlcStateSampler<TState> _plcStateSampler;
         private bool _awakening;

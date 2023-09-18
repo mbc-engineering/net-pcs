@@ -7,7 +7,7 @@ using EnsureThat;
 using Mbc.Ads.Mapper;
 using Mbc.AsyncUtils;
 using Mbc.Pcs.Net.Connection;
-using NLog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using TwinCAT.Ads;
@@ -17,10 +17,9 @@ namespace Mbc.Pcs.Net.State
     public class PlcAdsStateReader<TStatus> : IPlcStateSampler<TStatus>, IDisposable
         where TStatus : IPlcState, new()
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
         private readonly IPlcAdsConnectionService _adsConnectionService;
         private readonly PlcAdsStateReaderConfig<TStatus> _config;
+        private readonly ILogger _logger;
         private readonly int _notificationBlockSize;
         private List<TStatus> _notificationBlockBuffer;
         private AsyncSerializedTaskExecutor _notificationExecutor;
@@ -39,7 +38,7 @@ namespace Mbc.Pcs.Net.State
 
         public event EventHandler<PlcMultiStateChangedEventArgs<TStatus>> StatesChanged;
 
-        public PlcAdsStateReader(IPlcAdsConnectionService adsConnectionService, PlcAdsStateReaderConfig<TStatus> config)
+        public PlcAdsStateReader(IPlcAdsConnectionService adsConnectionService, PlcAdsStateReaderConfig<TStatus> config, ILogger logger)
         {
             // Momentane Einschränkungen der Cycle-Time: Ganzzahlig darstellbar und max. 1000 Hz
             EnsureArg.IsInRange(config.CycleTime, TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(1000), nameof(config), opts => opts.WithMessage("Cycle time must be in range 1s to 1ms(1Hz-1000Hz)."));
@@ -50,6 +49,7 @@ namespace Mbc.Pcs.Net.State
 
             _adsConnectionService = adsConnectionService;
             _config = config;
+            _logger = logger;
             _notificationBlockSize = (int)(config.MaxDelay.TotalMilliseconds / config.CycleTime.TotalMilliseconds);
             _notificationBlockBuffer = new List<TStatus>(_notificationBlockSize);
         }
@@ -75,7 +75,7 @@ namespace Mbc.Pcs.Net.State
             _notificationExecutor = new AsyncSerializedTaskExecutor();
             _notificationExecutor.UnhandledException = (s, e) =>
             {
-                Logger.Error(e, "Error in notification event handler.");
+                _logger.LogError(e, "Error in notification event handler.");
             };
 
             _notificationBlockBuffer.Clear();
@@ -98,7 +98,7 @@ namespace Mbc.Pcs.Net.State
 
             SamplingActive = true;
 
-            Logger.Info("Registered Device Notification for '{variable_path}'.", _config.VariablePath);
+            _logger.LogInformation("Registered Device Notification for '{variable_path}'.", _config.VariablePath);
         }
 
         public void StopSampling()
@@ -122,14 +122,14 @@ namespace Mbc.Pcs.Net.State
 
             SamplingActive = false;
 
-            Logger.Info("Deregistered Device Notification for '{variable_path}'.", _config.VariablePath);
+            _logger.LogInformation("Deregistered Device Notification for '{variable_path}'.", _config.VariablePath);
         }
 
         protected virtual IAdsSymbolInfo ReadAdsSymbolInfo(IAdsConnection connection) => AdsSymbolReader.Read(connection, _config.VariablePath);
 
         private void OnAdsNotificationError(object sender, AdsNotificationErrorEventArgs e)
         {
-            Logger.Error(e.Exception, "ADS Notification error.");
+            _logger.LogError(e.Exception, "ADS Notification error.");
 
             // Error: Neues Sample erstellen mit letzten Wert
             CurrentSample.PlcDataQuality = PlcDataQuality.Lost;
@@ -170,7 +170,7 @@ namespace Mbc.Pcs.Net.State
 
                     if (missingSample)
                     {
-                        Logger.Warn(
+                        _logger.LogWarning(
                             "Missing sample between last sample on {lastSample} and new sample at {currentSample}. Timestamps last={lastTimestamp}, current={currentTimestamp}",
                             _lastSampleTime.ToString(),
                             currentSampleTime.ToString(),
@@ -196,7 +196,7 @@ namespace Mbc.Pcs.Net.State
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Error in notification event handler.");
+                _logger.LogError(ex, "Error in notification event handler.");
             }
         }
 
@@ -220,12 +220,12 @@ namespace Mbc.Pcs.Net.State
             _maxOverflow = Math.Max(_notificationExecutor.ExecutionQueueLength, _maxOverflow);
             if (_notificationExecutor.ExecutionQueueLength > (_config.MaxDelay.TotalMilliseconds / _config.CycleTime.TotalMilliseconds * 2) && !_queueOverflowLogging)
             {
-                Logger.Trace("ADS Notification queue started to overflow.");
+                _logger.LogTrace("ADS Notification queue started to overflow.");
                 _queueOverflowLogging = true;
             }
             else if (_notificationExecutor.ExecutionQueueLength == 0 && _queueOverflowLogging)
             {
-                Logger.Warn("Ads Notification queue overflow max {maxOverflow}.", _maxOverflow);
+                _logger.LogWarning("Ads Notification queue overflow max {maxOverflow}.", _maxOverflow);
                 _queueOverflowLogging = false;
                 _maxOverflow = 0;
             }

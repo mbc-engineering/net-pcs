@@ -1,4 +1,6 @@
 ﻿using Mbc.Pcs.Net.Command;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +12,12 @@ namespace Cli
 {
     public class Program
     {
+        private static ILogger Logger;
+
         public static async Task Main(string[] a)
         {
+            SetupNLog();
+
             var client = new AdsClient();
             client.Connect("204.35.225.246.1.1", 851);
 
@@ -29,7 +35,7 @@ namespace Cli
             var count = 0;
             while (true)
             {
-                var command = new PlcCommand(client, "Commands.fbAddCommand1");
+                var command = new PlcCommand(client, "Commands.fbAddCommand1", Logger);
                 command.Timeout = TimeSpan.FromSeconds(60);
                 command.StateChanged += (sender, args) => PrintProgress(args.Progress, args.SubTask);
                 CancellationTokenSource cancellationToken = new CancellationTokenSource();
@@ -71,6 +77,19 @@ namespace Cli
             Console.CursorLeft = 0;
             var progressString = string.Join(string.Empty, Enumerable.Range(1, progress / 2).Select(x => "#"));
             Console.Write("{0}: {1}", subTask, progressString);
+        }
+
+        private static void SetupNLog()
+        {
+            var config = new NLog.Config.LoggingConfiguration();
+            // Targets where to log to: Console
+            var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
+            // Rules for mapping loggers to targets
+            config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logconsole);
+            // Apply config
+            NLog.LogManager.Configuration = config;
+
+            Logger = LoggerFactory.Create(builder => builder.AddNLog()).CreateLogger("Cli");
         }
     }
 }

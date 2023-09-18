@@ -4,32 +4,31 @@
 //-----------------------------------------------------------------------------
 
 using Mbc.Ads.Utils.Connection;
-using NLog;
+using Microsoft.Extensions.Logging;
 using Optional;
 using System;
 using TwinCAT;
 using TwinCAT.Ads;
-using ExtLogging = Microsoft.Extensions.Logging;
 
 namespace Mbc.Pcs.Net.Connection
 {
     internal class PlcAdsConnectionProvider : IDisposable
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
         private readonly AmsAddress _amsAddr;
         private readonly AdsClient _client;
+        private readonly ILogger _logger;
         private bool _wasConnected;
         private IAdsConnection _connection;
 
         internal event EventHandler<PlcConnectionChangeArgs> ConnectionStateChanged;
 
-        internal PlcAdsConnectionProvider(string adsNetId, int adsPort, ExtLogging.ILogger adsLogger = null)
+        internal PlcAdsConnectionProvider(string adsNetId, int adsPort, ILogger logger = null)
         {
             _amsAddr = new AmsAddress(adsNetId, adsPort);
+            _logger = logger;
 
             var settings = new AdsClientSettings(1000);
-            _client = new AdsClient(null, settings, adsLogger);
+            _client = new AdsClient(null, settings, logger);
 
             _client.AdsNotificationError += OnAdsNotificationError;
             _client.ConnectionStateChanged += OnConnectionStateChanged;
@@ -46,7 +45,7 @@ namespace Mbc.Pcs.Net.Connection
         {
             try
             {
-                Logger.Info("Trying to connect to plc at {plc_ams_address}.", _amsAddr);
+                _logger.LogInformation("Trying to connect to plc at {plc_ams_address}.", _amsAddr);
                 _client.Connect(_amsAddr);
             }
             catch (Exception ex)
@@ -57,7 +56,7 @@ namespace Mbc.Pcs.Net.Connection
 
         internal void Disconnect()
         {
-            Logger.Info("Disconnect from plc at {plc_ams_address}.", _amsAddr);
+            _logger.LogInformation("Disconnect from plc at {plc_ams_address}.", _amsAddr);
             _client.Disconnect();
         }
 
@@ -68,18 +67,18 @@ namespace Mbc.Pcs.Net.Connection
                 _connection = ConnectionSynchronization.MakeSynchronized(_client);
             }
 
-            Logger.Info("ADS Connection State Change {old_state} -> {new_state} because of {reason}.", e.OldState, e.NewState, e.Reason);
+            _logger.LogInformation("ADS Connection State Change {old_state} -> {new_state} because of {reason}.", e.OldState, e.NewState, e.Reason);
 
             if (e.Exception != null)
             {
-                Logger.Error(e.Exception, "ADS Connection State Changed to {new_state} Exception", e.NewState);
+                _logger.LogError(e.Exception, "ADS Connection State Changed to {new_state} Exception", e.NewState);
             }
 
             var connected = e.NewState == ConnectionState.Connected;
             if (_wasConnected != connected)
             {
                 _wasConnected = connected;
-                Logger.Info("Notify Listener about connection state change to {state}.", e.NewState);
+                _logger.LogInformation("Notify Listener about connection state change to {state}.", e.NewState);
 
                 try
                 {
@@ -87,7 +86,7 @@ namespace Mbc.Pcs.Net.Connection
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex, "Listener throws error: {error}", ex.Message);
+                    _logger.LogError(ex, "Listener throws error: {error}", ex.Message);
                 }
             }
 
@@ -100,7 +99,7 @@ namespace Mbc.Pcs.Net.Connection
 
         private void OnAdsNotificationError(object sender, AdsNotificationErrorEventArgs e)
         {
-            Logger.Error(e.Exception, "ADS Notification Error.");
+            _logger.LogError(e.Exception, "ADS Notification Error.");
         }
 
         internal virtual IAdsConnection GetConnectedConnection()

@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using Mbc.Hdf5Utils;
 using Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -11,10 +13,12 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
     public class RingBufferTest
     {
         private readonly ITestOutputHelper _testOutput;
+        private readonly ILogger _nullLoger;
 
         public RingBufferTest(ITestOutputHelper testOutput)
         {
             _testOutput = testOutput;
+            _nullLoger = NullLogger<RingBuffer>.Instance;
         }
 
         [Fact]
@@ -29,7 +33,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var channelInfo2 = new ChannelInfo("c2", typeof(int));
             var ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1, channelInfo2 });
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 // Act
                 ringBuffer.WriteChannel("c1", new float[] { 1, 2, 3 });
@@ -60,7 +64,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var channelInfo1 = new ChannelInfo("c1", typeof(int), 5);
             var ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1 });
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 // Act
                 ringBuffer.WriteChannel("c1", Enumerable.Range(0, 10).ToArray());
@@ -100,7 +104,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var channelInfo2 = new ChannelInfo("c2", typeof(int));
             var ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1, channelInfo2 });
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 1, 2, 3 });
                 ringBuffer.WriteChannel("c2", new int[] { 1, 2, 3 });
@@ -108,7 +112,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             }
 
             // Act
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 // Assert
                 File.Exists(file).Should().BeTrue();
@@ -128,7 +132,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var channelInfo1 = new ChannelInfo("c1", typeof(float));
             var ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1 });
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 1, 2, 3 });
                 ringBuffer.CommitWrite();
@@ -138,7 +142,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             channelInfo1 = new ChannelInfo("c1", typeof(float));
             var channelInfo2 = new ChannelInfo("c2", typeof(int));
             ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1, channelInfo2 });
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 // Assert
                 File.Exists(file).Should().BeTrue();
@@ -158,7 +162,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var channelInfo1 = new ChannelInfo("c1", typeof(float));
             var ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1 });
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 1, 2, 3 });
                 ringBuffer.CommitWrite();
@@ -167,7 +171,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             // Act
             channelInfo1 = new ChannelInfo("c1", typeof(int));
             ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1 });
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 // Assert
                 File.Exists(file).Should().BeTrue();
@@ -186,7 +190,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var ringBufferInfo = new RingBufferInfo(1000, 100, new[] { channelInfo1 });
 
             // Act
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 // Assert
                 File.Exists(file).Should().BeTrue();
@@ -207,7 +211,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var channelInfo2 = new ChannelInfo("c2", typeof(int));
             var ringBufferInfo = new RingBufferInfo(100, 10, new[] { channelInfo1, channelInfo2 });
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 // Act
                 ringBuffer.WriteChannel("c1", Enumerable.Range(0, 150).Select(x => (float)x).ToArray());
@@ -234,7 +238,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var channelInfo2 = new ChannelInfo("c2", typeof(int));
             var ringBufferInfo = new RingBufferInfo(100, 10, new[] { channelInfo1, channelInfo2 });
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 // Act
                 ringBuffer.WriteChannel("c1", Enumerable.Range(0, 150).Select(x => (float)x).ToArray());
@@ -266,7 +270,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[3];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14 });
                 ringBuffer.CommitWrite();
@@ -294,7 +298,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[3];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14 });
                 ringBuffer.CommitWrite();
@@ -322,7 +326,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[3];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14 });
                 ringBuffer.CommitWrite();
@@ -350,7 +354,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[4];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22 });
                 ringBuffer.CommitWrite();
@@ -378,7 +382,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[10];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22 });
                 ringBuffer.CommitWrite();
@@ -406,7 +410,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[10];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14 });
                 ringBuffer.CommitWrite();
@@ -434,7 +438,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[3];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14, 15, 16, 17 });
                 ringBuffer.CommitWrite();
@@ -462,7 +466,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[6];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14, 15, 16, 17 });
                 ringBuffer.CommitWrite();
@@ -490,7 +494,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[6];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22 });
                 ringBuffer.CommitWrite();
@@ -518,7 +522,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[6];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 // Ringbuffer min. 1x umrunden
                 ringBuffer.WriteChannel("c1", Enumerable.Range(10, 20).Select(x => (float)x).ToArray());
@@ -547,7 +551,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[6];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 // Ringbuffer min. 1x umrunden
                 ringBuffer.WriteChannel("c1", Enumerable.Range(10, 18).Select(x => (float)x).ToArray());
@@ -576,7 +580,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var buffer = new float[1];
             int result;
 
-            using (var ringBuffer = new RingBuffer(file, ringBufferInfo))
+            using (var ringBuffer = new RingBuffer(file, ringBufferInfo, _nullLoger))
             {
                 ringBuffer.WriteChannel("c1", new float[] { 10, 11, 12, 13, 14 });
                 ringBuffer.CommitWrite();

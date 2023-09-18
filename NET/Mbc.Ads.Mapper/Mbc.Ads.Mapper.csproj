@@ -15,7 +15,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Mbc.Common" Version="0.5.2" />
-    <PackageReference Include="NLog" Version="4.6.8" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
