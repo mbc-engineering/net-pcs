@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using TwinCAT;
 using TwinCAT.Ads;
 
 namespace AtomizerUI.link
@@ -11,27 +12,28 @@ namespace AtomizerUI.link
     public class PcsCommand2<Tout> where Tout : new()
     {
         private const int DEFAULT_TIME_OUT_SECOND = 8;
-        private readonly TcAdsClient _adsClient;
+        private readonly IAdsConnection _adsClient;
         /// <summary>
         /// Path to the PLC Command variable
         /// </summary>
         private readonly string _adsCommandVar;
         private IDictionary<string, ITcAdsDataType> _commandSymbols;
 
-        public PcsCommand2(TcAdsClient adsClient, string adsCommandVar)
+        public PcsCommand2(IAdsConnection adsClient, string adsCommandVar)
         {
             if (!adsClient.IsConnected)
             {
                 throw new AdsException($"The ADS client use in the {nameof(PcsCommand2<Tout>)} is not connected.");
             }
 
-            _adsClient = adsClient;                        
+            _adsClient = adsClient;
             _adsCommandVar = adsCommandVar;
 
             Timeout = TimeSpan.FromSeconds(DEFAULT_TIME_OUT_SECOND);
         }
 
-        public PcsCommand2(TcAdsClient adsClient, string commandVar, TimeSpan timeout) : this(adsClient, commandVar)
+        public PcsCommand2(IAdsConnection adsClient, string commandVar, TimeSpan timeout)
+            : this(adsClient, commandVar)
         {
             Timeout = timeout;
         }
@@ -76,7 +78,7 @@ namespace AtomizerUI.link
                             Value = prop.GetValue(argsIn),
                             TcAdsDataType = _commandSymbols[symbolFullPath]
                         });
-                }      
+                }
             }
 
             _adsClient.WriteSumVariables(symbolsToWrite);
@@ -84,7 +86,7 @@ namespace AtomizerUI.link
             _adsClient.WriteObjectVariables(argsIn, _adsCommandVar, _commandSymbols);
 
             return Execute();
-        }      
+        }
 
         public Tout Execute()
         {
@@ -97,7 +99,7 @@ namespace AtomizerUI.link
             try
             {
                 SetExecuteFlag();
-                                
+
                 var dataExch = new DataExchange();
                 var cmdHandle = _adsClient.AddDeviceNotificationEx($"{_adsCommandVar}.stHandshake", AdsTransMode.OnChange,
                     TimeSpan.Zero, TimeSpan.Zero, dataExch, typeof(CommandControlData));
@@ -127,7 +129,7 @@ namespace AtomizerUI.link
                             var cmdHndl = _adsClient.CreateVariableHandle(_adsCommandVar + ".stHandshake");
                             try
                             {
-                                var ccd = (CommandControlData) _adsClient.ReadAny(cmdHndl, typeof (CommandControlData));
+                                var ccd = (CommandControlData)_adsClient.ReadAny(cmdHndl, typeof(CommandControlData));
                                 if (!ccd.Execute && !ccd.Busy)
                                 {
                                     break;
@@ -136,7 +138,7 @@ namespace AtomizerUI.link
                             finally
                             {
                                 _adsClient.DeleteVariableHandle(cmdHndl);
-                            }                                    
+                            }
 
                             throw new PcsCommandTimeoutException();
                         }
@@ -146,14 +148,14 @@ namespace AtomizerUI.link
                 {
                     _adsClient.DeleteDeviceNotification(cmdHandle);
                 }
-            } 
+            }
             finally
             {
                 _adsClient.AdsNotificationEx -= OnAdsnotificationEx;
             }
 
             // Read Result values
-            return ReadResult();            
+            return ReadResult();
         }
 
         private void ReadSymbols()
@@ -169,18 +171,18 @@ namespace AtomizerUI.link
             }
         }
 
-        private Tout ReadResult() 
+        private Tout ReadResult()
         {
             // Read all output values
             var test = new Tout();
             Tout result = _adsClient.ReadObjectVariables(new Tout(), _adsCommandVar, _commandSymbols);
 
-            return result;            
+            return result;
         }
 
         private void SetExecuteFlag()
         {
-            _adsClient.WriteVariable(_adsCommandVar + ".stHandshake.bExecute", true);            
+            _adsClient.WriteVariable(_adsCommandVar + ".stHandshake.bExecute", true);
         }
 
         private void ResetExecuteFlag()
@@ -192,7 +194,7 @@ namespace AtomizerUI.link
         {
             if (e.UserData is DataExchange)
             {
-                ((DataExchange) e.UserData).Set(e.Value);
+                ((DataExchange)e.UserData).Set(e.Value);
             }
         }
 
@@ -204,7 +206,7 @@ namespace AtomizerUI.link
             {
                 case 0:
                     // Init state
-                    return;                    
+                    return;
                 case 1:
                     errorMsg = "Running";
                     break;

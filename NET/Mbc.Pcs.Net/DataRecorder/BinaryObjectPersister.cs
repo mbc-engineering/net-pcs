@@ -273,7 +273,6 @@ namespace Mbc.Pcs.Net.DataRecorder
 
             var array = Array.CreateInstance(type.GetElementType(), dimension);
 
-
             void SetArrayValue(int[] index)
             {
                 if (index.Length == dimension.Length)

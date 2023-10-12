@@ -1,18 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+﻿<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>Mbc.Pcs.Net.TwinCat.EventLog</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <authors>mbc engineering</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectUrl>https://github.com/mbc-engineering/net-pcs</projectUrl>
     <description>unofficial assemblies from type libraries for TwinCat Alarm and Event alias TcEventLoggerLib and TcEventLogProxyLib</description>
     <dependencies>
       <group targetFramework=".NETFramework4.6.1" />
+      <!-- Version 7.0 is the default value-->
+      <group targetFramework="net6.0-windows7.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="..\libs\Interop.TCEVENTLOGGERLib.dll" target="lib\net461\Interop.TCEVENTLOGGERLib.dll" />
-    <file src="..\libs\Interop.TcEventLogProxyLib.dll" target="lib\net461\Interop.TcEventLogProxyLib.dll" />
+    <file src="..\Libs\Interop.TCEVENTLOGGERLib.dll" target="lib\net461\Interop.TCEVENTLOGGERLib.dll" />
+    <file src="..\Libs\Interop.TcEventLogProxyLib.dll" target="lib\net461\Interop.TcEventLogProxyLib.dll" />
+    <file src="..\Libs\Interop.TCEVENTLOGGERLib.dll" target="lib\net6.0-windows7.0\Interop.TCEVENTLOGGERLib.dll" />
+    <file src="..\Libs\Interop.TcEventLogProxyLib.dll" target="lib\net6.0-windows7.0\Interop.TcEventLogProxyLib.dll" />
   </files>
 </package>

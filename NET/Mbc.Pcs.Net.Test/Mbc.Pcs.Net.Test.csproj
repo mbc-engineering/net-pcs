@@ -1,24 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFramework>net471</TargetFramework>
+    <TargetFrameworks>net471;net6.0</TargetFrameworks>
     <Product>Mbc.Pcs.Net.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="FakeItEasy" Version="6.2.1" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="HDF.PInvoke" Version="1.10.6.1" />
     <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
-    <PackageReference Include="Xbehave" Version="2.4.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+
+    <!--Requires the HDF package reference to find the hdf5.dll-->
+    <PackageReference Include="HDF.PInvoke" Version="1.10.6.1" Condition="'$(TargetFramework)' == 'net471' OR '$(TargetFramework)' == 'net48'" />
+    <PackageReference Include="HDF.PInvoke.1.10" Version="1.10.610" Condition="'$(TargetFramework)' == 'netstandard2.0' " />
   </ItemGroup>
 
   <ItemGroup>

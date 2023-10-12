@@ -14,11 +14,7 @@ namespace CallAds
     {
         static void Main(string[] args)
         {
-            var client = new TcAdsClient
-            {
-                Synchronize = false
-            };
-
+            var client = new AdsClient();
             client.Connect(851);
 #if true
             var command = new PcsCommand2<AddCommandParam.Output>(client, "Commands.AddCommand1");
@@ -32,7 +28,6 @@ namespace CallAds
             Console.WriteLine("Result: {0}", output.Result);
             Console.ReadKey();
 #endif
-
 
 #if false
             var command = new PcsCommand(client, "Commands.stAddCommand")

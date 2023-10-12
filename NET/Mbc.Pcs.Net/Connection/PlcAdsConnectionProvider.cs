@@ -4,7 +4,7 @@
 //-----------------------------------------------------------------------------
 
 using Mbc.Ads.Utils.Connection;
-using NLog;
+using Microsoft.Extensions.Logging;
 using Optional;
 using System;
 using TwinCAT;
@@ -14,32 +14,29 @@ namespace Mbc.Pcs.Net.Connection
 {
     internal class PlcAdsConnectionProvider : IDisposable
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-
-        private readonly AdsSession _session;
+        private readonly AmsAddress _amsAddr;
+        private readonly AdsClient _client;
+        private readonly ILogger _logger;
         private bool _wasConnected;
         private IAdsConnection _connection;
 
         internal event EventHandler<PlcConnectionChangeArgs> ConnectionStateChanged;
 
-        internal PlcAdsConnectionProvider(string adsNetId, int adsPort)
+        internal PlcAdsConnectionProvider(string adsNetId, int adsPort, ILogger logger = null)
         {
-            var amsNetId = new AmsNetId(adsNetId);
-            var settings = new SessionSettings(1000);
+            _amsAddr = new AmsAddress(adsNetId, adsPort);
+            _logger = logger;
 
-            _session = new AdsSession(amsNetId, adsPort, settings);
-            _session.ConnectionStateChanged += (s, e) =>
-            {
-                // Log some statistic
-                _logger.Debug("Ads Communication Statistics: {@statistics}", _session.Statistics);
+            var settings = new AdsClientSettings(1000);
+            _client = new AdsClient(null, settings, logger);
 
-                OnConnectionStateChanged(e);
-            };
+            _client.AdsNotificationError += OnAdsNotificationError;
+            _client.ConnectionStateChanged += OnConnectionStateChanged;
         }
 
         public void Dispose()
         {
-            _session.Dispose();
+            _client.Dispose();
         }
 
         internal virtual Option<IAdsConnection> Connection => _connection.SomeNotNull<IAdsConnection>();
@@ -48,58 +45,61 @@ namespace Mbc.Pcs.Net.Connection
         {
             try
             {
-                _logger.Info("Trying to connect to plc at {plc_ams_address}.", _session.Address);
-
-                var oldConnectionState = _session?.Connection?.ConnectionState ?? ConnectionState.Unknown;
-
-                _session.Connect().Connect();
-                if (_session.Connection.ConnectionState == ConnectionState.Connected)
-                {
-                    _connection = ConnectionSynchronization.MakeSynchronized(_session.Connection);
-                    _connection.AdsNotificationError += OnAdsNotificationError;
-
-                    OnConnectionStateChanged(new ConnectionStateChangedEventArgs(
-                        ConnectionStateChangedReason.Established, ConnectionState.Connected, oldConnectionState));
-                }
-                else
-                {
-                    _connection = null;
-                }
+                _logger.LogInformation("Trying to connect to plc at {plc_ams_address}.", _amsAddr);
+                _client.Connect(_amsAddr);
             }
             catch (Exception ex)
             {
-                throw new PlcAdsException(string.Format(ConnectionResources.PlcAdsConnectingFailed, _session.Address.NetId, _session.Port), ex);
+                throw new PlcAdsException("Error starting ADS connection. (See inner exception for details.)", ex);
             }
         }
 
         internal void Disconnect()
         {
-            _logger.Info("Disconnect from plc at {plc_ams_address}.", _session.Address);
-            ConnectionStateChanged?.Invoke(this, new PlcConnectionChangeArgs(false, _connection));
-            _session.Disconnect();
-            _connection = null;
+            _logger.LogInformation("Disconnect from plc at {plc_ams_address}.", _amsAddr);
+            _client.Disconnect();
         }
 
-        private void OnConnectionStateChanged(ConnectionStateChangedEventArgs e)
+        private void OnConnectionStateChanged(object sender, ConnectionStateChangedEventArgs e)
         {
-            _logger.Info("ADS Connection State Change {old_state} -> {new_state} because of {reason}.", e.OldState, e.NewState, e.Reason);
+            if (_connection == null && e.NewState == ConnectionState.Connected)
+            {
+                _connection = ConnectionSynchronization.MakeSynchronized(_client);
+            }
+
+            _logger.LogInformation("ADS Connection State Change {old_state} -> {new_state} because of {reason}.", e.OldState, e.NewState, e.Reason);
 
             if (e.Exception != null)
             {
-                _logger.Error(e.Exception, "ADS Connection State Changed to {new_state} Exception", e.NewState);
+                _logger.LogError(e.Exception, "ADS Connection State Changed to {new_state} Exception", e.NewState);
             }
 
             var connected = e.NewState == ConnectionState.Connected;
             if (_wasConnected != connected)
             {
                 _wasConnected = connected;
-                ConnectionStateChanged?.Invoke(this, new PlcConnectionChangeArgs(connected, _connection));
+                _logger.LogInformation("Notify Listener about connection state change to {state}.", e.NewState);
+
+                try
+                {
+                    ConnectionStateChanged?.Invoke(this, new PlcConnectionChangeArgs(connected, _connection));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Listener throws error: {error}", ex.Message);
+                }
+            }
+
+            if (e.NewState == ConnectionState.Disconnected)
+            {
+                // remove connection after all listener are notified
+                _connection = null;
             }
         }
 
         private void OnAdsNotificationError(object sender, AdsNotificationErrorEventArgs e)
         {
-            _logger.Error(e.Exception, "ADS Notification Error.");
+            _logger.LogError(e.Exception, "ADS Notification Error.");
         }
 
         internal virtual IAdsConnection GetConnectedConnection()
