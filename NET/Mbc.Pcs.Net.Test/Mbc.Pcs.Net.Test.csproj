@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFrameworks>net471;net6.0</TargetFrameworks>
+    <TargetFrameworks>net471;net8.0</TargetFrameworks>
     <Product>Mbc.Pcs.Net.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>

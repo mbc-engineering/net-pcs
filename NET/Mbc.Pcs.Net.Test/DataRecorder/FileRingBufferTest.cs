@@ -9,6 +9,14 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
 {
     public class FileRingBufferTest
     {
+        public FileRingBufferTest()
+        {
+#if NET8_0_OR_GREATER
+            // Enable BinaryFormatter, because in .NET 8.0 it is disabled by default
+            AppContext.SetSwitch("System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization", true);
+#endif
+        }
+
         [Fact]
         public void SmokeTest()
         {

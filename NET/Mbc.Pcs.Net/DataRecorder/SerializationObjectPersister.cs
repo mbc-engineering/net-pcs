@@ -16,14 +16,18 @@ namespace Mbc.Pcs.Net.DataRecorder
     {
         public object Deserialize(Stream stream)
         {
+#pragma warning disable SYSLIB0011 // SYSLIB0011: BinaryFormatter serialization is obsolete
             var formatter = new BinaryFormatter();
             return formatter.Deserialize(stream);
+#pragma warning restore SYSLIB0011
         }
 
         public void Serialize(object data, Stream stream)
         {
+#pragma warning disable SYSLIB0011 // SYSLIB0011: BinaryFormatter serialization is obsolete
             var formatter = new BinaryFormatter();
             formatter.Serialize(stream, data);
+#pragma warning restore SYSLIB0011
         }
     }
 }

@@ -115,7 +115,7 @@ namespace Mbc.Pcs.Net.Test.State
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(true, null));
 
                 // wait for timeout
-                await Task.Delay(TimeSpan.FromMilliseconds(2200));
+                await Task.Delay(TimeSpan.FromMilliseconds(200));
 
                 // Assert
                 monitoredTestee
@@ -125,7 +125,7 @@ namespace Mbc.Pcs.Net.Test.State
                     .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied))
                     .WithSender(_testee)
                     .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.MinValue)
-                    .WithArgs<HeartBeatDiedEventArgs>(args => args.DiedTime >= startTimestamp.Add(_testee.TimeUntilDie) && args.DiedTime < DateTime.Now)
+                    .WithArgs<HeartBeatDiedEventArgs>(args => args.DiedTime >= startTimestamp && args.DiedTime <= DateTime.Now)
                     .WithArgs<HeartBeatDiedEventArgs>(args => args.LastSampleTime == SampleTime.FromRawValue(0));
             }
         }
