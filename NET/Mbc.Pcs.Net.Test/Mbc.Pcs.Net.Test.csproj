@@ -12,8 +12,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="FakeItEasy" Version="8.1.0" />
-    <!-- When update FluentAssertions to latest version, some unit tests will fail, are the test wrong or the implementaion is not clear -->
-    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
     <PackageReference Include="xunit" Version="2.6.6" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />

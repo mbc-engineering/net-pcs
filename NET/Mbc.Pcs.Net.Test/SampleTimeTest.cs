@@ -241,8 +241,8 @@ namespace Mbc.Pcs.Net.Test
             // Assert
             SampleTime.FromRawValue(2400000000000000000UL).Should().Be(new SampleTime(new DateTime(2010, 1, 1, 0, 0, 0), 1000));
             SampleTime.FromRawValue(2400000000000001000UL).Should().Be(new SampleTime(new DateTime(2010, 1, 1, 0, 0, 1), 1000));
-            SampleTime.FromRawValue(4800000000000000000UL).Should().Be(new SampleTime(new DateTime(2010, 1, 1, 0, 0, 0), 1000));
-            SampleTime.FromRawValue(4801262304000000000UL).Should().Be(new SampleTime(new DateTime(2050, 1, 1, 0, 0, 0), 1000));
+            SampleTime.FromRawValue(4800000000000000000UL).Should().Be(new SampleTime(new DateTime(2010, 1, 1, 0, 0, 0), 1000000));
+            SampleTime.FromRawValue(4801262304000000000UL).Should().Be(new SampleTime(new DateTime(2050, 1, 1, 0, 0, 0), 1000000));
         }
     }
 }

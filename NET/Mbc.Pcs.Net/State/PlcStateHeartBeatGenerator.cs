@@ -111,7 +111,7 @@ namespace Mbc.Pcs.Net.State
             {
                 LastHeartBeat = LastHeartBeat,
                 DiedTime = DateTime.Now,
-                LastSampleTime = _lastSampleTimestamp < DateTime.FromFileTime(0) ? SampleTime.FromRawValue(0) : new SampleTime(_lastSampleTimestamp, _plcStateSampler.SampleRate),
+                LastSampleTime = _lastSampleTimestamp <= DateTime.FromFileTime(0) ? SampleTime.FromRawValue(0) : new SampleTime(_lastSampleTimestamp, _plcStateSampler.SampleRate),
             };
             HeartDied?.Invoke(this, args);
         }

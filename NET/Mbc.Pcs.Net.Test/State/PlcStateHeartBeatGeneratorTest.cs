@@ -14,14 +14,16 @@ namespace Mbc.Pcs.Net.Test.State
     {
         private readonly PlcStateHeartBeatGenerator<PlcStateDummy> _testee;
         private readonly IPlcAdsConnectionService _adsConnection;
+        private readonly uint _sampleRate;
         private IPlcStateSampler<PlcStateDummy> _plcStateSampler;
 
         public PlcStateHeartBeatGeneratorTest()
         {
             _adsConnection = A.Fake<IPlcAdsConnectionService>();
             _plcStateSampler = A.Fake<IPlcStateSampler<PlcStateDummy>>();
+            _sampleRate = 500u;
             A.CallTo(() => _plcStateSampler.SampleRate)
-                .Returns(500u);
+                .Returns(_sampleRate);
 
             _testee = new PlcStateHeartBeatGenerator<PlcStateDummy>(TimeSpan.FromSeconds(1), _adsConnection, _plcStateSampler);
         }
@@ -105,6 +107,7 @@ namespace Mbc.Pcs.Net.Test.State
         {
             // Arrange
             _testee.TimeUntilDie = TimeSpan.FromMilliseconds(100);
+            var startTimestamp = DateTime.Now;
             using (var monitoredTestee = _testee.Monitor())
             {
                 // Act
@@ -112,7 +115,7 @@ namespace Mbc.Pcs.Net.Test.State
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(true, null));
 
                 // wait for timeout
-                await Task.Delay(TimeSpan.FromMilliseconds(200));
+                await Task.Delay(TimeSpan.FromMilliseconds(2200));
 
                 // Assert
                 monitoredTestee
@@ -121,7 +124,9 @@ namespace Mbc.Pcs.Net.Test.State
                 monitoredTestee
                     .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied))
                     .WithSender(_testee)
-                    .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.MinValue, args => args.DiedTime == args.LastHeartBeat.Add(_testee.TimeUntilDie));
+                    .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.MinValue)
+                    .WithArgs<HeartBeatDiedEventArgs>(args => args.DiedTime >= startTimestamp.Add(_testee.TimeUntilDie) && args.DiedTime < DateTime.Now)
+                    .WithArgs<HeartBeatDiedEventArgs>(args => args.LastSampleTime == SampleTime.FromRawValue(0));
             }
         }
 
@@ -129,6 +134,7 @@ namespace Mbc.Pcs.Net.Test.State
         public async Task HeardDiedEventShouldTriggerBeatsLost()
         {
             // Arrange
+            var startTimestamp = DateTime.Now;
             using (var monitoredTestee = _testee.Monitor())
             {
                 // Act
@@ -149,7 +155,9 @@ namespace Mbc.Pcs.Net.Test.State
                 monitoredTestee
                     .Should().Raise(nameof(PlcStateHeartBeatGenerator<PlcStateDummy>.HeartDied))
                     .WithSender(_testee)
-                    .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.FromFileTime(10), args => args.DiedTime == args.LastHeartBeat.Add(_testee.TimeUntilDie));
+                    .WithArgs<HeartBeatDiedEventArgs>(args => args.LastHeartBeat == DateTime.FromFileTime(10))
+                    .WithArgs<HeartBeatDiedEventArgs>(args => args.DiedTime >= startTimestamp.Add(_testee.TimeUntilDie) && args.DiedTime < DateTime.Now)
+                    .WithArgs<HeartBeatDiedEventArgs>(args => args.LastSampleTime == new SampleTime(DateTime.FromFileTime(0), _sampleRate));
             }
         }
 
@@ -186,6 +194,7 @@ namespace Mbc.Pcs.Net.Test.State
         public class PlcStateDummy : IPlcState
         {
             public DateTime PlcTimeStamp { get; set; }
+
             public PlcDataQuality PlcDataQuality { get; set; }
         }
     }
