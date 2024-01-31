@@ -27,7 +27,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
 
             // "The I could retriev it again"
             var bufferedData = buffer.ReadData(0).ToList();
-            bufferedData.Should().BeEquivalentTo(17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5);
+            bufferedData.Should().BeEquivalentTo([17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5]);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
 
             // "The I could retriev all data again"
             var bufferedData = buffer.ReadData(0).ToList();
-            bufferedData.Should().BeEquivalentTo(17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5);
+            bufferedData.Should().BeEquivalentTo([17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5]);
         }
 
         [Fact]
@@ -88,7 +88,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
 
             // "The I could retriev it again"
             var bufferedData = buffer.ReadData(0).Cast<ValueHolder>().Select(x => x.Value).ToList();
-            bufferedData.Should().BeEquivalentTo(17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5);
+            bufferedData.Should().BeEquivalentTo([17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5]);
         }
 
         internal class ValueHolder

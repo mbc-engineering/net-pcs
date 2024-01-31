@@ -34,7 +34,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var channelInfos = adapter.CreateChannelInfos();
 
             // Assert
-            channelInfos.Should().HaveCount(11).And.BeEquivalentTo(
+            channelInfos.Should().HaveCount(11).And.BeEquivalentTo([
                 new ChannelInfo("IntProp", typeof(int)),
                 new ChannelInfo("FloatProp", typeof(float)),
                 new ChannelInfo("DateTimeProp", typeof(long)),
@@ -45,7 +45,8 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
                 new ChannelInfo("FloatMultiOversampling[1]", typeof(float), 4),
                 new ChannelInfo("FloatMultiOversampling[2]", typeof(float), 4),
                 new ChannelInfo("MultiBoolProp[1]", typeof(byte)),
-                new ChannelInfo("MultiBoolProp[2]", typeof(byte)));
+                new ChannelInfo("MultiBoolProp[2]", typeof(byte)),
+                ]);
         }
 
 #pragma warning disable CA1814
@@ -155,7 +156,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             var result = adapter.ReadData(dataChannelWriter, 1, 2);
 
             // Assert
-            result.Should().BeEquivalentTo(
+            result.Should().BeEquivalentTo([
                 new MockDataClass
                 {
                     IntProp = 42,
@@ -185,7 +186,8 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
                         { 10F, 20F, 30F, 40F },
                     },
                     MultiBoolProp = new[] { true, false },
-                });
+                },
+                ]);
         }
 
         private class MockDataClass

@@ -96,7 +96,7 @@ namespace Mbc.Pcs.Net.Test
             Func<Task> act = async () => await subject.ExecuteAsync();
 
             // Assert
-            act.Should().NotThrow();
+            act.Should().NotThrowAsync();
             stateChanges.Count.Should().Be(1);
             stateChanges[0].IsFinished.Should().Be(true);
             stateChanges[0].IsCancelled.Should().Be(false);
@@ -130,7 +130,7 @@ namespace Mbc.Pcs.Net.Test
             Func<Task> act = async () => await subject.ExecuteAsync(input, output);
 
             // Assert
-            act.Should().NotThrow();
+            act.Should().NotThrowAsync();
         }
 
         [Fact]

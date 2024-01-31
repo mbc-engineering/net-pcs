@@ -281,7 +281,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(3);
-            buffer.Should().BeEquivalentTo(11F, 12F, 13F);
+            buffer.Should().BeEquivalentTo([11F, 12F, 13F]);
         }
 
         [Fact]
@@ -309,7 +309,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(2);
-            buffer.Should().BeEquivalentTo(0F, 10F, 11F);
+            buffer.Should().BeEquivalentTo([0F, 10F, 11F]);
         }
 
         [Fact]
@@ -337,7 +337,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(-1);
-            buffer.Should().BeEquivalentTo(0F, 0F, 0F);
+            buffer.Should().BeEquivalentTo([0F, 0F, 0F]);
         }
 
         [Fact]
@@ -365,7 +365,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(4);
-            buffer.Should().BeEquivalentTo(18F, 19F, 20F, 21F);
+            buffer.Should().BeEquivalentTo([18F, 19F, 20F, 21F]);
         }
 
         [Fact]
@@ -421,7 +421,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(5);
-            buffer.Should().BeEquivalentTo(0F, 0F, 0F, 0F, 10F, 11F, 12F, 13F, 14F, 0F);
+            buffer.Should().BeEquivalentTo([0F, 0F, 0F, 0F, 10F, 11F, 12F, 13F, 14F, 0F]);
         }
 
         [Fact]
@@ -449,7 +449,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(3);
-            buffer.Should().BeEquivalentTo(10F, 12F, 14F);
+            buffer.Should().BeEquivalentTo([10F, 12F, 14F]);
         }
 
         [Fact]
@@ -477,7 +477,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(4);
-            buffer.Should().BeEquivalentTo(0F, 0F, 10F, 12F, 14F, 16F);
+            buffer.Should().BeEquivalentTo([0F, 0F, 10F, 12F, 14F, 16F]);
         }
 
         [Fact]
@@ -505,7 +505,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(4);
-            buffer.Should().BeEquivalentTo(0F, 0F, 16F, 18F, 20F, 22F);
+            buffer.Should().BeEquivalentTo([0F, 0F, 16F, 18F, 20F, 22F]);
         }
 
         [Fact]
@@ -534,7 +534,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(4);
-            buffer.Should().BeEquivalentTo(0F, 0F, 23F, 25F, 27F, 29F);
+            buffer.Should().BeEquivalentTo([0F, 0F, 23F, 25F, 27F, 29F]);
         }
 
         [Fact]
@@ -563,7 +563,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(4);
-            buffer.Should().BeEquivalentTo(0F, 0F, 18F, 21F, 24F, 27F);
+            buffer.Should().BeEquivalentTo([0F, 0F, 18F, 21F, 24F, 27F]);
         }
 
         [Fact]
@@ -591,7 +591,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 
             // Assert
             result.Should().Be(1);
-            buffer.Should().BeEquivalentTo(12F);
+            buffer.Should().BeEquivalentTo([12F]);
         }
     }
 }

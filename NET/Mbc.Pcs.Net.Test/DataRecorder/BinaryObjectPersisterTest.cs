@@ -87,7 +87,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
             value.Int.Should().Be(-1);
             value.UInt.Should().Be(0xFEFFFFFF);
             value.Enum.Should().Be(EnumTest.Value2);
-            value.FloatArray.Should().BeEquivalentTo(10, 11);
+            value.FloatArray.Should().BeEquivalentTo([10, 11]);
             value.Float2Array.Should().BeEquivalentTo(new float[,]
             {
                 { 1, 2 },
@@ -176,7 +176,7 @@ namespace Mbc.Pcs.Net.Test.DataRecorder
             value.Int.Should().Be(-1);
             value.UInt.Should().Be(0xFEFFFFFF);
             value.Enum.Should().Be(EnumTest.Value2);
-            value.FloatArray.Should().BeEquivalentTo(10, 11);
+            value.FloatArray.Should().BeEquivalentTo([10, 11]);
             value.Float2Array.Should().BeEquivalentTo(new float[,]
             {
                 { 1, 2 },
