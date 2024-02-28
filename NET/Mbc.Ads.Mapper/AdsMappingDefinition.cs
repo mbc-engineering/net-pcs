@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using Mbc.Ads.Utils;
 using System;
 using System.Linq;
 using TwinCAT.PlcOpen;
@@ -44,7 +45,7 @@ namespace Mbc.Ads.Mapper
                 return ConvertEnumValueFromPlc(value);
             }
 
-            return Convert.ChangeType(value, DestinationMemberConfiguration.MemberElementType);
+            return AdsConvert.ChangeType(value, DestinationMemberConfiguration.MemberElementType);
         }
 
         internal object ConvertFromDestinationToSource(object value)

@@ -121,7 +121,7 @@ namespace Mbc.Pcs.Net.Command
 
                 if (inputData.TryGetValue(fbItem.Key, out object value))
                 {
-                    values.Add(Convert.ChangeType(value, type));
+                    values.Add(AdsConvert.ChangeType(value, type));
                 }
                 else
                 {
