@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using System;
+using System.Globalization;
 using Xunit;
 
 namespace Mbc.Ads.Utils.Test
@@ -64,7 +65,7 @@ namespace Mbc.Ads.Utils.Test
         public void ConvertionFromDateTimeToDate()
         {
             // Arrange
-            var value = DateTime.Parse("28.02.2024 09:57:32 +01:00");
+            var value = DateTime.Parse("28.02.2024 09:57:32 +01:00", CultureInfo.GetCultureInfoByIetfLanguageTag("de-CH"));
 
             // Act
             var res = AdsConvert.ChangeType<TwinCAT.PlcOpen.DATE>(value);
@@ -77,7 +78,7 @@ namespace Mbc.Ads.Utils.Test
         public void ConvertionFromDateOffsetTimeToDate()
         {
             // Arrange
-            var value = DateTimeOffset.Parse("28.02.2024 09:57:32 +01:00");
+            var value = DateTimeOffset.Parse("28.02.2024 09:57:32 +01:00", CultureInfo.GetCultureInfoByIetfLanguageTag("de-CH"));
 
             // Act
             var res = AdsConvert.ChangeType<TwinCAT.PlcOpen.DATE>(value);
@@ -90,7 +91,7 @@ namespace Mbc.Ads.Utils.Test
         public void ConvertionFromDateToDateTimeOffset()
         {
             // Arrange
-            var dt = DateTimeOffset.Parse("28.02.2024 09:57:32 +01:00");
+            var dt = DateTimeOffset.Parse("28.02.2024 09:57:32 +01:00", CultureInfo.GetCultureInfoByIetfLanguageTag("de-CH"));
             var value = new TwinCAT.PlcOpen.DATE(dt);
 
             // Act
@@ -104,7 +105,7 @@ namespace Mbc.Ads.Utils.Test
         public void ConvertionFromDateToDateTime()
         {
             // Arrange
-            var dt = DateTime.Parse("28.02.2024 09:57:32 +01:00");
+            var dt = DateTime.Parse("28.02.2024 09:57:32 +01:00", CultureInfo.GetCultureInfoByIetfLanguageTag("de-CH"));
             var value = new TwinCAT.PlcOpen.DATE(dt);
 
             // Act
