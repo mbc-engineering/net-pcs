@@ -8,8 +8,12 @@
     <Product>Mbc.Ads.Mapper</Product>
 
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-
   </PropertyGroup>
+    
+  <PropertyGroup>
+        <NoWarn>NU1702</NoWarn>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>

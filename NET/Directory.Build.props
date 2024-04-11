@@ -61,11 +61,11 @@ limitations under the License.
   <PropertyGroup>
     <!-- Not need if Roslyn analysis is used (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/2122)
     <RunCodeAnalysis>true</RunCodeAnalysis> -->
-    <CodeAnalysisRuleSet>$(SolutionDir)\Build\Mbc.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>$(MSBuildProjectDirectory)\..\Build\Mbc.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <!-- https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/Configuration.md -->
-    <None Include="$(SolutionDir)\Build\stylecop.json">
+    <None Include="$(MSBuildProjectDirectory)\..\Build\stylecop.json">
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +76,6 @@ limitations under the License.
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.*">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.*" />
   </ItemGroup>
 </Project>

@@ -10,8 +10,10 @@
     <OutputType>Exe</OutputType>
 
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-
   </PropertyGroup>
+  <PropertyGroup>
+        <NoWarn>NU1702</NoWarn>
+  </PropertyGroup>    
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Ads.Mapper\Mbc.Ads.Mapper.csproj" />
   </ItemGroup>

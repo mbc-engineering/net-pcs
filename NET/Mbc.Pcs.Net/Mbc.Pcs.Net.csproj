@@ -6,6 +6,9 @@
     
     <Product>Mbc.Pcs.Net</Product>
   </PropertyGroup>
+  <PropertyGroup>
+        <NoWarn>NU1702</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Mbc.AsyncUtils" Version="0.4.0" />
     <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />

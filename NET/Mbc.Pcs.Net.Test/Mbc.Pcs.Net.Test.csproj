@@ -8,7 +8,9 @@
 
     <OutputType>Exe</OutputType>
   </PropertyGroup>
-
+  <PropertyGroup>
+        <NoWarn>NU1702</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="FakeItEasy" Version="8.1.0" />

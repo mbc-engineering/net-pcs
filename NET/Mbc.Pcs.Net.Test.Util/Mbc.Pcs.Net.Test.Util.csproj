@@ -7,7 +7,9 @@
     <Product>Mbc.Pcs.Net</Product>
 
   </PropertyGroup>
-
+  <PropertyGroup>
+        <NoWarn>NU1702</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="8.1.0" />
   </ItemGroup>

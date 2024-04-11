@@ -7,6 +7,9 @@
     <Product>Mbc.Pcs.Net.Command</Product>
 
   </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>NU1702</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Ads.Utils\Mbc.Ads.Utils.csproj" />
   </ItemGroup>
