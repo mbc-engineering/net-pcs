@@ -87,6 +87,7 @@ namespace Mbc.Pcs.Net.Connection
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Listener throws error: {error}", ex.Message);
+                    throw;
                 }
             }
 
