@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using EnsureThat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +29,11 @@ namespace Mbc.Ads.Utils.SumCommand
         public AdsErrorCode TryWrite(IEnumerable<ReadOnlyMemory<byte>> data, out AdsErrorCode[] returnCodes)
         {
             var writeData = data.Select(x => x.ToArray()).ToList();
-            Ensure.That(writeData.Count, nameof(data), (opt) => opt.WithMessage("Size must match handles.")).Is(_handles.Length);
+
+            if (writeData.Count != _handles.Length)
+            {
+                throw new ArgumentException($"Size must match handles. Value '{writeData.Count}' is not '{_handles.Length}'.", nameof(data));
+            }
 
             sumEntities = _handles.Zip(writeData, (h, d) => new HandleSumDataEntity(h, d.Length)).Cast<SumDataEntity>().ToList();
 

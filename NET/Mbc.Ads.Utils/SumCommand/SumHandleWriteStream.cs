@@ -3,10 +3,8 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using EnsureThat;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using TwinCAT.Ads;
 using TwinCAT.Ads.SumCommand;
@@ -33,7 +31,11 @@ namespace Mbc.Ads.Utils.SumCommand
         public AdsErrorCode TryWrite(IEnumerable<AdsStream> streams, out AdsErrorCode[] returnCodes)
         {
             var writeData = streams.Select(x => x.ToArray()).ToList();
-            Ensure.That(writeData.Count, nameof(streams), (opt) => opt.WithMessage("Size must match handles.")).Is(_handles.Length);
+
+            if (writeData.Count != _handles.Length)
+            {
+                throw new ArgumentException($"Size must match handles. Value '{writeData.Count}' is not '{_handles.Length}'.", nameof(streams));
+            }
 
             sumEntities = new List<SumDataEntity>();
             foreach (var entity in _handles.Zip(writeData, (h, d) => new HandleSumStreamEntity(h, d.Length)))
