@@ -16,15 +16,18 @@ namespace Mbc.Pcs.Net.Connection
     {
         private readonly AmsAddress _amsAddr;
         private readonly AdsClient _client;
+        private readonly bool _validateConnectedState;
         private readonly ILogger _logger;
         private bool _wasConnected;
         private IAdsConnection _connection;
+        private bool _initalConnection = true;
 
         internal event EventHandler<PlcConnectionChangeArgs> ConnectionStateChanged;
 
-        internal PlcAdsConnectionProvider(string adsNetId, int adsPort, ILogger logger = null)
+        internal PlcAdsConnectionProvider(string adsNetId, int adsPort, bool validateConnectedState = true, ILogger logger = null)
         {
             _amsAddr = new AmsAddress(adsNetId, adsPort);
+            _validateConnectedState = validateConnectedState;
             _logger = logger;
 
             var settings = new AdsClientSettings(1000);
@@ -46,11 +49,12 @@ namespace Mbc.Pcs.Net.Connection
             try
             {
                 _logger.LogInformation("Trying to connect to plc at {plc_ams_address}.", _amsAddr);
+                _initalConnection = true;
                 _client.Connect(_amsAddr);
             }
             catch (Exception ex)
             {
-                throw new PlcAdsException("Error starting ADS connection. (See inner exception for details.)", ex);
+                throw new PlcAdsException($"Error establish ADS connection to {_amsAddr}.", ex);
             }
         }
 
@@ -62,9 +66,30 @@ namespace Mbc.Pcs.Net.Connection
 
         private void OnConnectionStateChanged(object sender, ConnectionStateChangedEventArgs e)
         {
+            // Validates the Events connection state, because this event return the informationen
+            // how the quality of the connection is to the ADS Router, not to the target device.
+            // With explicitly TryReadSate Method, the device connection is established and validated.
+            if (_validateConnectedState && e.NewState == ConnectionState.Connected)
+            {
+                AdsErrorCode resultCode = _client.TryReadState(out StateInfo stateInfo);
+                if (resultCode != AdsErrorCode.NoError)
+                {
+                    _logger.LogError("ADS Connection State Changed to {new_state} but the device response with AdsErrorCode={adsErrorCode}, DeviceState={deviceState} and AdsState={adsState}.", e.NewState, resultCode, stateInfo.DeviceState, stateInfo.AdsState);
+                    if (_initalConnection)
+                    {
+                        // throw an exception. If this is is when calling _client.Connect() then the _client.Connect will throw the exception.
+                        throw new PlcAdsException($"Error reading target device={_client.Address} state. AdsErrorCode={resultCode}, DeviceState={stateInfo.DeviceState}, AdsState={stateInfo.AdsState}");
+                    }
+
+                    // set the connection state to disconnected, because the device is not reachable
+                    _client.Disconnect();
+                }
+            }
+
             if (_connection == null && e.NewState == ConnectionState.Connected)
             {
                 _connection = ConnectionSynchronization.MakeSynchronized(_client);
+                _initalConnection = false;
             }
 
             _logger.LogInformation("ADS Connection State Change {old_state} -> {new_state} because of {reason}.", e.OldState, e.NewState, e.Reason);

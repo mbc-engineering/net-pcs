@@ -45,9 +45,9 @@ namespace Mbc.Pcs.Net.Connection
             }
         }
 
-        public PlcAdsConnectionService(string plcAdsHost, int plcAdsPort, ILogger adsLogger = null)
+        public PlcAdsConnectionService(string plcAdsHost, int plcAdsPort, bool validateConnectedState = true, ILogger adsLogger = null)
         {
-            _plcConnection = new PlcAdsConnectionProvider(plcAdsHost, plcAdsPort, adsLogger);
+            _plcConnection = new PlcAdsConnectionProvider(plcAdsHost, plcAdsPort, validateConnectedState, adsLogger);
             _plcConnection.ConnectionStateChanged += OnConnectionStateChanged;
         }
 
