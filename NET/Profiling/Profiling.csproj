@@ -50,9 +50,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj">
-      <Project>{587644d9-9ef1-4d3d-a3fe-fee881ecd511}</Project>
-      <Name>Mbc.Pcs.Net</Name>
+    <ProjectReference Include="..\Mbc.Pcs.Net.DataRecorder\Mbc.Pcs.Net.DataRecorder.csproj">
+      <Project>{c050d1b2-47bf-4212-a770-63ac481c2ad5}</Project>
+      <Name>Mbc.Pcs.Net.DataRecorder</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

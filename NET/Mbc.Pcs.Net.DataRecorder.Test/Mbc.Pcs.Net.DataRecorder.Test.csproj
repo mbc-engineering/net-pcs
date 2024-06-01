@@ -2,30 +2,31 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
     <TargetFrameworks>net471;net8.0</TargetFrameworks>
-    <Product>Mbc.Pcs.Net.Test</Product>
+    <Product>Mbc.Pcs.Net.DataRecorder.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-
-    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <PropertyGroup>
         <NoWarn>NU1702;CS7022</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
     <PackageReference Include="FakeItEasy" Version="8.2.0" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
     <PackageReference Include="xunit" Version="2.8.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+
+    <!--Requires the HDF package reference to find the hdf5.dll-->
+    <PackageReference Include="HDF.PInvoke" Version="1.10.6.1" Condition="'$(TargetFramework)' == 'net471' OR '$(TargetFramework)' == 'net48'" />
+    <PackageReference Include="HDF.PInvoke.1.10" Version="1.10.610" Condition="'$(TargetFramework)' == 'netstandard2.0' " />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Mbc.Pcs.Net.Test.Util\Mbc.Pcs.Net.Test.Util.csproj" />
-    <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
+    <ProjectReference Include="..\Mbc.Pcs.Net.DataRecorder\Mbc.Pcs.Net.DataRecorder.csproj" />
   </ItemGroup>
 
 </Project>

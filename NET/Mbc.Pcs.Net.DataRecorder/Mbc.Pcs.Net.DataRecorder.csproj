@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- common nuget configuration see Directory.Build.props-->
+    <TargetFrameworks>netstandard2.0;net471;net8.0</TargetFrameworks>
+    <Version>4.0.0.10</Version>
+    
+    <Product>Mbc.Pcs.Net.DataRecorder</Product>
+
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+  </PropertyGroup>
+  <PropertyGroup>
+        <NoWarn>NU1702</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
+  </ItemGroup>
+</Project>
