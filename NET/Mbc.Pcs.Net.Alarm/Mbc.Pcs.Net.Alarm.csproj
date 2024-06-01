@@ -8,6 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="6.0.286" />
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="6.1.231" />
   </ItemGroup>
 </Project>
