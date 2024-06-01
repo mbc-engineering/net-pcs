@@ -15,7 +15,7 @@ namespace Cli
     /// </summary>
     public static class Program
     {
-        private static ILogger Logger;
+        private static ILogger _logger;
 
         public static async Task Main(string[] a)
         {
@@ -38,7 +38,7 @@ namespace Cli
             var count = 0;
             while (true)
             {
-                var command = new PlcCommand(client, "Commands.fbAddCommand1", Logger);
+                var command = new PlcCommand(client, "Commands.fbAddCommand1", _logger);
                 command.Timeout = TimeSpan.FromSeconds(60);
                 command.StateChanged += (sender, args) => PrintProgress(args.Progress, args.SubTask);
                 CancellationTokenSource cancellationToken = new CancellationTokenSource();
@@ -95,7 +95,7 @@ namespace Cli
             // Apply config
             NLog.LogManager.Configuration = config;
 
-            Logger = LoggerFactory.Create(builder => builder.AddNLog()).CreateLogger("Cli");
+            _logger = LoggerFactory.Create(builder => builder.AddNLog()).CreateLogger("Cli");
         }
     }
 }

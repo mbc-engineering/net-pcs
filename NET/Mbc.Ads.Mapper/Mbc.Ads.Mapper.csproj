@@ -8,6 +8,7 @@
     <Product>Mbc.Ads.Mapper</Product>
 
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
     
   <PropertyGroup>

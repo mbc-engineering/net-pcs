@@ -5,6 +5,8 @@
     <Version>4.0.0.10</Version>
     
     <Product>Mbc.Pcs.Net</Product>
+
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <PropertyGroup>
         <NoWarn>NU1702</NoWarn>

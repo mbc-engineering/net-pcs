@@ -198,7 +198,9 @@ namespace Mbc.Pcs.Net.Command
                     }
                     catch (Exception resetEx)
                     {
+#pragma warning disable SYSLIB0050
                         if (resetEx.GetType().IsSerializable)
+#pragma warning restore SYSLIB0050 
                         {
                             ex.Data.Add("ResetExecuteFlagException", resetEx);
                         }

@@ -368,6 +368,7 @@ namespace Mbc.Pcs.Net.Test
         }
 
         [Fact]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "<Pending>")]
         public async Task ExecuteAsyncExecutionBehaviorIsThrowExceptionShouldThrowException()
         {
             // Arrange

@@ -12,7 +12,7 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-        <NoWarn>NU1702</NoWarn>
+        <NoWarn>NU1702;CS7022</NoWarn>
   </PropertyGroup>    
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Ads.Mapper\Mbc.Ads.Mapper.csproj" />

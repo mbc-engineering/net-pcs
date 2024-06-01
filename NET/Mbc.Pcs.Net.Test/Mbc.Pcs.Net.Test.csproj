@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <PropertyGroup>
-        <NoWarn>NU1702</NoWarn>
+        <NoWarn>NU1702;CS7022</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />

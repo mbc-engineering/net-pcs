@@ -20,7 +20,7 @@ namespace Mbc.Pcs.Net.Test.Util.Command
 {
     public class AdsCommandConnectionFake
     {
-        private static IAdsConnection systemTestAdsConnection = null;
+        private static IAdsConnection _systemTestAdsConnection = null;
 
         private readonly IAdsConnection _adsConnection = A.Fake<IAdsConnection>();
         private readonly IAdsSymbol _adsSymbols = A.Fake<IAdsSymbol>(x => x.Implements<IStructInstance>());
@@ -111,7 +111,7 @@ namespace Mbc.Pcs.Net.Test.Util.Command
                             var indexOffset = reader.ReadUInt32();
                         }
                     })
-                    .Returns(AdsErrorCode.Succeeded)
+                    .Returns(AdsErrorCode.NoError)
                     .AssignsOutAndRefParameters(10);
             }
 
@@ -224,7 +224,7 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         {
             get
             {
-                return systemTestAdsConnection ?? _adsConnection;
+                return _systemTestAdsConnection ?? _adsConnection;
             }
         }
 
@@ -233,7 +233,7 @@ namespace Mbc.Pcs.Net.Test.Util.Command
         /// </summary>
         public static void SetSystemTestConnection(IAdsConnection adsConnection)
         {
-            systemTestAdsConnection = adsConnection;
+            _systemTestAdsConnection = adsConnection;
         }
 
         public void AddAdsSubItem(string itemName, Type managedType, bool input)
