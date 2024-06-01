@@ -12,9 +12,6 @@
         <NoWarn>NU1702</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Mbc.AsyncUtils" Version="0.4.0" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Mbc.Ads.Mapper\Mbc.Ads.Mapper.csproj" />
     <ProjectReference Include="..\Mbc.Ads.Utils\Mbc.Ads.Utils.csproj" />
   </ItemGroup>
