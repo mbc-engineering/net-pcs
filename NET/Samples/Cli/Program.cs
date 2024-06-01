@@ -10,7 +10,10 @@ using TwinCAT.Ads;
 
 namespace Cli
 {
-    public class Program
+    /// <summary>
+    /// The Main Program.
+    /// </summary>
+    public static class Program
     {
         private static ILogger Logger;
 
@@ -82,10 +85,13 @@ namespace Cli
         private static void SetupNLog()
         {
             var config = new NLog.Config.LoggingConfiguration();
+
             // Targets where to log to: Console
             var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
+
             // Rules for mapping loggers to targets
             config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logconsole);
+
             // Apply config
             NLog.LogManager.Configuration = config;
 

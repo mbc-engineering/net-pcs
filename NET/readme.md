@@ -24,7 +24,7 @@ Allow to implement a command patter combined with the TwinCat 3 library descripe
 
 This package helps to receive event messages from the old Beckhoff TwinCat EventLogger (Located under `C:\TwinCAT\3.1\Components\TcEventLogger`). The Mediator is running as own process, because of correct fail handling in a hosted process.
 
-> To Use the Alarm Service it requires a Windows Host. Target Framework at least 4.7.1 or net6.0-windows
+> To Use the Alarm Service it requires a Windows Host. Target Framework at least 4.7.1 or net8.0-windows
 
 ### Mbc.Pcs.Net.Test.Util
 
