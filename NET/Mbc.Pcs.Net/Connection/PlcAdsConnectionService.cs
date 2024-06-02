@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using Mbc.Common.Interface;
 using Microsoft.Extensions.Logging;
 using System;
 using TwinCAT.Ads;

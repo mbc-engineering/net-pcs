@@ -3,8 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using Mbc.Common;
-using Mbc.Common.Reflection;
+using Mbc.Ads.Mapper.Reflection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -283,7 +282,7 @@ namespace Mbc.Pcs.Net.DataRecorder
                 {
                     for (int i = 0; i < dimension[index.Length]; i++)
                     {
-                        SetArrayValue(index.Concat(Enumerables.Yield(i)).ToArray());
+                        SetArrayValue(index.Concat([i]).ToArray());
                     }
                 }
             }

@@ -1,6 +1,5 @@
 ﻿using EnsureThat;
-using Mbc.Common;
-using Mbc.Common.Reflection;
+using Mbc.Ads.Mapper.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +18,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         /// <summary>
         /// Converter für spezielle Datentypen, die HDF5 nicht direkt unterstützt.
         /// </summary>
-        private static readonly IReadOnlyDictionary<Type, (Type Type, Func<object, object> Converter)> TypeConverter = new Dictionary<Type, (Type Type, Func<object, object> Converter)>
+        private static readonly IReadOnlyDictionary<Type, (Type Type, Func<object, object> Converter)> _typeConverter = new Dictionary<Type, (Type Type, Func<object, object> Converter)>
         {
             [typeof(DateTime)] = (typeof(long), x => ((DateTime)x).ToFileTime()),
             [typeof(bool)] = (typeof(byte), x => ((bool)x) ? (byte)1 : (byte)0),
@@ -58,9 +57,9 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                             throw new InvalidOperationException($"Property {x.Name} should return a array because it is a multi channel.");
 
                         channelType = x.PropertyType.GetElementType();
-                        if (TypeConverter.ContainsKey(channelType))
+                        if (_typeConverter.ContainsKey(channelType))
                         {
-                            var converterEntry = TypeConverter[channelType];
+                            var converterEntry = _typeConverter[channelType];
                             converter = converterEntry.Converter;
                             channelType = converterEntry.Type;
                         }
@@ -86,10 +85,10 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
                     }
                     else
                     {
-                        if (TypeConverter.ContainsKey(x.PropertyType))
+                        if (_typeConverter.ContainsKey(x.PropertyType))
                         {
-                            channelType = TypeConverter[x.PropertyType].Type;
-                            converter = TypeConverter[x.PropertyType].Converter;
+                            channelType = _typeConverter[x.PropertyType].Type;
+                            converter = _typeConverter[x.PropertyType].Converter;
                         }
                         else if (x.PropertyType.IsEnum)
                         {
@@ -103,11 +102,11 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 
                         if (oversamplingFactor == 1)
                         {
-                            return Enumerables.Yield(new ChannelData(x.Name, x.PropertyType, FastInvoke.BuildUntypedGetter<T>(x), FastInvoke.BuildUntypedSetter<T>(x), converter, channelType));
+                            return (IEnumerable<ChannelData>)[new ChannelData(x.Name, x.PropertyType, FastInvoke.BuildUntypedGetter<T>(x), FastInvoke.BuildUntypedSetter<T>(x), converter, channelType)];
                         }
                         else
                         {
-                            return Enumerables.Yield(new OversamplingChannelData(x.Name, x.PropertyType, FastInvoke.BuildUntypedGetter<T>(x), FastInvoke.BuildUntypedSetter<T>(x), converter, channelType, oversamplingFactor));
+                            return (IEnumerable<OversamplingChannelData>)[new OversamplingChannelData(x.Name, x.PropertyType, FastInvoke.BuildUntypedGetter<T>(x), FastInvoke.BuildUntypedSetter<T>(x), converter, channelType, oversamplingFactor)];
                         }
                     }
                 })
