@@ -103,7 +103,7 @@ namespace Mbc.Pcs.Net.Test.AsyncUtils
         [InlineData(-922337203685476.0, false)] // minvalue
         [InlineData(-1, false)]
         [InlineData(0, false)]
-        [InlineData(1, true)]
+        [InlineData(10000, true)] // 10s
         [InlineData(4233600000, true)] // 49 Days
         [InlineData(4233600001, false)] // 49 Days + 1ms
         [InlineData(922337203685476.0, false)] // max value
