@@ -4,7 +4,9 @@
 //-----------------------------------------------------------------------------
 
 using Mbc.Ads.Utils;
+using Mbc.Ads.Utils.SumCommand;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using TwinCAT.Ads;
@@ -27,7 +29,8 @@ namespace Mbc.Pcs.Net.Command
                 .Where(x => x.Value.Attributes.Any(a => string.Equals(a.Name, PlcAttributeNames.PlcCommandOutput, StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(x => x.Key, x => x.Value);
 
-            var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
+            // This are the the tested types
+            var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String, DataTypeCategory.Array, DataTypeCategory.Alias };
             foreach (IMember item in fbItems.Values)
             {
                 if (!validTypeCategories.Contains(item.DataType.Category))
@@ -43,6 +46,7 @@ namespace Mbc.Pcs.Net.Command
                 throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_OutputVariablesMissing, string.Join(",", missingOutputVariables)));
             }
 
+            // fb required flaged arguments must be in the CommandOutput
             var missingRequiredOutputVariables = requiredfbItems.Where(x => !outputNames.Contains(x.Key)).ToArray();
             if (missingOutputVariables.Length > 0)
             {
@@ -50,24 +54,40 @@ namespace Mbc.Pcs.Net.Command
             }
 
             var symbols = new List<string>();
-            var types = new List<Type>();
+            var readSizes = new List<int>();
             foreach (string name in outputNames)
             {
                 IMember item = fbItems[name];
                 symbols.Add(adsCommandFbPath + "." + item.InstanceName);
-                types.Add(item.DataType.GetManagedType());
+                readSizes.Add(item.DataType.ByteSize);
             }
 
             var handleCreator = new SumCreateHandles(adsConnection, symbols);
             var handles = handleCreator.CreateHandles();
             try
             {
-                var sumReader = new SumHandleRead(adsConnection, handles, types.ToArray());
-                var values = sumReader.Read();
+                var sumReader = new SumHandleReadData(adsConnection, handles, readSizes.ToArray());
+                var marshaledValues = sumReader.Read();
 
-                for (int i = 0; i < values.Length; i++)
+                for (int i = 0; i < marshaledValues.Count; i++)
                 {
-                    output.SetOutputData(outputNames[i], values[i]);
+                    IMember item = fbItems[outputNames[i]];
+                    var encoding = item.ValueEncoding;
+                    var converter = new PrimitiveTypeMarshaler(encoding);
+                    var valueType = output.GetOutputDataType(outputNames[i]);
+                    try
+                    {
+                        converter.Unmarshal(item.DataType, marshaledValues[i].Span, valueType, out object value);
+                        output.SetOutputData(outputNames[i], value);
+
+                    }
+                    catch (Exception ex)
+                        when (ex is DataTypeException               // Cannot map to.NET Value!
+                            || ex is ArgumentOutOfRangeException)   // source or ValueType parameter mismatches dataTypes managed type! - valueType
+                    {
+                        // Cannot map to .NET Value or source or ValueType parameter mismatches dataTypes managed type!
+                        throw new PlcCommandException($"Output variable {outputNames[i]} has not compatible type {valueType.Name} to the PLC data type {item.DataType.ToString()}, it cannot be handled with PrimitiveTypeMarshaler.", ex);
+                    }
                 }
             }
             finally
@@ -85,7 +105,8 @@ namespace Mbc.Pcs.Net.Command
                 .Where(x => x.Value.Attributes.Any(a => string.Equals(a.Name, PlcAttributeNames.PlcCommandInput, StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(x => x.Key, x => x.Value);
 
-            var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String };
+            // This are the the tested types
+            var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String, DataTypeCategory.Array, DataTypeCategory.Alias };
             foreach (var item in fbItems.Values)
             {
                 if (!validTypeCategories.Contains(item.DataType.Category))
@@ -109,32 +130,45 @@ namespace Mbc.Pcs.Net.Command
             }
 
             var symbols = new List<string>();
-            var types = new List<Type>();
-            var values = new List<object>();
+            var marshaledValues = new List<ReadOnlyMemory<byte>>();
             // Based on fbItems, write the values from  ICommandInput data to fb
             foreach (KeyValuePair<string, IMember> fbItem in fbItems)
             {
                 IMember item = fbItem.Value;
-                Type type = item.DataType.GetManagedType();
+                var encoding = item.ValueEncoding;
+                var converter = new PrimitiveTypeMarshaler(encoding);
                 symbols.Add(adsCommandFbPath + "." + item.InstanceName);
-                types.Add(type);
 
-                if (inputData.TryGetValue(fbItem.Key, out object value))
+                if (!inputData.TryGetValue(fbItem.Key, out object value))
                 {
-                    values.Add(AdsConvert.ChangeType(value, type));
+                    // Set default value for PlcAttributeNames.PlcCommandInputOptional when they not exist in inputData                    
+                    if (item.DataType.IsPrimitive())
+                    {
+                        value = item.DataType.GetManagedType().GetDefaultValue();
+                    }
+                    else
+                    {
+                        // Set fallback value 0 of byte length
+                        value = new byte[item.DataType.ByteSize];
+                    }
                 }
-                else
+
+                Memory<byte> marshaledValueBuffer = new byte[item.DataType.ByteSize];
+                if (!converter.TryMarshal(item.DataType, encoding, value, marshaledValueBuffer.Span, out int size))
                 {
-                    values.Add(type.GetDefaultValue());
+                    throw new PlcCommandException(string.Format("Input variable {0} has invalid PLC data type {1} to serialize with PrimitiveTypeMarshaler.", item.InstanceName, item.DataType.ToString()));
                 }
+
+                marshaledValues.Add(marshaledValueBuffer.Slice(0, size).ToArray());
             }
 
             var handleCreator = new SumCreateHandles(adsConnection, symbols);
             var handles = handleCreator.CreateHandles();
             try
             {
-                var sumWriter = new SumHandleWrite(adsConnection, handles, types.ToArray());
-                sumWriter.Write(values.ToArray());
+                var sumWriter = new SumHandleWriteData(adsConnection, handles);
+                sumWriter.Write(marshaledValues);
+                sumWriter.Write(marshaledValues.ToArray());
             }
             finally
             {
