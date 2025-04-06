@@ -18,7 +18,7 @@ namespace Mbc.Pcs.Net.Command
         /// </summary>
         /// <param name="value">The Value in the right type to transfer to PLC that 
         /// matching PLC attribute decoration like <see cref="PlcAttributeNames.PlcCommandInput"/> 
-        /// or <see cref="PlcAttributeNames.PlcCommandInputOptional"</param>
+        /// or <see cref="PlcAttributeNames.PlcCommandInputOptional"></see></param>
         /// <returns>A mapping configuration of the requested plc output Parameters /></returns>
         public static ICommandInput FromDictionary(IDictionary<string, object> value)
         {

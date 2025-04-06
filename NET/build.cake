@@ -90,7 +90,7 @@ Task("NugetPublish")
         }
         catch (CakeException cex)
         {
-            Information(cex);   // Should be somthing like: Response status code does not indicate success: 409 (Conflict - The feed already contains 'Mbc.Common.Interface 0.1.0'. (DevOps Activity ID: EC51694F-2AFF-4B2F-A98F-58FBC3C974FB)).
+            Information(cex);   // Should be somthing like: Response status code does not indicate success: 409 (Conflict - The feed already contains 'Mbc.Pcs.Net.TwinCat.EventLog 1.0.2'.
             Information($"Nuget package {package} perhaps is already published at {nugetPushServerConfiguration.Source}. It will not be try to publish it in this task!");
 
         }
@@ -131,7 +131,7 @@ Task("NugetPush")
         }
         catch (CakeException cex)
         {
-            Information(cex);   // Should be somthing like: Response status code does not indicate success: 409 (Conflict - The feed already contains 'Mbc.Common.Interface 0.1.0'. (DevOps Activity ID: EC51694F-2AFF-4B2F-A98F-58FBC3C974FB)).
+            Information(cex);   // Should be somthing like: Response status code does not indicate success: 409 (Conflict - The feed already contains 'Mbc.Pcs.Net.TwinCat.EventLog 1.0.2'.
             Information($"Nuget package {package} perhaps is already published at {nugetPushServerConfiguration.Source}. It will not be try to publish it in this task!");
         }
     }      

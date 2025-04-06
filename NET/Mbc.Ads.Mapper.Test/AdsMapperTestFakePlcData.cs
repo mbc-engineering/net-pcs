@@ -96,7 +96,7 @@ namespace Mbc.Ads.Mapper.Test
 
             fakeMembers.Add(CreateFakeStringMember("sPlcVersion", 82, StringMarshaler.DefaultEncoding, 10, 11));
             fakeMembers.Add(CreateFakeStringMember("sUtf7String", 93, StringMarshaler.DefaultEncoding, 6, 7));
-            fakeMembers.Add(CreateFakeStringMember("wsUnicodeString", 100, StringMarshaler.UnicodeEncoding, 6, 14));
+            fakeMembers.Add(CreateFakeStringMember("wsUnicodeString", 100, StringMarshaler.UTF16, 6, 14));
 
             return fakeSymbolInfo;
         }
@@ -238,7 +238,7 @@ namespace Mbc.Ads.Mapper.Test
             writer.Write(str2);                 // offset 93
 
             var str3 = new byte[14];
-            StringMarshaler.UnicodeEncoding.GetBytes("ÄÖö@Ü8", 0, 6, str3, 0);
+            StringMarshaler.UTF16.GetBytes("ÄÖö@Ü8", 0, 6, str3, 0);
             writer.Write(str3);                 // offset 100
 
             // Write Motor Object

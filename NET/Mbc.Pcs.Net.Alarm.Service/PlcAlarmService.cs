@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using Mbc.Common.Interface;
 using NLog;
 using System;
 using System.Collections.Generic;

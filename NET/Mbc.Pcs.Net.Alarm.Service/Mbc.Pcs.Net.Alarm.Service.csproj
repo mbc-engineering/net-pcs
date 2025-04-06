@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mbc.Common.Interface" Version="0.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NLog" Version="4.6.8" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
@@ -29,5 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Pcs.Net.Alarm.Mediator\Mbc.Pcs.Net.Alarm.Mediator.csproj" PrivateAssets="All" />
     <ProjectReference Include="..\Mbc.Pcs.Net.Alarm\Mbc.Pcs.Net.Alarm.csproj" />
+    <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
   </ItemGroup>
 </Project>
