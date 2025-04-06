@@ -2,7 +2,7 @@
 
 ## Prolog
 
-This Library will help to integrate with the Process Control System (PCS) on a .Net platform with TwinCat 3.1 over a ADS router. There are some default exchange logic and structures for reuse. This Library will help you on PLC side on some point. Example on handling PCS commands.
+This Library will help to interact with the Process Control System (PCS) on a .Net platform with TwinCat 3.1 over a ADS router. There are some default exchange logic and structures for reuse. This Library will help you on PLC side on some point. Example on handling PCS commands.
 
 ## Packages
 

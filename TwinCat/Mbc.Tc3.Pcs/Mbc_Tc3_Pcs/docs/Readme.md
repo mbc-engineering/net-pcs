@@ -4,7 +4,7 @@
 
 ### About
 
-This Library will help or customer and the mbc team to interagte with the Process Control System (PCS) of mbc engineering. There are some default exchange logic and structures for reuse. This Library will help you on PLC side on some point. Example on handling PCS commands.
+This Library will help or customer and the mbc team to interact with the Process Control System (PCS) of mbc engineering. There are some default exchange logic and structures for reuse. This Library will help you on PLC side on some point. Example on handling PCS commands.
 
 For code changes history looking at [changelog](Changelog.md).
 

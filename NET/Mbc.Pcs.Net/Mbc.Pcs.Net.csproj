@@ -11,7 +11,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Ads.Mapper\Mbc.Ads.Mapper.csproj" />
-    <ProjectReference Include="..\Mbc.Ads.Utils\Mbc.Ads.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Connection\ConnectionResources.Designer.cs">
