@@ -9,7 +9,7 @@
     
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="6.1.304" />
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="6.1.332" />
     <PackageReference Include="Castle.Core" Version="5.1.1" />
   </ItemGroup>
 </Project>

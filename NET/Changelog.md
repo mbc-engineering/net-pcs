@@ -19,7 +19,7 @@ The following types of changes exist:
 ### Changed
 - The interface `IServiceStartable` is now in the library `Mbc.Pcs.Net`.
 - Removed NuGet dependency: `Mbc.Common`, `Mbc.Common.Interface`, `Mbc.AsyncUtils`. The required classes are now part of the library.
-- Updated `Beckhoff.TwinCAT.Ads` to 6.1.304.
+- Updated `Beckhoff.TwinCAT.Ads` to 6.1.332.
 - Removed NLog dependency in some places and used ILogger.
 - Removed EnsureThat in all libraries except `Mbc.Ads.Mapper`.
 - Separated HDF5 `Mbc.Pcs.Net.DataRecorder` into its own library `Mbc.Pcs.Net.DataRecorder` to reduce dependency.
