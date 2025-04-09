@@ -12,8 +12,9 @@ The following types of changes exist:
 - **Fixed** for any bug fixes.
 - **Security** in case of vulnerabilities.  
 
-## 2025 Spring
+## 2025 Spring, Version 5.0.0
 - See PR #8
+- All packages are now on Version 5.0.0
 
 ### Changed
 - The interface `IServiceStartable` is now in the library `Mbc.Pcs.Net`.

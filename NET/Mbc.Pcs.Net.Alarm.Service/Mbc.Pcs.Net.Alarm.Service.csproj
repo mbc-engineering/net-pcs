@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
     <TargetFrameworks>net471;net8.0-windows</TargetFrameworks>
-    <Version>2.0.0.2</Version>
+    <Version>5.0.0.0</Version>
 
     <Product>Mbc.Pcs.Net.Alarm.Service</Product>
 
