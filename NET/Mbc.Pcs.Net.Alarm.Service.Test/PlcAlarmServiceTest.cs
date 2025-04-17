@@ -8,7 +8,7 @@ namespace Mbc.Pcs.Net.Alarm.Test
         private readonly PlcAlarmServiceTestWrapper _testee;
 
         /// <summary>
-        /// All tests uses a faked TC Alarm <see cref="TcEventLogAdsProxyClass"/>
+        /// All tests uses a faked TC Alarm <see cref="TcEventLogProxyLib.TcEventLogAdsProxyClass"/>
         /// The Global Test Place number is 1
         /// </summary>
         public PlcAlarmServiceTest()

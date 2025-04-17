@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFrameworks>net471;net6.0-windows</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mbc.Pcs.Net.Alarm.Service" Version="2.0.0.2" />
+    <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.1" />
+  </ItemGroup>
+
+</Project>

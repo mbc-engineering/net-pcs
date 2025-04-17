@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFramework>net471</TargetFramework>
-    <Version>1.6.0</Version>
+    <TargetFrameworks>netstandard2.0;net471;net8.0</TargetFrameworks>
+    <Version>5.0.0.0</Version>
 
     <Product>Mbc.Pcs.Net.Alarm</Product>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
+    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="6.1.332" />
   </ItemGroup>
 </Project>

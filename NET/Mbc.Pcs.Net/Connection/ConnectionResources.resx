@@ -120,8 +120,4 @@
   <data name="NoPlcAdsConnection" xml:space="preserve">
     <value>No connection to plc.</value>
   </data>
-  <data name="PlcAdsConnectingFailed" xml:space="preserve">
-    <value>No ads connection to plc with ams net id {0} on port {1}.</value>
-    <comment>{0} =TC Ams Net Id; {1} =Ams Port</comment>
-  </data>
 </root>

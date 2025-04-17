@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFramework>net471</TargetFramework>
-    <Version>1.6.0</Version>
+    <TargetFrameworks>net471;net8.0-windows</TargetFrameworks>
+    <Version>5.0.0.0</Version>
 
     <Product>Mbc.Pcs.Net.Alarm.Service</Product>
 
@@ -12,21 +12,22 @@
 
   <ItemGroup>
     <!-- Include Mbc.Pcs.Net.Alarm.Mediator files into the package-->
-    <Content Include="$(OutDir)\Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="build" Visible="false" />
-    <Content Include="Mbc.Pcs.Net.Alarm.Service.targets" PackagePath="build" />
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
-    <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.0" />
+    <!-- $(TargetPlatformIdentifier) == windows; $(TargetPlatformVersion) == 7.0-->
+    <Content Include="$(OutputPath)net471/Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="lib/net471" Visible="false" />
+    <Content Include="$(OutputPath)net8.0-windows/Mbc.Pcs.Net.Alarm.Mediator.exe" PackagePath="lib/net8.0-windows7.0" Visible="false" />
+    <PackageReference Include="Mbc.Pcs.Net.TwinCat.EventLog" Version="1.0.2" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mbc.Common.Interface" Version="0.3.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NLog" Version="4.6.8" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Pcs.Net.Alarm.Mediator\Mbc.Pcs.Net.Alarm.Mediator.csproj" PrivateAssets="All" />
     <ProjectReference Include="..\Mbc.Pcs.Net.Alarm\Mbc.Pcs.Net.Alarm.csproj" />
+    <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
   </ItemGroup>
 </Project>

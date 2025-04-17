@@ -2,7 +2,7 @@
 
 ## Prolog
 
-This Library will help to integrate with the Process Control System (PCS) on a .Net platform with TwinCat 3.1 over a ADS router. There are some default exchange logic and structures for reuse. This Library will help you on PLC side on some point. Example on handling PCS commands.
+This Library will help to interact with the Process Control System (PCS) on a .Net platform with TwinCat 3.1 over a ADS router. There are some default exchange logic and structures for reuse. This Library will help you on PLC side on some point. Example on handling PCS commands.
 
 ## Packages
 
@@ -23,6 +23,8 @@ Allow to implement a command patter combined with the TwinCat 3 library descripe
 > Required packages: Mbc.Pcs.Net.Alarm
 
 This package helps to receive event messages from the old Beckhoff TwinCat EventLogger (Located under `C:\TwinCAT\3.1\Components\TcEventLogger`). The Mediator is running as own process, because of correct fail handling in a hosted process.
+
+> To Use the Alarm Service it requires a Windows Host. Target Framework at least 4.7.1 or net8.0-windows
 
 ### Mbc.Pcs.Net.Test.Util
 

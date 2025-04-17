@@ -11,7 +11,7 @@ namespace Mbc.Ads.Mapper
     /// <summary>
     /// Mapping configuration options
     /// </summary>
-    /// <typeparam name="TDestination">Destination type (Source type is everytime <see cref="TwinCAT.Ads.ITcAdsSymbol5"/>)</typeparam>
+    /// <typeparam name="TDestination">Destination type (Source type is everytime <see cref="TwinCAT.TypeSystem.IStructType"/>)</typeparam>
     public interface IAdsMappingExpression<TDestination>
     {
         /// <summary>

@@ -1,4 +1,6 @@
 ﻿using Mbc.Pcs.Net.Command;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,33 +10,35 @@ using TwinCAT.Ads;
 
 namespace Cli
 {
-    class Program
+    /// <summary>
+    /// The Main Program.
+    /// </summary>
+    public static class Program
     {
-        static async Task Main(string[] a)
-        {
-            var client = new TcAdsClient()
-            {
-                Synchronize = false
-            };
-            client.Connect("172.16.23.2.1.1", 851);
+        private static ILogger _logger;
 
+        public static async Task Main(string[] a)
+        {
+            SetupNLog();
+
+            var client = new AdsClient();
+            client.Connect("204.35.225.246.1.1", 851);
 
             var input = new Dictionary<string, object>
             {
-                { "eInverter", 1 },
-                { "sInverterErrorFilePath", "c:/Foo" },
+                { "Val1", 1.7 },
+                { "Val2", 2.5 },
             };
 
             var output = new Dictionary<string, object>
             {
-                { "Result", null }
+                { "Result", null },
             };
 
             var count = 0;
             while (true)
             {
-                //var command = new PlcCommand(client, "Commands.fbAddCommand1");
-                var command = new PlcCommand(client, "GVL_UIData.stUiCommands.fbRequestAutomaticModeCommand");
+                var command = new PlcCommand(client, "Commands.fbAddCommand1", _logger);
                 command.Timeout = TimeSpan.FromSeconds(60);
                 command.StateChanged += (sender, args) => PrintProgress(args.Progress, args.SubTask);
                 CancellationTokenSource cancellationToken = new CancellationTokenSource();
@@ -48,23 +52,27 @@ namespace Cli
                          {
                              cancellationToken.Cancel();
                          }
-                     } while (!quit);
+                     }
+                     while (!quit);
                  });
                 try
                 {
                     Console.WriteLine(" press q + ENTER to cancel");
-                    await command.ExecuteAsync(cancellationToken.Token, input: CommandInputBuilder.FromDictionary(input));
+                    await command.ExecuteAsync(
+                        cancellationToken.Token,
+                        input: CommandInputBuilder.FromDictionary(input),
+                        output: CommandOutputBuilder.FromDictionary(output));
                 }
                 catch
                 {
                     Console.WriteLine(" canceled by user.");
                 }
-                
+
                 Console.WriteLine(" => " + output["Result"]);
                 Console.WriteLine(" press key to continue ");
                 Console.ReadLine();
                 count++;
-            }            
+            }
         }
 
         private static void PrintProgress(int progress, int subTask)
@@ -72,6 +80,22 @@ namespace Cli
             Console.CursorLeft = 0;
             var progressString = string.Join(string.Empty, Enumerable.Range(1, progress / 2).Select(x => "#"));
             Console.Write("{0}: {1}", subTask, progressString);
+        }
+
+        private static void SetupNLog()
+        {
+            var config = new NLog.Config.LoggingConfiguration();
+
+            // Targets where to log to: Console
+            var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
+
+            // Rules for mapping loggers to targets
+            config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logconsole);
+
+            // Apply config
+            NLog.LogManager.Configuration = config;
+
+            _logger = LoggerFactory.Create(builder => builder.AddNLog()).CreateLogger("Cli");
         }
     }
 }

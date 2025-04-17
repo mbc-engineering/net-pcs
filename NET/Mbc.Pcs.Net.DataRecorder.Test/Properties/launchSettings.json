@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Mbc.Pcs.Net.Test": {
+      "commandName": "Executable"
+    }
+  }
+}

@@ -3,7 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using Mbc.Common.Reflection;
+using Mbc.Ads.Mapper.Reflection;
 using System;
 using System.Reflection;
 

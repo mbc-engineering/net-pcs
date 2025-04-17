@@ -14,10 +14,12 @@ using TcEventLogProxyLib;
 namespace Mbc.Pcs.Net.Alarm.Mediator
 {
     /// <summary>
-    /// Manages alarms from TcEventLogger V1, see https://infosys.beckhoff.com/index.php?content=../content/1031/tceventlogger/html/introduction.htm&id=4955746947972620140
+    /// Manages alarms from TcEventLogger V1
     /// </summary>
     internal class PlcAlarmProxy : IDisposable
     {
+        /* see https://infosys.beckhoff.com/index.php?content=../content/1031/tceventlogger/html/introduction.htm&id=4955746947972620140 */
+
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ManualResetEventSlim _activeEventsInitialized = new ManualResetEventSlim(false);
         private readonly object _alarmChangedLock = new object();

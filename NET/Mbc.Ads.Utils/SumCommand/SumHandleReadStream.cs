@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using TwinCAT.Ads;
 using TwinCAT.Ads.SumCommand;
@@ -17,6 +16,7 @@ namespace Mbc.Ads.Utils.SumCommand
     /// <see cref="SumHandleRead"/> which provides <see cref="AdsStream"/>
     /// as data for each handle.
     /// </summary>
+    [Obsolete("AdsStream is deprecated")]
     public class SumHandleReadStream : SumRead
     {
         private readonly uint[] _handles;
@@ -29,6 +29,7 @@ namespace Mbc.Ads.Utils.SumCommand
             _readSize = readSize;
         }
 
+        [Obsolete("AdsStream is deprecated")]
         public AdsErrorCode TryRead(out IList<AdsStream> streams, out AdsErrorCode[] returnCodes)
         {
             sumEntities = new List<SumDataEntity>();
@@ -37,10 +38,10 @@ namespace Mbc.Ads.Utils.SumCommand
                 sumEntities.Add(entity);
             }
 
-            var adsErrorCode = TryReadRaw(out IList<byte[]> readData, out returnCodes);
+            var adsErrorCode = TryReadRaw(out IList<ReadOnlyMemory<byte>> readData, out returnCodes);
             if (adsErrorCode == AdsErrorCode.NoError)
             {
-                streams = readData.Select(x => new AdsStream(x)).ToList();
+                streams = readData.Select(x => new AdsStream(x.ToArray())).ToList();
             }
             else
             {
@@ -50,6 +51,7 @@ namespace Mbc.Ads.Utils.SumCommand
             return adsErrorCode;
         }
 
+        [Obsolete("AdsStream is deprecated")]
         public IList<AdsStream> Read()
         {
             TryRead(out IList<AdsStream> streams, out AdsErrorCode[] returnCodes);
@@ -58,7 +60,7 @@ namespace Mbc.Ads.Utils.SumCommand
             return streams;
         }
 
-        protected override int OnWriteSumEntityData(SumDataEntity entity, BinaryWriter writer)
+        protected override int OnWriteSumEntityData(SumDataEntity entity, Span<byte> writer)
         {
             /* Muss überschrieben werden, da die Basisimplementierung eine interne Klasse
              * von SumDataEntity erwartet.*/
@@ -66,7 +68,7 @@ namespace Mbc.Ads.Utils.SumCommand
             if (mode == SumAccessMode.ValueByHandle)
             {
                 HandleSumStreamEntity sumStreamEntity = (HandleSumStreamEntity)entity;
-                return MarshalSumReadHeader((uint)AdsReservedIndexGroups.SymbolValueByHandle, sumStreamEntity.Handle, sumStreamEntity.ReadLength, writer);
+                return MarshalSumReadHeader((uint)AdsReservedIndexGroup.SymbolValueByHandle, sumStreamEntity.Handle, sumStreamEntity.ReadLength, writer);
             }
 
             throw new NotSupportedException($"Mode {mode} not supported.");

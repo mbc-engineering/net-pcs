@@ -24,11 +24,22 @@ namespace Mbc.Pcs.Net
         {
         }
 
+#if NET5_0_OR_GREATER
+         protected PlcServiceAdsException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context)
+#pragma warning disable SYSLIB0051 // Type or member is obsolete
+            : base(info, context)
+#pragma warning restore SYSLIB0051 // Type or member is obsolete
+        {
+        }
+#else
         protected PlcServiceAdsException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context)
             : base(info, context)
         {
         }
+#endif
     }
 }

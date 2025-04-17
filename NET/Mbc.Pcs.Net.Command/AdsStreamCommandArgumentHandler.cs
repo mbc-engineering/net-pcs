@@ -3,10 +3,11 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using EnsureThat;
+using Mbc.Ads.Utils;
 using Mbc.Ads.Utils.SumCommand;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TwinCAT.Ads;
 using TwinCAT.Ads.SumCommand;
@@ -26,8 +27,8 @@ namespace Mbc.Pcs.Net.Command
         public override void ReadOutputData(IAdsConnection adsConnection, string adsCommandFbPath, ICommandOutput output)
         {
             // read symbols with attribute flags for output data
-            IDictionary<string, ITcAdsSubItem> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandOutput, PlcAttributeNames.PlcCommandOutputOptional });
-            IDictionary<string, ITcAdsSubItem> requiredfbItems = fbItems
+            IDictionary<string, IMember> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandOutput, PlcAttributeNames.PlcCommandOutputOptional });
+            IDictionary<string, IMember> requiredfbItems = fbItems
                 .Where(x => x.Value.Attributes.Any(a => string.Equals(a.Name, PlcAttributeNames.PlcCommandOutput, StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(x => x.Key, x => x.Value);
 
@@ -48,19 +49,19 @@ namespace Mbc.Pcs.Net.Command
 
             var symbols = new List<string>();
             var symbolSizes = new List<int>();
-            foreach (var name in outputNames)
+            foreach (string name in outputNames)
             {
-                var item = fbItems[name];
-                symbols.Add(adsCommandFbPath + "." + item.SubItemName);
+                IMember item = fbItems[name];
+                symbols.Add(adsCommandFbPath + "." + item.InstanceName);
                 symbolSizes.Add(item.ByteSize);
             }
 
-            IList<AdsStream> readData;
+            IList<ReadOnlyMemory<byte>> readData;
             var handleCreator = new SumCreateHandles(adsConnection, symbols);
             var handles = handleCreator.CreateHandles();
             try
             {
-                var sumReader = new SumHandleReadStream(adsConnection, handles, symbolSizes.ToArray());
+                var sumReader = new SumHandleReadData(adsConnection, handles, symbolSizes.ToArray());
                 readData = sumReader.Read();
             }
             finally
@@ -72,12 +73,12 @@ namespace Mbc.Pcs.Net.Command
             // Daten auf Output-Objekt übertragen
             for (var i = 0; i < outputNames.Count; i++)
             {
-                var name = outputNames[i];
-                var item = fbItems[name];
+                string name = outputNames[i];
+                IMember item = fbItems[name];
                 // TODO Marker nur 2. Wahl, siehe MR !11 und Issue #28
                 if (output.GetOutputData<object>(name) == ReadAsPrimitiveMarker)
                 {
-                    PrimitiveTypeConverter.Default.Unmarshal(item.BaseType, readData[i].ToArray(), 0, out object value);
+                    PrimitiveTypeMarshaler.Default.Unmarshal(item.DataType, readData[i].Span, (Type)null, out object value);
                     output.SetOutputData(name, value);
                 }
                 else
@@ -92,8 +93,8 @@ namespace Mbc.Pcs.Net.Command
             IDictionary<string, object> inputData = input.GetInputData();
 
             // read symbols with attribute flags for input data
-            IDictionary<string, ITcAdsSubItem> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandInput, PlcAttributeNames.PlcCommandInputOptional });
-            IDictionary<string, ITcAdsSubItem> requiredfbItems = fbItems
+            IDictionary<string, IMember> fbItems = ReadFbSymbols(adsConnection, adsCommandFbPath, new string[] { PlcAttributeNames.PlcCommandInput, PlcAttributeNames.PlcCommandInputOptional });
+            IDictionary<string, IMember> requiredfbItems = fbItems
                 .Where(x => x.Value.Attributes.Any(a => string.Equals(a.Name, PlcAttributeNames.PlcCommandInput, StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(x => x.Key, x => x.Value);
 
@@ -111,45 +112,49 @@ namespace Mbc.Pcs.Net.Command
                 throw new PlcCommandException(adsCommandFbPath, string.Format(CommandResources.ERR_RequiredInputVariablesMissing, string.Join(",", missingReqInputVariables)));
             }
 
+            var writeDataSize = fbItems.Values.Select(x => x.ByteSize).Sum();
+            var writeData = new byte[writeDataSize];
             var symbols = new List<string>();
-            var streams = new List<AdsStream>();
+            int offset = 0;
+
             // Based on fbItems, write the values from  ICommandInput data to fb
-            foreach (var fbItem in fbItems)
+            foreach (KeyValuePair<string, IMember> fbItem in fbItems)
             {
                 var item = fbItem.Value;
-                symbols.Add(adsCommandFbPath + "." + item.SubItemName);
+                symbols.Add(adsCommandFbPath + "." + item.InstanceName);
 
                 if (inputData.TryGetValue(fbItem.Key, out object value))
                 {
-                    if (value is AdsStream adsStream)
+                    if (value is MemoryStream stream)
                     {
-                        streams.Add(adsStream);
+                        stream.ToArray().CopyTo(new Span<byte>(writeData, offset, item.ByteSize));
+                    }
+                    else if (value is ReadOnlyMemory<byte> data)
+                    {
+                        data.Span.CopyTo(new Span<byte>(writeData, offset, item.ByteSize));
                     }
                     else
                     {
-                        Ensure.Bool.IsTrue(PrimitiveTypeConverter.CanMarshal(item.DataTypeId), nameof(input), (opt) => opt.WithMessage($"Input '{fbItem.Key}' of data type '{item.DataTypeId}' cannot be marshalled."));
-
-                        PrimitiveTypeConverter.Marshal(item.DataTypeId, value, out byte[] data);
-                        streams.Add(new AdsStream(data));
+                        PrimitiveTypeMarshaler.Default.Marshal(item.DataType, item.ValueEncoding, value, new Span<byte>(writeData, offset, item.ByteSize));
                     }
                 }
                 else
                 {
                     // Set it to default Value
-                    Ensure.Bool.IsTrue(PrimitiveTypeConverter.CanMarshal(item.DataTypeId), nameof(input), (opt) => opt.WithMessage($"Input '{fbItem.Key}' of data type '{item.DataTypeId}' cannot be marshalled."));
+                    var type = item.DataType.GetManagedType();
 
-                    var type = GetManagedTypeForSubItem(item);
-                    PrimitiveTypeConverter.Marshal(item.DataTypeId, type.GetDefaultValue(), out byte[] data);
-                    streams.Add(new AdsStream(data));
+                    PrimitiveTypeMarshaler.Default.Marshal(item.DataType, item.ValueEncoding, type.GetDefaultValue(), new Span<byte>(writeData, offset, item.ByteSize));
                 }
+
+                offset += item.ByteSize;
             }
 
             var handleCreator = new SumCreateHandles(adsConnection, symbols);
             var handles = handleCreator.CreateHandles();
             try
             {
-                var sumWriter = new SumHandleWriteStream(adsConnection, handles);
-                sumWriter.Write(streams);
+                var sumWriter = new SumHandleWriteData(adsConnection, handles);
+                sumWriter.Write(writeData, fbItems.Values.Select(x => x.ByteSize));
             }
             finally
             {

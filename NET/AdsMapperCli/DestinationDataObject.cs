@@ -6,26 +6,26 @@ namespace AdsMapperCli
     /* PLC Struct:
      TYPE ST_Test :
     STRUCT
-	    bBoolValue1 : BOOL := TRUE;
-	    nByteValue1 : BYTE := 255;
-	    nSbyteValue1 : BYTE := 127;
-	    nUshortValue1 : UINT := 65535;
-	    nShortValue1 : INT := 32767;
-	    nUintValue1 : UDINT := 4294967295;
-	    nIntValue1 : DINT := 2147483647;
-	    fFloatValue1 : REAL := -1.11;
-	    fDoubleValue1 : LREAL := 1.11;
-	    fDoubleValue2 : LREAL := 2.22;
-	    fDoubleValue3 : LREAL := 3.33;
-	    fDoubleValue4MappedName : LREAL := 4.44;
-	    tPlcTimeValue1 : TIME := T#1H33M44S555MS;
-	    dPlcDateValue1 : DATE := D#2021-08-30;
-	    dtPlcDateTimeValue1 : DATE_AND_TIME := DT#2021-08-30-11:12:13;
-	    aIntArrayValue : ARRAY[0..2] OF DINT := [1, 2, 3];
-	    eEnumStateValue : E_State := E_State.eRunning;
-    	sPlcVersion : STRING(10) := '21.08.30.0';
-	    sUtf7String : STRING(6) := 'ÄÖö@Ü7';
-	    wsUnicodeString : WSTRING(6) := "ÄÖö@Ü8";
+        bBoolValue1 : BOOL := TRUE;
+        nByteValue1 : BYTE := 255;
+        nSbyteValue1 : BYTE := 127;
+        nUshortValue1 : UINT := 65535;
+        nShortValue1 : INT := 32767;
+        nUintValue1 : UDINT := 4294967295;
+        nIntValue1 : DINT := 2147483647;
+        fFloatValue1 : REAL := -1.11;
+        fDoubleValue1 : LREAL := 1.11;
+        fDoubleValue2 : LREAL := 2.22;
+        fDoubleValue3 : LREAL := 3.33;
+        fDoubleValue4MappedName : LREAL := 4.44;
+        tPlcTimeValue1 : TIME := T#1H33M44S555MS;
+        dPlcDateValue1 : DATE := D#2021-08-30;
+        dtPlcDateTimeValue1 : DATE_AND_TIME := DT#2021-08-30-11:12:13;
+        aIntArrayValue : ARRAY[0..2] OF DINT := [1, 2, 3];
+        eEnumStateValue : E_State := E_State.eRunning;
+        sPlcVersion : STRING(10) := '21.08.30.0';
+        sUtf7String : STRING(6) := 'ÄÖö@Ü7';
+        wsUnicodeString : WSTRING(6) := "ÄÖö@Ü8";
     END_STRUCT
     END_TYPE
 
@@ -33,10 +33,10 @@ namespace AdsMapperCli
     {attribute 'strict'}
     TYPE E_State :
     (
-	    eNone    := 0,
-	    eStartup := 1,
-	    eRunning := 2,
-	    eStop    := 3
+        eNone    := 0,
+        eStartup := 1,
+        eRunning := 2,
+        eStop    := 3
     );
     END_TYPE
     */
@@ -78,9 +78,10 @@ namespace AdsMapperCli
         public string Utf7String { get; set; }
         public string UnicodeString { get; set; }
 
-        //public Motor MotorObject { get; set; }
+        // public Motor MotorObject { get; set; }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Only for tests")]
     public class Motor
     {
         public double ActualSpeed { get; set; }

@@ -3,6 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 
 namespace Mbc.Pcs.Net.Command
@@ -16,5 +17,7 @@ namespace Mbc.Pcs.Net.Command
         void SetOutputData<T>(string name, T value);
 
         T GetOutputData<T>(string name);
+
+        Type GetOutputDataType(string name);
     }
 }

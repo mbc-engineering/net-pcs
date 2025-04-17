@@ -5,7 +5,6 @@
 
 using EnsureThat;
 using Mbc.Pcs.Net.Connection;
-using NLog;
 using System;
 using System.Threading;
 
@@ -23,17 +22,23 @@ namespace Mbc.Pcs.Net.State
     public class PlcStateHeartBeatGenerator<TState> : IHeartBeat, IDisposable
         where TState : IPlcState
     {
-        public static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IPlcAdsConnectionService _adsConnection;
         private readonly IPlcStateSampler<TState> _plcStateSampler;
         private bool _awakening;
         private Timer _lostHearBeatTimer;
         private DateTime _lastHeartBeat;
+        private DateTime _lastSampleTimestamp;
         private TimeSpan _timeUntilDie;
         private TimeSpan _heartBeatIntervall;
 
+        /// <summary>
+        /// Will be called every <see cref="HeartBeatInterval"/> if the connection is still alive.
+        /// </summary>
         public event EventHandler<HeartBeatEventArgs> HeartBeats;
 
+        /// <summary>
+        /// Will be called <see cref="TimeUntilDie"/> after the last sample if the connection died.
+        /// </summary>
         public event EventHandler<HeartBeatDiedEventArgs> HeartDied;
 
         public PlcStateHeartBeatGenerator(TimeSpan beatInterval, IPlcAdsConnectionService adsConnection, IPlcStateSampler<TState> plcStateSampler)
@@ -45,7 +50,13 @@ namespace Mbc.Pcs.Net.State
             // set default timeout of factor 2
             TimeUntilDie = TimeSpan.FromMilliseconds(HeartBeatInterval.TotalMilliseconds * 2);
 
-            _adsConnection.ConnectionStateChanged += AdsConnectionOnConnectionStateChanged;
+            _adsConnection.ConnectionStateChanged += OnAdsConnectionOnConnectionStateChanged;
+        }
+
+        public void Dispose()
+        {
+            _adsConnection.ConnectionStateChanged -= OnAdsConnectionOnConnectionStateChanged;
+            StopStateObservation();
         }
 
         public TimeSpan HeartBeatInterval
@@ -86,32 +97,26 @@ namespace Mbc.Pcs.Net.State
             private set
             {
                 _lastHeartBeat = value;
-
-                // Reset time-out
-                _lostHearBeatTimer.Change(TimeUntilDie, Timeout.InfiniteTimeSpan);
             }
         }
 
-        public DateTime StartTime { get; set; }
-
-        public void Dispose()
+        protected virtual void NotifyHeartBeats(DateTime beatTime)
         {
-            _adsConnection.ConnectionStateChanged -= AdsConnectionOnConnectionStateChanged;
-        }
-
-        protected virtual void OnHeartBeats(DateTime beatTime)
-        {
-            LastHeartBeat = beatTime;
-
             HeartBeats.Invoke(this, new HeartBeatEventArgs(beatTime));
         }
 
-        protected virtual void OnHeartDied(DateTime diedTime)
+        protected virtual void NotifyHeartDied()
         {
-            HeartDied?.Invoke(this, new HeartBeatDiedEventArgs() { LastHeartBeat = LastHeartBeat, DiedTime = diedTime });
+            var args = new HeartBeatDiedEventArgs
+            {
+                LastHeartBeat = LastHeartBeat,
+                DiedTime = DateTime.Now,
+                LastSampleTime = _lastSampleTimestamp <= DateTime.FromFileTime(0) ? SampleTime.FromRawValue(0) : new SampleTime(_lastSampleTimestamp, _plcStateSampler.SampleRate),
+            };
+            HeartDied?.Invoke(this, args);
         }
 
-        private void AdsConnectionOnConnectionStateChanged(object sender, PlcConnectionChangeArgs e)
+        private void OnAdsConnectionOnConnectionStateChanged(object sender, PlcConnectionChangeArgs e)
         {
             if (e.Connected)
             {
@@ -122,43 +127,16 @@ namespace Mbc.Pcs.Net.State
                 StopStateObservation();
 
                 // If not conneced no beat possible
-                OnHeartDied(LastHeartBeat);
-            }
-        }
-
-        private void StateSamplerOnStateChanged(object sender, PlcMultiStateChangedEventArgs<TState> e)
-        {
-            if (_awakening)
-            {
-                StartTime = e.State.PlcTimeStamp;
-                // awaken
-                OnHeartBeats(e.State.PlcTimeStamp);
-                _awakening = false;
-            }
-
-            // invervall has pass
-            if (e.State.PlcTimeStamp >= StartTime.Add(HeartBeatInterval))
-            {
-                StartTime = e.State.PlcTimeStamp;
-
-                OnHeartBeats(e.State.PlcTimeStamp);
-            }
-        }
-
-        private void LostHearBeatTimerOnElapsed(object state)
-        {
-            if (state is PlcStateHeartBeatGenerator<TState> g)
-            {
-                OnHeartDied(g.LastHeartBeat.Add(g.TimeUntilDie));
+                NotifyHeartDied();
             }
         }
 
         private void StartStateObservation()
         {
             _awakening = true;
-            _lostHearBeatTimer = new Timer(LostHearBeatTimerOnElapsed, this, TimeUntilDie, Timeout.InfiniteTimeSpan);
+            _lostHearBeatTimer = new Timer(_ => NotifyHeartDied(), null, TimeUntilDie, Timeout.InfiniteTimeSpan);
 
-            _plcStateSampler.StatesChanged += StateSamplerOnStateChanged;
+            _plcStateSampler.StatesChanged += OnPlcStatesChanged;
         }
 
         private void StopStateObservation()
@@ -167,7 +145,30 @@ namespace Mbc.Pcs.Net.State
             _lostHearBeatTimer?.Dispose();
             _lostHearBeatTimer = null;
 
-            _plcStateSampler.StatesChanged -= StateSamplerOnStateChanged;
+            _plcStateSampler.StatesChanged -= OnPlcStatesChanged;
+        }
+
+        private void OnPlcStatesChanged(object sender, PlcMultiStateChangedEventArgs<TState> e)
+        {
+            if (_awakening)
+            {
+                // awaken
+                LastHeartBeat = e.State.PlcTimeStamp;
+                NotifyHeartBeats(LastHeartBeat);
+                _awakening = false;
+            }
+
+            _lastSampleTimestamp = e.State.PlcTimeStamp;
+
+            // Reset time-out
+            _lostHearBeatTimer.Change(TimeUntilDie, Timeout.InfiniteTimeSpan);
+
+            // invervall has pass
+            if (e.State.PlcTimeStamp >= LastHeartBeat.Add(HeartBeatInterval))
+            {
+                LastHeartBeat = e.State.PlcTimeStamp;
+                NotifyHeartBeats(LastHeartBeat);
+            }
         }
     }
 }

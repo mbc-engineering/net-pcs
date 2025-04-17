@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29102.190
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli", "Samples\Cli\Cli.csproj", "{08056A54-605C-4ACC-ADD7-3DB109298C28}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallAds", "CallAds\CallAds.csproj", "{9E261388-7847-46BD-8D2F-7E928279AB89}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cli", "Samples\Cli\Cli.csproj", "{08056A54-605C-4ACC-ADD7-3DB109298C28}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net", "Mbc.Pcs.Net\Mbc.Pcs.Net.csproj", "{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}"
 EndProject
@@ -22,7 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{601F9B25
 		Directory.Build.props = Directory.Build.props
 		Build\Mbc.CodeAnalysis.ruleset = Build\Mbc.CodeAnalysis.ruleset
 		Build\Mbc.Pcs.Net.TwinCat.EventLog.nuspec = Build\Mbc.Pcs.Net.TwinCat.EventLog.nuspec
-		Build\stylecop.json = Build\stylecop.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Ads.Mapper", "Mbc.Ads.Mapper\Mbc.Ads.Mapper.csproj", "{BB178DAD-A07B-4CEE-B8C3-63F3DFB671E3}"
@@ -36,7 +33,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{738812BE-0EF1-41A6-BB06-09B12538559E}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		NuGet.Config = NuGet.Config
+		Changelog.md = Changelog.md
+		readme.md = readme.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Alarm", "Mbc.Pcs.Net.Alarm\Mbc.Pcs.Net.Alarm.csproj", "{18C5491A-FB62-4B5F-A047-3EA9C3143F60}"
@@ -55,7 +53,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.Command.Test", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profiling", "Profiling\Profiling.csproj", "{6718F565-F3E0-4F0A-8A0B-FE85F9355E10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdsMapperCli", "AdsMapperCli\AdsMapperCli.csproj", "{6C610A13-BD3D-4B55-A134-E5D5416B8569}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdsMapperCli", "AdsMapperCli\AdsMapperCli.csproj", "{6C610A13-BD3D-4B55-A134-E5D5416B8569}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Ads.Helper.ReadType", "Mbc.Ads.Helper.ReadType\Mbc.Ads.Helper.ReadType.csproj", "{C1F08399-B1F2-4691-B483-DCEE779DD0D9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{CEBE4FC0-645B-4B6F-AF78-315C01A0155A}"
+	ProjectSection(SolutionItems) = preProject
+		Libs\Interop.TCEVENTLOGGERLib.dll = Libs\Interop.TCEVENTLOGGERLib.dll
+		Libs\Interop.TcEventLogProxyLib.dll = Libs\Interop.TcEventLogProxyLib.dll
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.DataRecorder", "Mbc.Pcs.Net.DataRecorder\Mbc.Pcs.Net.DataRecorder.csproj", "{C050D1B2-47BF-4212-A770-63AC481C2AD5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mbc.Pcs.Net.DataRecorder.Test", "Mbc.Pcs.Net.DataRecorder.Test\Mbc.Pcs.Net.DataRecorder.Test.csproj", "{1EEC6272-7D89-48C4-A09B-C33C3C774BE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,9 +76,6 @@ Global
 		{08056A54-605C-4ACC-ADD7-3DB109298C28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{08056A54-605C-4ACC-ADD7-3DB109298C28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08056A54-605C-4ACC-ADD7-3DB109298C28}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9E261388-7847-46BD-8D2F-7E928279AB89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9E261388-7847-46BD-8D2F-7E928279AB89}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9E261388-7847-46BD-8D2F-7E928279AB89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{587644D9-9EF1-4D3D-A3FE-FEE881ECD511}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -132,15 +139,27 @@ Global
 		{6C610A13-BD3D-4B55-A134-E5D5416B8569}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C610A13-BD3D-4B55-A134-E5D5416B8569}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C610A13-BD3D-4B55-A134-E5D5416B8569}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1F08399-B1F2-4691-B483-DCEE779DD0D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1F08399-B1F2-4691-B483-DCEE779DD0D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1F08399-B1F2-4691-B483-DCEE779DD0D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1F08399-B1F2-4691-B483-DCEE779DD0D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C050D1B2-47BF-4212-A770-63AC481C2AD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C050D1B2-47BF-4212-A770-63AC481C2AD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C050D1B2-47BF-4212-A770-63AC481C2AD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C050D1B2-47BF-4212-A770-63AC481C2AD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EEC6272-7D89-48C4-A09B-C33C3C774BE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EEC6272-7D89-48C4-A09B-C33C3C774BE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EEC6272-7D89-48C4-A09B-C33C3C774BE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EEC6272-7D89-48C4-A09B-C33C3C774BE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{08056A54-605C-4ACC-ADD7-3DB109298C28} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
-		{9E261388-7847-46BD-8D2F-7E928279AB89} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
 		{6718F565-F3E0-4F0A-8A0B-FE85F9355E10} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
 		{6C610A13-BD3D-4B55-A134-E5D5416B8569} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
+		{C1F08399-B1F2-4691-B483-DCEE779DD0D9} = {7FC136A2-182C-44F9-AF35-0AA0013BEB23}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {41EBCC31-1BB3-4F43-BB31-8BD9166775A7}

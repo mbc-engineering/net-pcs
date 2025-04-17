@@ -5,7 +5,6 @@
   <!-- Build configuration Settings 
        ############################ -->
   <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
     <LangVersion>latest</LangVersion>
@@ -14,11 +13,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
   </PropertyGroup>
 
   <!-- Nuget Configuration 
@@ -59,33 +53,15 @@ limitations under the License.
   <!-- Enable Roslyn analyzers 
        ####################### -->
   <PropertyGroup>
-    <!-- Not need if Roslyn analysis is used (https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/2122)
-    <RunCodeAnalysis>true</RunCodeAnalysis> -->
-    <CodeAnalysisRuleSet>$(SolutionDir)\Build\Mbc.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>$(MSBuildProjectDirectory)\..\Build\Mbc.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
   <ItemGroup>
-    <!-- https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/Configuration.md -->
-    <None Include="$(SolutionDir)\Build\stylecop.json">
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <!-- Mark Analyzers as Private so it will not result in a dependency in the nuget -->
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.*">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="3.*">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-
-    <PackageReference Include="Microsoft.NetFramework.Analyzers" Version="3.*" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-
-    <PackageReference Include="Microsoft.NetCore.Analyzers" Version="3.*" Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.*" />
   </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using Mbc.Common.Interface;
+using Microsoft.Extensions.Logging;
 using System;
 using TwinCAT.Ads;
 
@@ -44,9 +44,9 @@ namespace Mbc.Pcs.Net.Connection
             }
         }
 
-        public PlcAdsConnectionService(string plcAdsHost, int plcAdsPort)
+        public PlcAdsConnectionService(string plcAdsHost, int plcAdsPort, bool validateConnectedState = true, ILogger adsLogger = null)
         {
-            _plcConnection = new PlcAdsConnectionProvider(plcAdsHost, plcAdsPort);
+            _plcConnection = new PlcAdsConnectionProvider(plcAdsHost, plcAdsPort, validateConnectedState, adsLogger);
             _plcConnection.ConnectionStateChanged += OnConnectionStateChanged;
         }
 

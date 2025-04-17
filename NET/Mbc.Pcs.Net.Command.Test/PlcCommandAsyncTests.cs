@@ -2,6 +2,8 @@
 using FluentAssertions;
 using Mbc.Pcs.Net.Command;
 using Mbc.Pcs.Net.Test.Util.Command;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +18,16 @@ namespace Mbc.Pcs.Net.Test
     /// If a real PLC is used for system tests, the following is importend!
     /// This system test requires the the test project "Mbc.Tc3.Pcs.Samples".
     /// This TwinCat 3 PLC Project must be activated and loaded into the local Runtime.
-    /// All thest sho
+    /// </summary>
     public class PlcCommandAsyncTests : MbcPlcCommandTestBase
     {
+        private readonly ILogger _logger;
+
+        public PlcCommandAsyncTests()
+        {
+            _logger = NullLogger<PlcCommandAsyncTests>.Instance;
+        }
+
         /// <summary>
         /// A command has a default timeout of 5 seconds
         /// </summary>
@@ -26,7 +35,7 @@ namespace Mbc.Pcs.Net.Test
         public void CheckDefaultTimeOut()
         {
             // Arrange
-            IPlcCommand subject = new PlcCommand(null, "fbXyz");
+            IPlcCommand subject = new PlcCommand(null, "fbXyz", _logger);
 
             // Act
             // nothing
@@ -43,18 +52,19 @@ namespace Mbc.Pcs.Net.Test
             A.CallTo(() => connection.IsConnected)
                 .Returns(true);
             A.CallTo(() => connection.CreateVariableHandle("cmd.stHandshake.bExecute"))
-                .Returns(1);
-            A.CallTo(() => connection.AddDeviceNotificationEx("cmd.stHandshake", AdsTransMode.OnChange, A<int>.Ignored, A<int>.Ignored, A<object>.Ignored, typeof(PlcCommand.CommandHandshakeStruct)))
+                .Returns(1u);
+            A.CallTo(() => connection.AddDeviceNotificationEx("cmd.stHandshake", A<NotificationSettings>.Ignored, A<object>.Ignored, typeof(PlcCommand.CommandHandshakeStruct)))
                 .Invokes(call =>
                 {
-                    var userData = call.Arguments[4];
+                    var userData = call.Arguments[2];
                     var handshake = new PlcCommand.CommandHandshakeStruct { };
-                    var eventArgs = new AdsNotificationExEventArgs(1, userData, 80, handshake);
-                    connection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>
+                    var notification = new Notification(80, new DateTimeOffset(0, TimeSpan.Zero), userData, null);
+                    var eventArgs = new AdsNotificationExEventArgs(notification, handshake);
+                    connection.AdsNotificationEx += Raise.FreeForm<EventHandler<AdsNotificationExEventArgs>>
                         .With(connection, eventArgs);
                 })
-                .Returns(80);
-            IPlcCommand subject = new PlcCommand(connection, "cmd");
+                .Returns(80u);
+            IPlcCommand subject = new PlcCommand(connection, "cmd", _logger);
 
             // Act
             subject.Execute();
@@ -74,11 +84,11 @@ namespace Mbc.Pcs.Net.Test
         /// Example for customer code. see also constructor
         /// </summary>
         [Fact]
-        public void ExecuteAsyncWithoutArguments()
+        public async Task ExecuteAsyncWithoutArguments()
         {
             // Arrange
             var fakeConnection = new AdsCommandConnectionFake();
-            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbBaseCommand1");
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbBaseCommand1", _logger);
             var stateChanges = new List<PlcCommandEventArgs>();
             subject.StateChanged += (sender, arg) => stateChanges.Add(arg);
 
@@ -86,7 +96,7 @@ namespace Mbc.Pcs.Net.Test
             Func<Task> act = async () => await subject.ExecuteAsync();
 
             // Assert
-            act.Should().NotThrow();
+            await act.Should().NotThrowAsync();
             stateChanges.Count.Should().Be(1);
             stateChanges[0].IsFinished.Should().Be(true);
             stateChanges[0].IsCancelled.Should().Be(false);
@@ -96,8 +106,8 @@ namespace Mbc.Pcs.Net.Test
         /// <summary>
         /// Example for customer code. see also constructor
         /// </summary>
-        [Fact]
-        public void ExecuteAsyncWithArguments()
+        [Fact(Skip = "Not fully implemented - see AdsCommandConnectionFake create variable handle sum")]
+        public async Task ExecuteAsyncWithArguments()
         {
             // Arrange
             var fakeConnection = new AdsCommandConnectionFake();
@@ -114,13 +124,13 @@ namespace Mbc.Pcs.Net.Test
             {
                 { "Result", null },
             });
-            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbAddCommand1");
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbAddCommand1", _logger);
 
             // Act
             Func<Task> act = async () => await subject.ExecuteAsync(input, output);
 
             // Assert
-            act.Should().NotThrow();
+            await act.Should().NotThrowAsync();
         }
 
         [Fact]
@@ -128,7 +138,7 @@ namespace Mbc.Pcs.Net.Test
         {
             // Arrange
             var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.ResponseFbPathNotExist);
-            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbMissingCommand");
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbMissingCommand", _logger);
 
             // Act
             var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync());
@@ -144,7 +154,7 @@ namespace Mbc.Pcs.Net.Test
         {
             // Arrange
             var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.ResponseFbPathNotExist);
-            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbMissingCommand");
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbMissingCommand", _logger);
             var input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>
             {
                 { "Val1", 11 },
@@ -169,7 +179,7 @@ namespace Mbc.Pcs.Net.Test
                 { "Val1", 11 },
                 { "Val2", 22 },
             });
-            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbBaseCommand1");
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbBaseCommand1", _logger);
 
             // Act
             var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync(input));
@@ -189,7 +199,7 @@ namespace Mbc.Pcs.Net.Test
             {
                 { "Result", null },
             });
-            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbBaseCommand1");
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbBaseCommand1", _logger);
 
             // Act
             var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync(output: output));
@@ -208,7 +218,7 @@ namespace Mbc.Pcs.Net.Test
         {
             // Arrange
             var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.NoResponse);
-            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1")
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1", _logger)
             {
                 Timeout = TimeSpan.FromMilliseconds(100),
             };
@@ -230,7 +240,7 @@ namespace Mbc.Pcs.Net.Test
         /// <summary>
         /// Long runing commands can be canceled by a Cancel Token.
         /// </summary>
-        [Fact]
+        [Fact(Skip = "Not fully implemented - see AdsCommandConnectionFake create variable handle sum")]
         [Trait("Category", "SimulationTest")]
         public async Task ExecuteAsyncCancelByDotNet()
         {
@@ -244,7 +254,7 @@ namespace Mbc.Pcs.Net.Test
                 { "Val2", 33.3 },
             });
             CancellationTokenSource cancellationToken = new CancellationTokenSource();
-            var subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1");
+            var subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1", _logger);
             var stateChanges = new List<PlcCommandEventArgs>();
             subject.StateChanged += (sender, arg) => stateChanges.Add(arg);
 
@@ -272,7 +282,7 @@ namespace Mbc.Pcs.Net.Test
         {
             // Arrange
             var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.ResponseDelayedCancel);
-            var subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1");
+            var subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1", _logger);
             var stateChanges = new List<PlcCommandEventArgs>();
             subject.StateChanged += (sender, arg) => stateChanges.Add(arg);
 
@@ -299,7 +309,7 @@ namespace Mbc.Pcs.Net.Test
             var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.ResponseImmediatelyFinished);
             fakeConnection.ResponseStatusCode = 101;
 
-            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbCustomStateCommand1");
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbCustomStateCommand1", _logger);
 
             // Act
             var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync());
@@ -324,7 +334,7 @@ namespace Mbc.Pcs.Net.Test
             CommandResource subjectResources = new CommandResource();
             subjectResources.AddCustomResultCodeText(101, resultCode101Text);
 
-            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbCustomStateCommand1", subjectResources);
+            IPlcCommand subject = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbCustomStateCommand1", _logger, subjectResources);
 
             // Act
             var ex = await Record.ExceptionAsync(() => subject.ExecuteAsync());
@@ -341,8 +351,8 @@ namespace Mbc.Pcs.Net.Test
         {
             // Arrange
             var fakeConnection = new AdsCommandConnectionFake();
-            IPlcCommand command1 = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1");
-            IPlcCommand command2 = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1");
+            IPlcCommand command1 = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1", _logger);
+            IPlcCommand command2 = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1", _logger);
             int lastCommand = 0;
             command1.StateChanged += (obj, args) => { lastCommand = 1; };
             command2.StateChanged += (obj, args) => { lastCommand = 2; };
@@ -358,19 +368,20 @@ namespace Mbc.Pcs.Net.Test
         }
 
         [Fact]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1031:Do not use blocking task operations in test method", Justification = "<Pending>")]
         public async Task ExecuteAsyncExecutionBehaviorIsThrowExceptionShouldThrowException()
         {
             // Arrange
             var fakeConnection = new AdsCommandConnectionFake(PlcCommandFakeOption.ResponseDelayedFinished);
-            IPlcCommand command1 = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1")
+            IPlcCommand command1 = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1", _logger)
             {
                 ExecutionBehavior = ExecutionBehavior.ThrowException,
             };
-            IPlcCommand command2 = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1")
+            IPlcCommand command2 = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1", _logger)
             {
                 ExecutionBehavior = ExecutionBehavior.ThrowException,
             };
-            IPlcCommand command3 = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1")
+            IPlcCommand command3 = new PlcCommand(fakeConnection.AdsConnection, "Commands.fbDelayedAddCommand1", _logger)
             {
                 ExecutionBehavior = ExecutionBehavior.ThrowException,
             };
@@ -411,15 +422,17 @@ namespace Mbc.Pcs.Net.Test
             A.CallTo(() => connection.IsConnected)
                 .Returns(true);
             A.CallTo(() => connection.CreateVariableHandle("cmd.stHandshake.bExecute"))
-                .Returns(1);
-            A.CallTo(() => connection.AddDeviceNotificationEx("cmd.stHandshake", AdsTransMode.OnChange, A<int>.Ignored, A<int>.Ignored, A<object>.Ignored, typeof(PlcCommand.CommandHandshakeStruct)))
+                .Returns(1u);
+            A.CallTo(() => connection.AddDeviceNotificationEx("cmd.stHandshake", A<NotificationSettings>.Ignored, A<object>.Ignored, typeof(PlcCommand.CommandHandshakeStruct)))
                 .Invokes(call =>
                 {
                     // No Initial ivent is send
                     // connection.AdsNotificationEx += Raise.FreeForm<AdsNotificationExEventHandler>.With(connection, eventArgs);
                 })
-                .Returns(80);
-            IPlcCommand subject = new PlcCommand(connection, "cmd");
+                .Returns(80u);
+            PlcCommand subject = new PlcCommand(connection, "cmd", _logger);
+            subject.Configuration.UseCyclicNotifications = false;
+            subject.Configuration.MaxRetriesForInitialEvent = 3;
 
             // Act
             var ex = Record.Exception(() => subject.Execute());

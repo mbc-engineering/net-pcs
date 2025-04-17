@@ -9,7 +9,7 @@ namespace Mbc.Ads.Utils.Connection
     public static class AdsConnectionExtensions
     {
         /// <summary>
-        /// Similar to <see cref="IAdsAnyAccess.ReadAny(int, Type)"/> but expects a
+        /// Similar to <see cref="IAdsAnyAccess.ReadAny(uint, Type)"/> but expects a
         /// variable name instead of a handle.
         /// </summary>
         /// <param name="connection">A instance of <see cref="IAdsConnection"/>.</param>
@@ -32,6 +32,7 @@ namespace Mbc.Ads.Utils.Connection
         /// Variant of <see cref="ReadyAny(IAdsConnection, string, Type)"/> with generic type
         /// parameter.
         /// </summary>
+        /// <typeparam name="T">The type of the data to read.</typeparam>
         public static T ReadyAny<T>(this IAdsConnection connection, string variable)
         {
             var handle = connection.CreateVariableHandle(variable);

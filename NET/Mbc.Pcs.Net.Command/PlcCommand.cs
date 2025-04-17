@@ -3,7 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using NLog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -18,7 +18,6 @@ namespace Mbc.Pcs.Net.Command
     /// </summary>
     public class PlcCommand : IPlcCommand
     {
-        public static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
 
         /// <summary>
@@ -30,19 +29,21 @@ namespace Mbc.Pcs.Net.Command
         private readonly string _adsCommandFbPath;
         private readonly CommandResource _commandResource;
         private readonly CommandArgumentHandler _commandArgumentHandler;
+        private readonly ILogger _logger;
 
-        public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath, CommandResource commandResource = null, CommandArgumentHandler commandArgumentHandler = null)
+        public PlcCommand(IAdsConnection adsConnection, string adsCommandFbPath, ILogger logger, CommandResource commandResource = null, CommandArgumentHandler commandArgumentHandler = null)
         {
             _adsConnection = adsConnection;
             _adsCommandFbPath = adsCommandFbPath;
             _commandResource = commandResource ?? new CommandResource();
             _commandArgumentHandler = commandArgumentHandler ?? new PrimitiveCommandArgumentHandler();
+            _logger = logger;
         }
 
         /// <summary>
         /// Detail configuration of PLC commands.
         /// </summary>
-        public PlcCommandConfiguration Configuration { get; } = new PlcCommandConfiguration();
+        public PlcCommandConfiguration Configuration { get; } = PlcCommandConfiguration.CreateDefaultCyclic();
 
         /// <summary>
         /// Maximale time to wait for command completion.
@@ -93,6 +94,8 @@ namespace Mbc.Pcs.Net.Command
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> which allows to
         /// cancel the running command. The cancel request is sent to the PLC and the
         /// execution will still wait for the PLC to end to command.</param>
+        /// <param name="input">Optional command input arguments.</param>
+        /// <param name="output">Optiona command output arguments.</param>
         /// <exception cref="InvalidOperationException">The ADS-Client given at construction
         /// time is not connected.</exception>
         protected DateTime Execute(CancellationToken cancellationToken, ICommandInput input = null, ICommandOutput output = null)
@@ -117,29 +120,34 @@ namespace Mbc.Pcs.Net.Command
                     using (var cancellationRegistration = cancellationToken.Register(ResetExecuteFlag))
                     {
                         DataExchange<CommandChangeData> handshakeExchange;
-                        int cmdHandle;
+                        uint cmdHandle;
 
                         /*
                          * Workaround für ADS-Problem, bei dem nach dem Registrieren einer DeviceNotification
                          * kein Initial-Event gesendet wird. Der Workaround prüft ob ein Initialevent spätestens
                          * 1s nach der Registrierung eintrifft. Wenn nicht, wir deregistriert und erneut versucht
                          * zu registrieren.
+                         *
+                         * Alternativ kann auch Cyclic statt on Change verwendet werden.
                          */
                         int registerRepeatCount = 0;
                         while (true)
                         {
                             handshakeExchange = new DataExchange<CommandChangeData>();
 
-                            Logger.Trace("Before adding device notification of command '{command}'.", _adsCommandFbPath);
+                            var notificationSettings = new NotificationSettings(
+                                Configuration.UseCyclicNotifications ? AdsTransMode.Cyclic : AdsTransMode.OnChange,
+                                (int)Configuration.OnChangeCycleTime.TotalMilliseconds,
+                                (int)Configuration.OnChangeMaxDelay.TotalMilliseconds);
+
+                            _logger.LogTrace("Before adding device notification of command '{command}'.", _adsCommandFbPath);
                             cmdHandle = _adsConnection.AddDeviceNotificationEx(
                                 $"{_adsCommandFbPath}.stHandshake",
-                                AdsTransMode.OnChange,
-                                (int)Configuration.OnChangeCycleTime.TotalMilliseconds,
-                                (int)Configuration.OnChangeMaxDelay.TotalMilliseconds,
+                                notificationSettings,
                                 Tuple.Create(this, handshakeExchange),
                                 typeof(CommandHandshakeStruct));
 
-                            if (handshakeExchange.Wait(Configuration.MaxWaitForInitialEvent))
+                            if (Configuration.UseCyclicNotifications || handshakeExchange.Wait(Configuration.MaxWaitForInitialEvent))
                             {
                                 break;
                             }
@@ -151,14 +159,14 @@ namespace Mbc.Pcs.Net.Command
                                 throw new PlcCommandException(_adsCommandFbPath, $"Failed to register device notification {registerRepeatCount} times.");
                             }
 
-                            Logger.Warn("Re-Register device notification because of missing initial event. (repeat={repeatCount})", registerRepeatCount);
+                            _logger.LogWarning("Re-Register device notification because of missing initial event. (repeat={repeatCount})", registerRepeatCount);
                         }
 
-                        Logger.Trace("After adding device notification of command '{command}'.", _adsCommandFbPath);
+                        _logger.LogTrace("After adding device notification of command '{command}'.", _adsCommandFbPath);
 
                         try
                         {
-                            Logger.Trace("Start waiting for execution on command '{command}'.", _adsCommandFbPath);
+                            _logger.LogTrace("Start waiting for execution on command '{command}'.", _adsCommandFbPath);
                             executionTimestamp = WaitForExecution(handshakeExchange);
                         }
                         catch (PlcCommandErrorException ex) when (ex.ResultCode == 3 && cancellationToken.IsCancellationRequested)
@@ -169,7 +177,7 @@ namespace Mbc.Pcs.Net.Command
                         }
                         finally
                         {
-                            Logger.Trace("End waiting for execution on command '{command}.", _adsCommandFbPath);
+                            _logger.LogTrace("End waiting for execution on command '{command}.", _adsCommandFbPath);
                             _adsConnection.DeleteDeviceNotification(cmdHandle);
                         }
                     }
@@ -190,7 +198,9 @@ namespace Mbc.Pcs.Net.Command
                     }
                     catch (Exception resetEx)
                     {
+#pragma warning disable SYSLIB0050
                         if (resetEx.GetType().IsSerializable)
+#pragma warning restore SYSLIB0050 
                         {
                             ex.Data.Add("ResetExecuteFlagException", resetEx);
                         }
@@ -214,16 +224,16 @@ namespace Mbc.Pcs.Net.Command
 
         private void ReadOutputData(ICommandOutput output)
         {
-            Logger.Trace("Start writing oupt data of command '{command}'.", _adsCommandFbPath);
+            _logger.LogTrace("Start writing oupt data of command '{command}'.", _adsCommandFbPath);
             _commandArgumentHandler.ReadOutputData(_adsConnection, _adsCommandFbPath, output);
-            Logger.Trace("End writing oupt data of command '{command}'.", _adsCommandFbPath);
+            _logger.LogTrace("End writing oupt data of command '{command}'.", _adsCommandFbPath);
         }
 
         private void WriteInputData(ICommandInput input)
         {
-            Logger.Trace("Start writing input data of command '{command}'.", _adsCommandFbPath);
+            _logger.LogTrace("Start writing input data of command '{command}'.", _adsCommandFbPath);
             _commandArgumentHandler.WriteInputData(_adsConnection, _adsCommandFbPath, input);
-            Logger.Trace("End writing input data of command '{command}'.", _adsCommandFbPath);
+            _logger.LogTrace("End writing input data of command '{command}'.", _adsCommandFbPath);
         }
 
         private DateTime WaitForExecution(DataExchange<CommandChangeData> dataExchange)
@@ -237,12 +247,12 @@ namespace Mbc.Pcs.Net.Command
                 try
                 {
                     var remainingTimeout = Timeout - timeoutStopWatch.Elapsed;
-                    Logger.Trace("Waiting for event with Timeout={timeout} on command '{command}'.", remainingTimeout, _adsCommandFbPath);
+                    _logger.LogTrace("Waiting for event with Timeout={timeout} on command '{command}'.", remainingTimeout, _adsCommandFbPath);
 
                     var commandChangeData = dataExchange.GetOrWait(remainingTimeout);
                     var handshakeData = commandChangeData.CommandHandshake;
 
-                    Logger.Trace("New command event Execute={executeFlag}, Busy={busyFlag} ResultCode={resultCode} at {timestamp} on command '{command}'.", handshakeData.Execute, handshakeData.Busy, handshakeData.ResultCode, commandChangeData.Timestamp.ToString("o"), _adsCommandFbPath);
+                    _logger.LogTrace("New command event Execute={executeFlag}, Busy={busyFlag} ResultCode={resultCode} at {timestamp} on command '{command}'.", handshakeData.Execute, handshakeData.Busy, handshakeData.ResultCode, commandChangeData.Timestamp.ToString("o"), _adsCommandFbPath);
 
                     lastProgress = handshakeData.Progress;
                     lastSubTask = handshakeData.SubTask;
@@ -294,7 +304,7 @@ namespace Mbc.Pcs.Net.Command
                 return;
             }
 
-            var timeStamp = DateTime.FromFileTime(e.TimeStamp);
+            var timeStamp = e.TimeStamp.UtcDateTime;
 
             userDataTuple.Item2.Set(new CommandChangeData(timeStamp, (CommandHandshakeStruct)e.Value));
         }
@@ -303,9 +313,9 @@ namespace Mbc.Pcs.Net.Command
         {
             try
             {
-                Logger.Trace("Before setting execute-Flag on command '{command}'.", _adsCommandFbPath);
+                _logger.LogTrace("Before setting execute-Flag on command '{command}'.", _adsCommandFbPath);
                 WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", true);
-                Logger.Trace("After setting execute-Flag on command '{command}'.", _adsCommandFbPath);
+                _logger.LogTrace("After setting execute-Flag on command '{command}'.", _adsCommandFbPath);
             }
             catch (Exception ex)
             {
@@ -327,9 +337,9 @@ namespace Mbc.Pcs.Net.Command
 
         private void ResetExecuteFlag()
         {
-            Logger.Trace("Before resetting execute-Flag on command '{command}'.", _adsCommandFbPath);
+            _logger.LogTrace("Before resetting execute-Flag on command '{command}'.", _adsCommandFbPath);
             WriteVariable(_adsCommandFbPath + ".stHandshake.bExecute", false);
-            Logger.Trace("After resetting execute-Flag on command '{command}'.", _adsCommandFbPath);
+            _logger.LogTrace("After resetting execute-Flag on command '{command}'.", _adsCommandFbPath);
         }
 
         protected void WriteVariable(string symbolName, object value)

@@ -2,17 +2,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFramework>net471</TargetFramework>
-    <Version>0.4.3</Version>
+    <TargetFrameworks>netstandard2.0;net471;net8.0</TargetFrameworks>
+    <Version>5.0.0.0</Version>
 
     <Product>Mbc.Ads.Mapper</Product>
 
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+    
+  <PropertyGroup>
+        <NoWarn>NU1702</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="4.3.11" />
-    <PackageReference Include="Ensure.That" Version="10.0.0" />
-    <PackageReference Include="Mbc.Common" Version="0.5.2" />
-    <PackageReference Include="NLog" Version="4.6.8" />
+    <PackageReference Include="Ensure.That" Version="10.1.0" />
     <PackageReference Include="Optional" Version="4.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mbc.Ads.Utils\Mbc.Ads.Utils.csproj" />
   </ItemGroup>
 </Project>
