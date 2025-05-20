@@ -187,7 +187,6 @@ namespace Mbc.Pcs.Net.Command
             {
                 var sumWriter = new SumHandleWriteData(adsConnection, handles);
                 sumWriter.Write(marshaledValues);
-                sumWriter.Write(marshaledValues.ToArray());
             }
             finally
             {

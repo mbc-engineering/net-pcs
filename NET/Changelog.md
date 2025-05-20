@@ -30,6 +30,9 @@ ICommandInput input = CommandInputBuilder.FromDictionary(new Dictionary<string, 
 });
 ```
 
+### Bugfix
+- Remove double write of `PrimitiveCommandArgumentHandler` in WriteInputData
+
 ## 2025 Spring, Version 5.0.0
 - See PR #8
 - All packages are now on Version 5.0.0
