@@ -12,6 +12,24 @@ The following types of changes exist:
 - **Fixed** for any bug fixes.
 - **Security** in case of vulnerabilities.  
 
+## 2025 Summer, Version 5.0.1
+### Feature
+- It is now possible to write Structs with the `CommandInputBuilder` and the `PrimitiveCommandArgumentHandler`. Actually it results in multiple write commands to the PLC. So each struct and it fields will be recursively written to the PLC also in recursive structs. The fields in the struct has to be flagged with the `{attribute 'PlcCommandInput'}`. The Struct values must in c# be of type of `CommandInputBuilder`. 
+```C#
+ICommandInput inputStructValues = CommandInputBuilder.FromDictionary(new Dictionary<string, object>()
+{
+    ["StructValue1"] = 123,
+    ["StructValue1"] = 3333,
+});
+
+ICommandInput input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>()
+{
+    ["value1"] = (byte)123,
+    ["stAbc"] = inputStructValues,
+    ["alue2"] = (byte)222,
+});
+```
+
 ## 2025 Spring, Version 5.0.0
 - See PR #8
 - All packages are now on Version 5.0.0
