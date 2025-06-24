@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using Mbc.Ads.Mapper.Reflection;
 using Xunit;
 

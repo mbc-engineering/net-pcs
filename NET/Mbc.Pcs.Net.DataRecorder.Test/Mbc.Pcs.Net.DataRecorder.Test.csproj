@@ -11,7 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="8.3.0" />
-    <PackageReference Include="FluentAssertions" Version="7.0.0" />
+    <PackageReference Include="AwesomeAssertions" Version="9.*" />
     <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />

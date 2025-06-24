@@ -1,5 +1,5 @@
 ﻿using FakeItEasy;
-using FluentAssertions;
+using AwesomeAssertions;
 using Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer;
 using System;
 using System.Collections.Generic;

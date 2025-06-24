@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using Mbc.Pcs.Net.Command;
 using System.Collections.Generic;
 using Xunit;

@@ -1,5 +1,5 @@
 ﻿using FakeItEasy;
-using FluentAssertions;
+using AwesomeAssertions;
 using System;
 using System.Text;
 using TwinCAT.PlcOpen;

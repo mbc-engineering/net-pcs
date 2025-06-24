@@ -1,5 +1,5 @@
 ﻿using FakeItEasy;
-using FluentAssertions;
+using AwesomeAssertions;
 using Mbc.Pcs.Net.State;
 using Mbc.Pcs.Net.State.Utils;
 using Mbc.Pcs.Net.Test.TestUtils;

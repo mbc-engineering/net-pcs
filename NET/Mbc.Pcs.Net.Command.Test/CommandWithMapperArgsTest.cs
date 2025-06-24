@@ -3,7 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using FluentAssertions;
+using AwesomeAssertions;
 using Mbc.Ads.Mapper;
 using Mbc.Pcs.Net.Command;
 using Microsoft.Extensions.Logging;

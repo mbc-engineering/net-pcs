@@ -1,5 +1,5 @@
 ﻿using FakeItEasy;
-using FluentAssertions;
+using AwesomeAssertions;
 using Mbc.Pcs.Net.AsyncUtils;
 using System;
 using System.Threading;

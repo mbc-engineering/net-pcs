@@ -1,5 +1,5 @@
 ﻿using FakeItEasy;
-using FluentAssertions;
+using AwesomeAssertions;
 using Mbc.Ads.Utils.Connection;
 using System.Threading;
 using TwinCAT.Ads;

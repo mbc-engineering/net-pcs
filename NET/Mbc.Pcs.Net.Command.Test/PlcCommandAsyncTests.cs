@@ -1,5 +1,5 @@
 ﻿using FakeItEasy;
-using FluentAssertions;
+using AwesomeAssertions;
 using Mbc.Pcs.Net.Command;
 using Mbc.Pcs.Net.Test.Util.Command;
 using Microsoft.Extensions.Logging;
@@ -401,7 +401,7 @@ namespace Mbc.Pcs.Net.Test
             await Task.WhenAll(tasks);
 
             // Assert (The Threading order is not 100% repeatable, so assert depend on lastCommand)
-            lastCommand.Should().BeGreaterThan(0).And.BeLessOrEqualTo(3);
+            lastCommand.Should().BeGreaterThan(0).And.BeLessThanOrEqualTo(3);
             tasks[lastCommand - 1].Result.Should().BeNull();
             for (int idx = 0; idx < tasks.Length; idx++)
             {
