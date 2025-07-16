@@ -94,8 +94,8 @@ namespace Mbc.Pcs.Net.Connection
             {
                 _connected = e.Connected;
                 _connection = e.Connection;
-                ConnectionStateChangedInternal?.Invoke(this, e);
             }
+            ConnectionStateChangedInternal?.Invoke(this, e);
         }
     }
 }
