@@ -6,7 +6,7 @@
     
     <Product>Mbc.Pcs.Net.DataRecorder</Product>
 
-    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    <EnableUnsafeBinaryFormatterSerialization Condition="'$(TargetFramework)' != 'net8.0'">true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <PropertyGroup>
         <NoWarn>NU1702</NoWarn>
@@ -16,5 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="10.0.1" Condition="'$(TargetFramework)' == 'net8.0'" />
   </ItemGroup>
 </Project>

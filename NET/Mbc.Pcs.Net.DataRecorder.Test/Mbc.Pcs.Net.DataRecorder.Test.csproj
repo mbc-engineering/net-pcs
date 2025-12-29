@@ -5,6 +5,7 @@
     <Product>Mbc.Pcs.Net.DataRecorder.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <EnableUnsafeBinaryFormatterSerialization Condition="'$(TargetFramework)' == 'net8.0'">true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <PropertyGroup>
         <NoWarn>NU1702;CS7022</NoWarn>
