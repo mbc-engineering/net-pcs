@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <StartupObject>Profiling.Program</StartupObject>
+
+    <CodeAnalysisRuleSet>$(MSBuildProjectDirectory)\..\..\Build\Mbc.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Mbc.Pcs.Net.DataRecorder\Mbc.Pcs.Net.DataRecorder.csproj" />
+  </ItemGroup>
+
+</Project>

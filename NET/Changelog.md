@@ -12,7 +12,23 @@ The following types of changes exist:
 - **Fixed** for any bug fixes.
 - **Security** in case of vulnerabilities.  
 
-## 2025 Summer, Version 5.0.1
+## 2026 New Year, Version 5.2.0
+### Removed
+- Removed Support for .NET Framework 4.7.1 (But still .NET Standard 2.0.)
+- Removed Dependency to Mbc.Hdf5Utils Nuget package. The code is now part of Mbc.Pcs.Net.DataRecorder.
+ 
+### Added
+- Support for .NET 10.0.
+- Add Automatic recconection behavior in PlcAdsConnectionService
+
+### Changed
+- Update to Beckhoff.TwinCAT.Ads version 6.2.521
+
+### Fixed
+- fixed deadlock in PlcAdsConnectionService
+- fixed handling PlcAdsStateReader when stop is called before start
+
+## 2025 Summer, Version 5.1.0
 ### Feature
 - It is now possible to write Structs with the `CommandInputBuilder` and the `PrimitiveCommandArgumentHandler`. Actually it results in multiple write commands to the PLC. So each struct and it fields will be recursively written to the PLC also in recursive structs. The fields in the struct has to be flagged with the `{attribute 'PlcCommandInput'}`. The Struct values must in c# be of type of `CommandInputBuilder`. 
 ```C#
