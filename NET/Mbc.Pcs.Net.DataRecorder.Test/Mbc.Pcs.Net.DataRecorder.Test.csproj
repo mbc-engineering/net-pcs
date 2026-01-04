@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFrameworks>net471;net8.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
     <Product>Mbc.Pcs.Net.DataRecorder.Test</Product>
 
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -12,17 +12,12 @@
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="8.3.0" />
     <PackageReference Include="AwesomeAssertions" Version="9.*" />
-    <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-
-    <!--Requires the HDF package reference to find the hdf5.dll-->
-    <PackageReference Include="HDF.PInvoke" Version="1.10.6.1" Condition="'$(TargetFramework)' == 'net471' OR '$(TargetFramework)' == 'net48'" />
-    <PackageReference Include="HDF.PInvoke.1.10" Version="1.10.610" Condition="'$(TargetFramework)' == 'netstandard2.0' " />
   </ItemGroup>
 
   <ItemGroup>
