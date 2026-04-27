@@ -51,7 +51,7 @@ namespace Mbc.Pcs.Net.Test.AsyncUtils
             var task = tcs.Task;
 
             // Act
-            var monitoredTask = task.TimeoutAfter(TimeSpan.FromSeconds(1));
+            var monitoredTask = task.TimeoutAfter(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
 
             // Assert
             monitoredTask.Status.Should().Be(TaskStatus.WaitingForActivation);

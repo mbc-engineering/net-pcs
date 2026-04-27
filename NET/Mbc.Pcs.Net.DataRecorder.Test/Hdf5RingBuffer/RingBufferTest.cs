@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System.IO;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 {

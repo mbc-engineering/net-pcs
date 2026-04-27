@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Mbc.Pcs.Net.DataRecorder.Test.Hdf5Utils.Prototype
 {

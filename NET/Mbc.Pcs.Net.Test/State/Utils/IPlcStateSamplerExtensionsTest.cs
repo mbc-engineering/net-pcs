@@ -23,7 +23,7 @@ namespace Mbc.Pcs.Net.Test.State.Utils
             var stateTrue3 = new TestState { PlcTimeStamp = stateTrue1.PlcTimeStamp.AddMilliseconds(100), Foo = 0, };
 
             // Act
-            var task = sampler.EnsureStateAsync(x => x.Foo == 0, TimeSpan.FromMilliseconds(100), default);
+            var task = sampler.EnsureStateAsync(x => x.Foo == 0, TimeSpan.FromMilliseconds(100), TestContext.Current.CancellationToken);
             sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { stateTrue1 }));
             sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { stateTrue2 }));
             sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { stateTrue3 }));
@@ -42,7 +42,7 @@ namespace Mbc.Pcs.Net.Test.State.Utils
             var stateFalse = new TestState { PlcTimeStamp = stateTrue.PlcTimeStamp.AddMilliseconds(20), Foo = 42, };
 
             // Act
-            var task = sampler.EnsureStateAsync(x => x.Foo == 0, TimeSpan.FromMilliseconds(100), default);
+            var task = sampler.EnsureStateAsync(x => x.Foo == 0, TimeSpan.FromMilliseconds(100), TestContext.Current.CancellationToken);
             sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { stateTrue }));
             sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { stateFalse }));
             var ensureResult = await task;
@@ -60,7 +60,7 @@ namespace Mbc.Pcs.Net.Test.State.Utils
             var state = new TestState { PlcTimeStamp = DateTime.FromFileTime(0) };
 
             // Act
-            var exceptionTask = Record.ExceptionAsync(async () => await sampler.EnsureStateAsync(x => throw new Exception("throwed Exeption"), TimeSpan.FromSeconds(10), default));
+            var exceptionTask = Record.ExceptionAsync(async () => await sampler.EnsureStateAsync(x => throw new Exception("throwed Exeption"), TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
             sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { state }));
             var exception = await exceptionTask;
 
@@ -140,7 +140,7 @@ namespace Mbc.Pcs.Net.Test.State.Utils
             var state = new TestState { PlcTimeStamp = DateTime.FromFileTime(0) };
 
             // Act
-            var exceptionTask = Record.ExceptionAsync(async () => await sampler.WaitForStateAsync(x => throw new Exception("throwed Exeption"), TimeSpan.FromSeconds(10), default));
+            var exceptionTask = Record.ExceptionAsync(async () => await sampler.WaitForStateAsync(x => throw new Exception("throwed Exeption"), TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
             sampler.StatesChanged += Raise.With(new PlcMultiStateChangedEventArgs<TestState>(new List<TestState> { state }));
             var exception = await exceptionTask;
 

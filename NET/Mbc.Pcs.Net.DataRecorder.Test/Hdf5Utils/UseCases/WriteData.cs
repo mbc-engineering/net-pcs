@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Mbc.Pcs.Net.DataRecorder.Test.Hdf5Utils.UseCases
 {

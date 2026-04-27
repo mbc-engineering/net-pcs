@@ -391,11 +391,11 @@ namespace Mbc.Pcs.Net.Test
             command3.StateChanged += (obj, args) => { lastCommand = 3; };
 
             // Act
-            var tasks = new[]
+            Task<Exception>[] tasks = new[]
             {
-                Record.ExceptionAsync(() => command1.ExecuteAsync()),
-                Record.ExceptionAsync(() => command2.ExecuteAsync(A.Fake<ICommandInput>())),
-                Record.ExceptionAsync(() => command3.ExecuteAsync(output: A.Fake<ICommandOutput>())),
+                Record.ExceptionAsync(() => command1.ExecuteAsync()).AsTask(),
+                Record.ExceptionAsync(() => command2.ExecuteAsync(A.Fake<ICommandInput>())).AsTask(),
+                Record.ExceptionAsync(() => command3.ExecuteAsync(output: A.Fake<ICommandOutput>())).AsTask(),
             };
 
             await Task.WhenAll(tasks);
