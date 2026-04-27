@@ -6,6 +6,7 @@
 
     <Product>Mbc.Pcs.Net</Product>
 
+    <OutputType>Library</OutputType>
   </PropertyGroup>
   <PropertyGroup>
         <NoWarn>NU1702</NoWarn>

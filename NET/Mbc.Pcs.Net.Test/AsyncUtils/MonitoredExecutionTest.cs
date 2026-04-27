@@ -29,16 +29,23 @@ namespace Mbc.Pcs.Net.Test.AsyncUtils
             var monitor = new MonitoredExecution();
             var inExecution = new ManualResetEventSlim();
             var finishExecution = new ManualResetEventSlim();
+            var executionCompleted = new ManualResetEventSlim();
 
             // Act
-            Task.Run(() => monitor.Execute(() =>
+            Task.Run(() =>
             {
-                inExecution.Set();
-                finishExecution.Wait();
-            }));
-            inExecution.Wait();
+                monitor.Execute(() =>
+                {
+                    inExecution.Set();
+                    finishExecution.Wait(TestContext.Current.CancellationToken);
+                });
+                executionCompleted.Set();
+            }, TestContext.Current.CancellationToken);
+            inExecution.Wait(TestContext.Current.CancellationToken);
             var success1 = monitor.DisableAndWait(TimeSpan.FromMilliseconds(50));
             finishExecution.Set();
+            // Wait for the execution to fully complete before testing DisableAndWait
+            executionCompleted.Wait(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
             var success2 = monitor.DisableAndWait(TimeSpan.FromMilliseconds(50));
 
             // Assert

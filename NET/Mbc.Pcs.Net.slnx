@@ -1,0 +1,43 @@
+<Solution>
+  <Folder Name="/Build/">
+    <File Path="build.cake" />
+    <File Path="build.ps1" />
+    <File Path="Build/Mbc.CodeAnalysis.ruleset" />
+    <File Path="Build/Mbc.Pcs.Net.TwinCat.EventLog.nuspec" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Folder Name="/Libs/">
+    <File Path="Libs/Interop.TCEVENTLOGGERLib.dll" />
+    <File Path="Libs/Interop.TcEventLogProxyLib.dll" />
+  </Folder>
+  <Folder Name="/Samples/">
+    <Project Path="AdsMapperCli/AdsMapperCli.csproj" />
+    <Project Path="Mbc.Ads.Helper.ReadType/Mbc.Ads.Helper.ReadType.csproj" />
+    <Project Path="Samples/Cli/Cli.csproj">
+      <Build Solution="Release|*" Project="false" />
+    </Project>
+    <Project Path="Samples/Profiling/Profiling.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Changelog.md" />
+    <File Path="readme.md" />
+  </Folder>
+  <Project Path="Mbc.Ads.Mapper.Test/Mbc.Ads.Mapper.Test.csproj" />
+  <Project Path="Mbc.Ads.Mapper/Mbc.Ads.Mapper.csproj" />
+  <Project Path="Mbc.Ads.Utils.Test/Mbc.Ads.Utils.Test.csproj" />
+  <Project Path="Mbc.Ads.Utils/Mbc.Ads.Utils.csproj" />
+  <Project Path="Mbc.Benchmark.Test/Mbc.Benchmark.Test.csproj" />
+  <Project Path="Mbc.Pcs.Net.Alarm.Mediator/Mbc.Pcs.Net.Alarm.Mediator.csproj" />
+  <Project Path="Mbc.Pcs.Net.Alarm.Service.Test/Mbc.Pcs.Net.Alarm.Service.Test.csproj" />
+  <Project Path="Mbc.Pcs.Net.Alarm.Service/Mbc.Pcs.Net.Alarm.Service.csproj" />
+  <Project Path="Mbc.Pcs.Net.Alarm.Test/Mbc.Pcs.Net.Alarm.Test.csproj" />
+  <Project Path="Mbc.Pcs.Net.Alarm/Mbc.Pcs.Net.Alarm.csproj" />
+  <Project Path="Mbc.Pcs.Net.Command.Test/Mbc.Pcs.Net.Command.Test.csproj" />
+  <Project Path="Mbc.Pcs.Net.Command/Mbc.Pcs.Net.Command.csproj" />
+  <Project Path="Mbc.Pcs.Net.DataRecorder.Test/Mbc.Pcs.Net.DataRecorder.Test.csproj" />
+  <Project Path="Mbc.Pcs.Net.DataRecorder/Mbc.Pcs.Net.DataRecorder.csproj" />
+  <Project Path="Mbc.Pcs.Net.Test.Util/Mbc.Pcs.Net.Test.Util.csproj" />
+  <Project Path="Mbc.Pcs.Net.Test/Mbc.Pcs.Net.Test.csproj" />
+  <Project Path="Mbc.Pcs.Net/Mbc.Pcs.Net.csproj" />
+</Solution>
