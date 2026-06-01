@@ -17,4 +17,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Pcs.Net.Command\Mbc.Pcs.Net.Command.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="5.3.0" />
+  </ItemGroup>
 </Project>
