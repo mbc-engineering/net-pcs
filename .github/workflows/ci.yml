@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: read
+  checks: write       # required by dorny/test-reporter to publish the check run
+  pull-requests: write
 
 jobs:
   build:
@@ -42,6 +44,15 @@ jobs:
 
       - name: Run Cake build (Build + Test)
         run: .\build.ps1 -Target Test --x86=false
+
+      - name: Publish test report
+        if: always()
+        uses: dorny/test-reporter@v3
+        with:
+          name: .NET Tests
+          path: NET/testresult/**/*.trx
+          reporter: dotnet-trx
+          fail-on-error: false
 
       - name: Upload test results
         if: always()
