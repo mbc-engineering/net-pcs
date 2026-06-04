@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  checks: write       # required by dorny/test-reporter to publish the check run
 
 jobs:
   publish:
@@ -49,6 +50,15 @@ jobs:
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: .\build.ps1 -Target NugetPublish --x86=false --apikey="$env:NUGET_API_KEY"
+
+      - name: Publish test report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: .NET Tests
+          path: NET/testresult/**/*.trx
+          reporter: dotnet-trx
+          fail-on-error: false
 
       - name: Upload NuGet packages
         if: always()
