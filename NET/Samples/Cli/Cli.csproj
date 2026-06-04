@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <StartupObject>Cli.Program</StartupObject>
-
+    <IsPackable>false</IsPackable>
     <CodeAnalysisRuleSet>$(MSBuildProjectDirectory)\..\..\Build\Mbc.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 

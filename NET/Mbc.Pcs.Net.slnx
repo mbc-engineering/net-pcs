@@ -11,8 +11,8 @@
     <File Path="Libs/Interop.TcEventLogProxyLib.dll" />
   </Folder>
   <Folder Name="/Samples/">
-    <Project Path="AdsMapperCli/AdsMapperCli.csproj" />
-    <Project Path="Mbc.Ads.Helper.ReadType/Mbc.Ads.Helper.ReadType.csproj" />
+    <Project Path="Samples/AdsMapperCli/AdsMapperCli.csproj" />
+    <Project Path="Samples/Mbc.Ads.Helper.ReadType/Mbc.Ads.Helper.ReadType.csproj" />
     <Project Path="Samples/Cli/Cli.csproj">
       <Build Solution="Release|*" Project="false" />
     </Project>

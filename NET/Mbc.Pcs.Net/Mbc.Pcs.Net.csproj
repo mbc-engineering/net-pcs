@@ -14,7 +14,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Connection\ConnectionResources.Designer.cs">
-      <DesignTime>True</DesignTime>
+      <DesignTime>True</DesignTime> 
       <AutoGen>True</AutoGen>
       <DependentUpon>ConnectionResources.resx</DependentUpon>
     </Compile>
