@@ -26,17 +26,17 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x
             10.0.x
 
       - name: NuGet packages cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('NET/**/*.csproj', 'NET/Directory.Build.props', 'NET/.config/dotnet-tools.json') }}
@@ -53,7 +53,7 @@ jobs:
 
       - name: Publish test report
         if: always()
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         with:
           name: .NET Tests
           path: NET/testresult/**/*.trx
@@ -62,20 +62,10 @@ jobs:
 
       - name: Upload NuGet packages
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nuget-packages
           path: |
             NET/**/bin/Release/**/*.nupkg
             NET/**/bin/Release/**/*.snupkg
           if-no-files-found: warn
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: testresults
-          path: |
-            NET/testresult/**
-            NET/testresultx86/**
-          if-no-files-found: ignore
