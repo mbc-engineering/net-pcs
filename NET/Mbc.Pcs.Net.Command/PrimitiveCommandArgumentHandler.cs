@@ -106,7 +106,7 @@ namespace Mbc.Pcs.Net.Command
                 .ToDictionary(x => x.Key, x => x.Value);
 
             // This are the the tested types
-            var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String, DataTypeCategory.Array, DataTypeCategory.Alias };
+            var validTypeCategories = new[] { DataTypeCategory.Primitive, DataTypeCategory.Enum, DataTypeCategory.String, DataTypeCategory.Array, DataTypeCategory.Alias, DataTypeCategory.Struct };
             foreach (var item in fbItems.Values)
             {
                 if (!validTypeCategories.Contains(item.DataType.Category))
@@ -135,10 +135,7 @@ namespace Mbc.Pcs.Net.Command
             foreach (KeyValuePair<string, IMember> fbItem in fbItems)
             {
                 IMember item = fbItem.Value;
-                var encoding = item.ValueEncoding;
-                var converter = new PrimitiveTypeMarshaler(encoding);
-                symbols.Add(adsCommandFbPath + "." + item.InstanceName);
-
+                                
                 if (!inputData.TryGetValue(fbItem.Key, out object value))
                 {
                     // Set default value for PlcAttributeNames.PlcCommandInputOptional when they not exist in inputData                    
@@ -153,13 +150,35 @@ namespace Mbc.Pcs.Net.Command
                     }
                 }
 
-                Memory<byte> marshaledValueBuffer = new byte[item.DataType.ByteSize];
-                if (!converter.TryMarshal(item.DataType, encoding, value, marshaledValueBuffer.Span, out int size))
+                // if the fbItem is a type of struct, we make a recursive call to write the data for each struct level
+                // This ends up in multible writes to the PLC, but this is actually the simplest solution
+                if (fbItem.Value.DataType.Category == DataTypeCategory.Struct)
                 {
-                    throw new PlcCommandException(string.Format("Input variable {0} has invalid PLC data type {1} to serialize with PrimitiveTypeMarshaler.", item.InstanceName, item.DataType.ToString()));
+                    // The value has do be of type ICommandInput
+                    if(value is ICommandInput structCommandInput)
+                    {
+                        WriteInputData(adsConnection, string.Concat(adsCommandFbPath, ".", fbItem.Key), structCommandInput);
+                    }
+                    else
+                    {
+                        throw new PlcCommandException(adsCommandFbPath, "Structs values have to be of type ICommandInput");
+                    }
                 }
+                // This is the default behavior
+                else
+                {
+                    var encoding = item.ValueEncoding;
+                    var converter = new PrimitiveTypeMarshaler(encoding);
+                    Memory<byte> marshaledValueBuffer = new byte[item.DataType.ByteSize];
 
-                marshaledValues.Add(marshaledValueBuffer.Slice(0, size).ToArray());
+                    if (!converter.TryMarshal(item.DataType, encoding, value, marshaledValueBuffer.Span, out int size))
+                    {
+                        throw new PlcCommandException(string.Format("Input variable {0} has invalid PLC data type {1} to serialize with PrimitiveTypeMarshaler.", item.InstanceName, item.DataType.ToString()));
+                    }
+
+                    symbols.Add(adsCommandFbPath + "." + item.InstanceName);
+                    marshaledValues.Add(marshaledValueBuffer.Slice(0, size).ToArray());
+                }
             }
 
             var handleCreator = new SumCreateHandles(adsConnection, symbols);
@@ -168,7 +187,6 @@ namespace Mbc.Pcs.Net.Command
             {
                 var sumWriter = new SumHandleWriteData(adsConnection, handles);
                 sumWriter.Write(marshaledValues);
-                sumWriter.Write(marshaledValues.ToArray());
             }
             finally
             {

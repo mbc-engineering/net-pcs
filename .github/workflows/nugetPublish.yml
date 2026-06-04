@@ -1,0 +1,71 @@
+name: NuGet Publish
+
+on:
+  # Manual trigger from the Actions tab
+  workflow_dispatch:
+
+  # Automatically publish when a version tag is pushed (e.g. Mbc.Pcs.Net/v1.2.3)
+  push:
+    tags:
+      - 'Mbc.Pcs.Net/v*'
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    environment: nuget-publish   # optional: gate with required reviewers in repo settings
+
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: NET
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: NuGet packages cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('NET/**/*.csproj', 'NET/Directory.Build.props', 'NET/.config/dotnet-tools.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore .NET local tools (Cake)
+        run: dotnet tool restore
+
+      - name: Build, Test and Publish NuGet packages
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: .\build.ps1 -Target NugetPublish --x86=false --apikey="$env:NUGET_API_KEY"
+
+      - name: Upload NuGet packages
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: |
+            NET/**/bin/Release/**/*.nupkg
+            NET/**/bin/Release/**/*.snupkg
+          if-no-files-found: warn
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testresults
+          path: |
+            NET/testresult/**
+            NET/testresultx86/**
+          if-no-files-found: ignore

@@ -103,9 +103,15 @@ namespace Mbc.Pcs.Net.State
 
         public void StopSampling()
         {
-            if (_adsConnectionService.IsConnected)
+            if (_adsConnectionService.IsConnected && _statusNotificationHandle != 0)
             {
-                _adsConnectionService.Connection.DeleteDeviceNotification(_statusNotificationHandle);
+                AdsErrorCode result = _adsConnectionService.Connection.TryDeleteDeviceNotification(_statusNotificationHandle);
+                _statusNotificationHandle = 0;
+
+                if (result.Failed())
+                {
+                    _logger.LogWarning("Could not deregister Device Notification for '{variable_path}' because no connection is available.", _config.VariablePath);
+                }
             }
 
             _adsConnectionService.Connection.AdsNotificationError -= OnAdsNotificationError;

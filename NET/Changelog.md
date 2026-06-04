@@ -12,6 +12,45 @@ The following types of changes exist:
 - **Fixed** for any bug fixes.
 - **Security** in case of vulnerabilities.  
 
+## 2026 Summer, Version 5.2.0
+### Removed
+- Removed Support for .NET Framework 4.7.1 (But still .NET Standard 2.0.)
+- Removed Dependency to Mbc.Hdf5Utils Nuget package. The code is now part of Mbc.Pcs.Net.DataRecorder.
+ 
+### Added
+- Support for .NET 10.0.
+- Add Automatic recconection behavior in PlcAdsConnectionService
+
+### Changed
+- Update to Beckhoff.TwinCAT.Ads version 6.2.521
+- Use xUnit v3 for testing insteed of v2.
+
+### Fixed
+- fixed deadlock in PlcAdsConnectionService
+- fixed handling PlcAdsStateReader when stop is called before start
+- Mbc.Pcs.Net.DataRecorder: HDF5Close is not called when the AppDomain is shutting down to avoid stack overflow in the finalizer thread due to HDF5's error handler being called when the library is already tearing down. See the comments in the Dispose methods of H5Group, H5File, H5Id, H5DataSet and H5DataSpace for details.
+
+## 2025 Summer, Version 5.1.0
+### Feature
+- It is now possible to write Structs with the `CommandInputBuilder` and the `PrimitiveCommandArgumentHandler`. Actually it results in multiple write commands to the PLC. So each struct and it fields will be recursively written to the PLC also in recursive structs. The fields in the struct has to be flagged with the `{attribute 'PlcCommandInput'}`. The Struct values must in c# be of type of `CommandInputBuilder`. 
+```C#
+ICommandInput inputStructValues = CommandInputBuilder.FromDictionary(new Dictionary<string, object>()
+{
+    ["StructValue1"] = 123,
+    ["StructValue2"] = 3333,
+});
+
+ICommandInput input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>()
+{
+    ["value1"] = (byte)123,
+    ["stAbc"] = inputStructValues,
+    ["value2"] = (byte)222,
+});
+```
+
+### Bugfix
+- Remove double write of `PrimitiveCommandArgumentHandler` in WriteInputData
+
 ## 2025 Spring, Version 5.0.0
 - See PR #8
 - All packages are now on Version 5.0.0

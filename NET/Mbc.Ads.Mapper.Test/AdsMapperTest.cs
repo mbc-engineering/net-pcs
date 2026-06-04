@@ -3,11 +3,10 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using FluentAssertions;
+using AwesomeAssertions;
 using System;
 using System.Diagnostics;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Mbc.Ads.Mapper.Test
 {

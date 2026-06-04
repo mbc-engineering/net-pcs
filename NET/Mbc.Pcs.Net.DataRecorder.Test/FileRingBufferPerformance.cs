@@ -1,11 +1,10 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using Mbc.Pcs.Net.DataRecorder;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Mbc.Pcs.Net.Test.DataRecorder
 {

@@ -1,5 +1,5 @@
 ﻿using FakeItEasy;
-using FluentAssertions;
+using AwesomeAssertions;
 using Mbc.Pcs.Net.Connection;
 using Mbc.Pcs.Net.State;
 using System;
@@ -176,7 +176,7 @@ namespace Mbc.Pcs.Net.Test.State
                 // #3 connection lost
                 _adsConnection.ConnectionStateChanged += Raise.With(new PlcConnectionChangeArgs(false, null));
                 // wait for timeout
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
+                await Task.Delay(TimeSpan.FromMilliseconds(500), TestContext.Current.CancellationToken);
 
                 // Assert
                 monitoredTestee

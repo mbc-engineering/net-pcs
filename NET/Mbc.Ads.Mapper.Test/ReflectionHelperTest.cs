@@ -3,7 +3,7 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using FluentAssertions;
+using AwesomeAssertions;
 using System;
 using System.Linq;
 using System.Linq.Expressions;

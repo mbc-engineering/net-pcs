@@ -1,12 +1,11 @@
 ﻿using FakeItEasy;
-using FluentAssertions;
+using AwesomeAssertions;
 using Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
 {
@@ -101,17 +100,17 @@ namespace Mbc.Pcs.Net.Test.DataRecorder.Hdf5RingBuffer
             _testOutput.WriteLine("Zeit: " + watch.Elapsed);
 
             // Assert
-            A.CallTo(() => dataChannelWriter.WriteChannel("IntProp", A<Array>.That.IsSameSequenceAs(42, 100))).MustHaveHappenedOnceExactly();
-            A.CallTo(() => dataChannelWriter.WriteChannel("FloatProp", A<Array>.That.IsSameSequenceAs(0.42F, 4.2F))).MustHaveHappenedOnceExactly();
-            A.CallTo(() => dataChannelWriter.WriteChannel("DateTimeProp", A<Array>.That.IsSameSequenceAs(1000000L, 2000000L))).MustHaveHappenedOnceExactly();
-            A.CallTo(() => dataChannelWriter.WriteChannel("BoolProp", A<Array>.That.IsSameSequenceAs((byte)1, (byte)0))).MustHaveHappenedOnceExactly();
-            A.CallTo(() => dataChannelWriter.WriteChannel("FloatPropOversampling", A<Array>.That.IsSameSequenceAs(1F, 2F, 3F, 4F))).MustHaveHappenedOnceExactly();
-            A.CallTo(() => dataChannelWriter.WriteChannel("MultiProp[1]", A<Array>.That.IsSameSequenceAs(10, 11))).MustHaveHappenedOnceExactly();
-            A.CallTo(() => dataChannelWriter.WriteChannel("MultiProp[2]", A<Array>.That.IsSameSequenceAs(20, 21))).MustHaveHappenedOnceExactly();
-            A.CallTo(() => dataChannelWriter.WriteChannel("FloatMultiOversampling[1]", A<Array>.That.IsSameSequenceAs(1F, 2F, 3F, 4F, 5F, 6F, 7F, 8F))).MustHaveHappenedOnceExactly();
-            A.CallTo(() => dataChannelWriter.WriteChannel("FloatMultiOversampling[2]", A<Array>.That.IsSameSequenceAs(10F, 20F, 30F, 40F, 50F, 60F, 70F, 80F))).MustHaveHappenedOnceExactly();
-            A.CallTo(() => dataChannelWriter.WriteChannel("MultiBoolProp[1]", A<Array>.That.IsSameSequenceAs((byte)1, (byte)0))).MustHaveHappenedOnceExactly();
-            A.CallTo(() => dataChannelWriter.WriteChannel("MultiBoolProp[2]", A<Array>.That.IsSameSequenceAs((byte)0, (byte)1))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("IntProp", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { 42, 100 })))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("FloatProp", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { 0.42F, 4.2F })))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("DateTimeProp", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { 1000000L, 2000000L })))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("BoolProp", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { (byte)1, (byte)0 })))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("FloatPropOversampling", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { 1F, 2F, 3F, 4F })))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("MultiProp[1]", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { 10, 11 })))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("MultiProp[2]", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { 20, 21 })))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("FloatMultiOversampling[1]", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { 1F, 2F, 3F, 4F, 5F, 6F, 7F, 8F })))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("FloatMultiOversampling[2]", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { 10F, 20F, 30F, 40F, 50F, 60F, 70F, 80F })))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("MultiBoolProp[1]", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { (byte)1, (byte)0 })))).MustHaveHappenedOnceExactly();
+            A.CallTo(() => dataChannelWriter.WriteChannel("MultiBoolProp[2]", A<Array>.That.Matches(x => x.Cast<object>().SequenceEqual(new object[] { (byte)0, (byte)1 })))).MustHaveHappenedOnceExactly();
         }
 
         [Fact]

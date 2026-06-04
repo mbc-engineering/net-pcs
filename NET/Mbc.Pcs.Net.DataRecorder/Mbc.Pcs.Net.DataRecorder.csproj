@@ -1,20 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- common nuget configuration see Directory.Build.props-->
-    <TargetFrameworks>netstandard2.0;net471;net8.0</TargetFrameworks>
-    <Version>5.0.0.0</Version>
+    <TargetFrameworks>net10.0;net8.0;netstandard2.0</TargetFrameworks>
+    <Version>5.2.0</Version>
     
     <Product>Mbc.Pcs.Net.DataRecorder</Product>
-
+  </PropertyGroup>
+ 
+  <PropertyGroup>
+    <NoWarn>NU1702</NoWarn>
+    <!-- Set compile option for using unsave keywords -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+    <!-- Only for .NET 8.0 and newer -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
-  <PropertyGroup>
-        <NoWarn>NU1702</NoWarn>
-  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="10.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HDF.PInvoke.1.10" Version="1.10.612" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Mbc.Pcs.Net\Mbc.Pcs.Net.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Mbc.Hdf5Utils" Version="0.7.0" />
   </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@
 
 using Mbc.Ads.Utils.Connection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Optional;
 using System;
 using TwinCAT;
@@ -24,14 +25,14 @@ namespace Mbc.Pcs.Net.Connection
 
         internal event EventHandler<PlcConnectionChangeArgs> ConnectionStateChanged;
 
-        internal PlcAdsConnectionProvider(string adsNetId, int adsPort, bool validateConnectedState = true, ILogger logger = null)
+        internal PlcAdsConnectionProvider(string adsNetId, int adsPort, bool validateConnectedState = true, ILoggerFactory loggerFactory = null)
         {
             _amsAddr = new AmsAddress(adsNetId, adsPort);
             _validateConnectedState = validateConnectedState;
-            _logger = logger;
+            _logger = loggerFactory?.CreateLogger<PlcAdsConnectionProvider>() ?? NullLogger<PlcAdsConnectionProvider>.Instance;
 
             var settings = new AdsClientSettings(1000);
-            _client = new AdsClient(null, settings, logger);
+            _client = new AdsClient(null, settings, loggerFactory);
 
             _client.AdsNotificationError += OnAdsNotificationError;
             _client.ConnectionStateChanged += OnConnectionStateChanged;

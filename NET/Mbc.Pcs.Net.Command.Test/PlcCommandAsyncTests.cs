@@ -1,5 +1,5 @@
 ﻿using FakeItEasy;
-using FluentAssertions;
+using AwesomeAssertions;
 using Mbc.Pcs.Net.Command;
 using Mbc.Pcs.Net.Test.Util.Command;
 using Microsoft.Extensions.Logging;
@@ -391,17 +391,17 @@ namespace Mbc.Pcs.Net.Test
             command3.StateChanged += (obj, args) => { lastCommand = 3; };
 
             // Act
-            var tasks = new[]
+            Task<Exception>[] tasks = new[]
             {
-                Record.ExceptionAsync(() => command1.ExecuteAsync()),
-                Record.ExceptionAsync(() => command2.ExecuteAsync(A.Fake<ICommandInput>())),
-                Record.ExceptionAsync(() => command3.ExecuteAsync(output: A.Fake<ICommandOutput>())),
+                Record.ExceptionAsync(() => command1.ExecuteAsync()).AsTask(),
+                Record.ExceptionAsync(() => command2.ExecuteAsync(A.Fake<ICommandInput>())).AsTask(),
+                Record.ExceptionAsync(() => command3.ExecuteAsync(output: A.Fake<ICommandOutput>())).AsTask(),
             };
 
             await Task.WhenAll(tasks);
 
             // Assert (The Threading order is not 100% repeatable, so assert depend on lastCommand)
-            lastCommand.Should().BeGreaterThan(0).And.BeLessOrEqualTo(3);
+            lastCommand.Should().BeGreaterThan(0).And.BeLessThanOrEqualTo(3);
             tasks[lastCommand - 1].Result.Should().BeNull();
             for (int idx = 0; idx < tasks.Length; idx++)
             {

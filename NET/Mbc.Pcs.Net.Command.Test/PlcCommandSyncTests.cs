@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using Mbc.Pcs.Net.Command;
 using Mbc.Pcs.Net.Test.Util.Command;
 using Microsoft.Extensions.Logging;
