@@ -12,7 +12,7 @@ The following types of changes exist:
 - **Fixed** for any bug fixes.
 - **Security** in case of vulnerabilities.  
 
-## 2026 New Year, Version 5.2.0
+## 2026 Summer, Version 5.2.0
 ### Removed
 - Removed Support for .NET Framework 4.7.1 (But still .NET Standard 2.0.)
 - Removed Dependency to Mbc.Hdf5Utils Nuget package. The code is now part of Mbc.Pcs.Net.DataRecorder.
@@ -23,6 +23,7 @@ The following types of changes exist:
 
 ### Changed
 - Update to Beckhoff.TwinCAT.Ads version 6.2.521
+- Use xUnit v3 for testing insteed of v2.
 
 ### Fixed
 - fixed deadlock in PlcAdsConnectionService
@@ -35,14 +36,14 @@ The following types of changes exist:
 ICommandInput inputStructValues = CommandInputBuilder.FromDictionary(new Dictionary<string, object>()
 {
     ["StructValue1"] = 123,
-    ["StructValue1"] = 3333,
+    ["StructValue2"] = 3333,
 });
 
 ICommandInput input = CommandInputBuilder.FromDictionary(new Dictionary<string, object>()
 {
     ["value1"] = (byte)123,
     ["stAbc"] = inputStructValues,
-    ["alue2"] = (byte)222,
+    ["value2"] = (byte)222,
 });
 ```
 

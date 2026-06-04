@@ -18,10 +18,10 @@ namespace Mbc.Pcs.Net.Connection
     {
         private readonly object _apiLock = new object();
         private readonly PlcAdsConnectionProvider _plcConnection;
+        private readonly ILogger _logger;
         private bool _connected;
         private IAdsConnection _connection;
         private bool _autoReconnectEnabled;
-        private ILogger _logger = null;
         private bool _serviceStarted;
         private CancellationTokenSource _reconnectCancellationTokenSource;
         private Task _reconnectTask;
@@ -165,8 +165,6 @@ namespace Mbc.Pcs.Net.Connection
         {
             _reconnectCancellationTokenSource?.Cancel();
             _reconnectCancellationTokenSource?.Dispose();
-            _reconnectCancellationTokenSource = null;
-            _reconnectTask = null;
         }
     }
 }
