@@ -67,14 +67,15 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5Utils
 
             _disposed = true;
 
+            // See H5Group.Dispose: skip native HDF5 calls from the finalizer to avoid
+            // stack overflows when HDF5 is shutting down its library.
+            if (!disposing)
+                return;
+
             lock (H5GlobalLock.Sync)
             {
                 var ret = H5F.close(Id);
-
-                if (disposing)
-                {
-                    H5Error.CheckH5Result(ret);
-                }
+                H5Error.CheckH5Result(ret);
             }
         }
 

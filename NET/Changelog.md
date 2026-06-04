@@ -28,6 +28,7 @@ The following types of changes exist:
 ### Fixed
 - fixed deadlock in PlcAdsConnectionService
 - fixed handling PlcAdsStateReader when stop is called before start
+- Mbc.Pcs.Net.DataRecorder: HDF5Close is not called when the AppDomain is shutting down to avoid stack overflow in the finalizer thread due to HDF5's error handler being called when the library is already tearing down. See the comments in the Dispose methods of H5Group, H5File, H5Id, H5DataSet and H5DataSpace for details.
 
 ## 2025 Summer, Version 5.1.0
 ### Feature

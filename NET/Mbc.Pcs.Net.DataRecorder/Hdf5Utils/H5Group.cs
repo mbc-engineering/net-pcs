@@ -32,13 +32,18 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5Utils
                 return;
             _disposed = true;
 
+            // Never call into native HDF5 from the finalizer: HDF5 may already be in
+            // its library-shutdown sequence ("infinite loop closing library") which
+            // recurses into the finalizer thread and overflows the stack
+            // (exit code 0xC00000FD). Undisposed handles are released by the OS on
+            // process exit.
+            if (!disposing)
+                return;
+
             lock (H5GlobalLock.Sync)
             {
                 var ret = H5G.close(Id);
-                if (disposing)
-                {
-                    H5Error.CheckH5Result(ret);
-                }
+                H5Error.CheckH5Result(ret);
             }
         }
 
