@@ -18,7 +18,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Ensure.That" Version="10.1.0" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>

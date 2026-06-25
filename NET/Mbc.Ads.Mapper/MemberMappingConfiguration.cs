@@ -3,8 +3,8 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using EnsureThat;
 using Optional;
+using System;
 
 namespace Mbc.Ads.Mapper
 {
@@ -17,7 +17,7 @@ namespace Mbc.Ads.Mapper
     {
         internal MemberMappingConfiguration(ISourceMemberConfiguration sourceMemberConfiguration, Option<IDestinationMemberConfiguration> destinationMemberConfiguration)
         {
-            EnsureArg.IsNotNull(sourceMemberConfiguration, nameof(sourceMemberConfiguration));
+            if (sourceMemberConfiguration == null) throw new ArgumentNullException(nameof(sourceMemberConfiguration));
 
             Source = sourceMemberConfiguration;
             Destination = destinationMemberConfiguration;
