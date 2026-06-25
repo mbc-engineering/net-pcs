@@ -1,5 +1,4 @@
-﻿using EnsureThat;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Mbc.Pcs.Net
@@ -60,7 +59,7 @@ namespace Mbc.Pcs.Net
         /// </summary>
         private static long GetSampleFileTime(uint sampleRate)
         {
-            EnsureArg.Is(FileTimePerSecond % sampleRate, 0, nameof(sampleRate), optsFn: x => x.WithMessage("Uneven samplerate"));
+            if (FileTimePerSecond % sampleRate != 0) throw new ArgumentException("Uneven samplerate", nameof(sampleRate));
             return FileTimePerSecond / sampleRate;
         }
 

@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using EnsureThat;
 using Mbc.Pcs.Net.Connection;
 using System;
 using System.Threading;
@@ -43,8 +42,8 @@ namespace Mbc.Pcs.Net.State
 
         public PlcStateHeartBeatGenerator(TimeSpan beatInterval, IPlcAdsConnectionService adsConnection, IPlcStateSampler<TState> plcStateSampler)
         {
-            _adsConnection = Ensure.Any.IsNotNull(adsConnection, nameof(adsConnection));
-            _plcStateSampler = Ensure.Any.IsNotNull(plcStateSampler, nameof(plcStateSampler));
+            _adsConnection = adsConnection ?? throw new ArgumentNullException(nameof(adsConnection));
+            _plcStateSampler = plcStateSampler ?? throw new ArgumentNullException(nameof(plcStateSampler));
             HeartBeatInterval = beatInterval;
 
             // set default timeout of factor 2
