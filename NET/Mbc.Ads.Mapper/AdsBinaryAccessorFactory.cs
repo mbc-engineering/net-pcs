@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using EnsureThat;
 using System;
 using System.Text;
 using TwinCAT.PlcOpen;
@@ -28,8 +27,8 @@ namespace Mbc.Ads.Mapper
         public static IAdsDataReader CreatePrimitiveTypeReadFunction(Type managedType, int readOffset, IDataType sourceDatatype)
         {
             // Guards
-            Ensure.Any.IsNotNull(managedType);
-            EnsureArg.IsGte(readOffset, 0, nameof(readOffset));
+            if (managedType == null) throw new ArgumentNullException(nameof(managedType));
+            if (readOffset < 0) throw new ArgumentOutOfRangeException(nameof(readOffset));
 
             if (managedType == typeof(bool))
             {
@@ -115,8 +114,8 @@ namespace Mbc.Ads.Mapper
         public static IAdsDataWriter CreatePrimitiveTypeWriteFunction(Type managedType, int writeOffset, IDataType sourceDatatype)
         {
             // Guards
-            Ensure.Any.IsNotNull(managedType, optsFn: opts => opts.WithMessage("Could not create AdsStreamMappingDelegate for a PrimitiveType because the managedType is null."));
-            EnsureArg.IsGte(writeOffset, 0, nameof(writeOffset));
+            if (managedType == null) throw new ArgumentNullException(nameof(managedType), "Could not create AdsStreamMappingDelegate for a PrimitiveType because the managedType is null.");
+            if (writeOffset < 0) throw new ArgumentOutOfRangeException(nameof(writeOffset));
 
             if (managedType == typeof(bool))
             {

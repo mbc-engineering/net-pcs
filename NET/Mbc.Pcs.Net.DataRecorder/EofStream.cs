@@ -1,5 +1,4 @@
-﻿using EnsureThat;
-using System;
+﻿using System;
 using System.IO;
 
 namespace Mbc.Pcs.Net.DataRecorder
@@ -22,7 +21,7 @@ namespace Mbc.Pcs.Net.DataRecorder
 
         public EofStream(Stream stream)
         {
-            Ensure.Bool.IsTrue(stream.CanRead);
+            if (!stream.CanRead) throw new ArgumentException("Stream must be readable.", nameof(stream));
             _stream = stream;
         }
 

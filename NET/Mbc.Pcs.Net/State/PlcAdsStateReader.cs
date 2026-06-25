@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using EnsureThat;
 using Mbc.Ads.Mapper;
 using Mbc.Pcs.Net.AsyncUtils;
 using Mbc.Pcs.Net.Connection;
@@ -41,11 +40,11 @@ namespace Mbc.Pcs.Net.State
         public PlcAdsStateReader(IPlcAdsConnectionService adsConnectionService, PlcAdsStateReaderConfig<TStatus> config, ILogger logger)
         {
             // Momentane Einschränkungen der Cycle-Time: Ganzzahlig darstellbar und max. 1000 Hz
-            EnsureArg.IsInRange(config.CycleTime, TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(1000), nameof(config), opts => opts.WithMessage("Cycle time must be in range 1s to 1ms(1Hz-1000Hz)."));
-            EnsureArg.Is(Math.IEEERemainder(1000, config.CycleTime.TotalMilliseconds), 0, nameof(config), opts => opts.WithMessage("Cycle time must be a divisible integer."));
-            EnsureArg.IsGte(config.MaxDelay, config.CycleTime, nameof(config), opts => opts.WithMessage("MaxDelay must be greater/equal to CycleTime"));
-            EnsureArg.Is(Math.IEEERemainder(config.MaxDelay.TotalMilliseconds, config.CycleTime.TotalMilliseconds), 0, nameof(config), opts => opts.WithMessage("MayDelay must be integer divisible with CycleTime"));
-            Ensure.Any.IsNotNull(adsConnectionService, nameof(adsConnectionService));
+            if (config.CycleTime < TimeSpan.FromMilliseconds(1) || config.CycleTime > TimeSpan.FromMilliseconds(1000)) throw new ArgumentOutOfRangeException(nameof(config), "Cycle time must be in range 1s to 1ms(1Hz-1000Hz).");
+            if (Math.IEEERemainder(1000, config.CycleTime.TotalMilliseconds) != 0) throw new ArgumentException("Cycle time must be a divisible integer.", nameof(config));
+            if (config.MaxDelay < config.CycleTime) throw new ArgumentOutOfRangeException(nameof(config), "MaxDelay must be greater/equal to CycleTime");
+            if (Math.IEEERemainder(config.MaxDelay.TotalMilliseconds, config.CycleTime.TotalMilliseconds) != 0) throw new ArgumentException("MayDelay must be integer divisible with CycleTime", nameof(config));
+            if (adsConnectionService == null) throw new ArgumentNullException(nameof(adsConnectionService));
 
             _adsConnectionService = adsConnectionService;
             _config = config;
