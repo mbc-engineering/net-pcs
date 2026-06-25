@@ -1,5 +1,4 @@
-﻿using EnsureThat;
-using Mbc.Ads.Mapper.Reflection;
+﻿using Mbc.Ads.Mapper.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -207,7 +206,7 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
 
             public virtual void SetValues(List<T> output, Array data)
             {
-                EnsureArg.Is(1, data.Rank, nameof(data), optsFn: x => x.WithMessage("Array must have rank 1."));
+                if (data.Rank != 1) throw new ArgumentException("Array must have rank 1.", nameof(data));
 
                 if (output.Count != data.Length)
                     throw new ArgumentException($"{nameof(output)} must have same length as {nameof(data)}.");

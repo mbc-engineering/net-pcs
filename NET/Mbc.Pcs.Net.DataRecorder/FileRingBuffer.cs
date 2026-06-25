@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0
 //-----------------------------------------------------------------------------
 
-using EnsureThat;
 using Mbc.Pcs.Net.AsyncUtils;
 using Optional.Linq;
 using System;
@@ -87,8 +86,8 @@ namespace Mbc.Pcs.Net.DataRecorder
 
         public FileRingBuffer(string baseDirectory, int maxSegmentSize, int maxSegments, IObjectPersister persister = null)
         {
-            Ensure.Comparable.IsGt(maxSegmentSize, 0, nameof(maxSegmentSize));
-            Ensure.Comparable.IsGt(maxSegments, 1, nameof(maxSegments));
+            if (maxSegmentSize <= 0) throw new ArgumentOutOfRangeException(nameof(maxSegmentSize), "Must be greater than 0.");
+            if (maxSegments <= 1) throw new ArgumentOutOfRangeException(nameof(maxSegments), "Must be greater than 1.");
             if (!Directory.Exists(baseDirectory))
                 throw new ArgumentException("Directory must exists.", nameof(baseDirectory));
 

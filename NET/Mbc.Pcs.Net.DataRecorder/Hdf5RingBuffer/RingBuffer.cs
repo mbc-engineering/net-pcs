@@ -1,5 +1,4 @@
-﻿using EnsureThat;
-using Mbc.Pcs.Net.DataRecorder.Hdf5Utils;
+﻿using Mbc.Pcs.Net.DataRecorder.Hdf5Utils;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -387,10 +386,10 @@ namespace Mbc.Pcs.Net.DataRecorder.Hdf5RingBuffer
         /// <param name="stride">Schrittgrösse zwischen den Samples (1=jedes Sample, 2=jedes 2. Sample, usw.)</param>
         public int ReadChannel(string channelName, long startSampleIndex, Array values, int offset, int count, int stride)
         {
-            EnsureArg.IsGte(offset, 0, nameof(offset));
-            EnsureArg.IsGte(count, 0, nameof(offset));
-            EnsureArg.IsTrue(offset + count <= values.Length, null, optsFn: x => x.WithMessage("offset/count does not match values."));
-            EnsureArg.IsGte(stride, 1, nameof(stride));
+            if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
+            if (offset + count > values.Length) throw new ArgumentException("offset/count does not match values.");
+            if (stride < 1) throw new ArgumentOutOfRangeException(nameof(stride));
 
             lock (_hdf5Lock)
             {
